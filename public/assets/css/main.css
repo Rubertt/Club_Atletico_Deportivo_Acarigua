@@ -1,0 +1,253 @@
+/* ============================================================
+   Club Atlético Deportivo Acarigua — Estilos base
+   Paleta inspirada en el escudo: rojo, negro, blanco
+   ============================================================ */
+
+:root {
+    --color-primary:        #DC2626;
+    --color-primary-dark:   #991B1B;
+    --color-primary-light:  #FEE2E2;
+    --color-accent:         #F97316;
+    --color-text:           #1F2937;
+    --color-text-muted:     #6B7280;
+    --color-bg:             #FFFFFF;
+    --color-surface:        #F9FAFB;
+    --color-surface-2:      #F3F4F6;
+    --color-border:         #E5E7EB;
+    --color-sidebar-bg:     #0F172A;
+    --color-sidebar-text:   #CBD5E1;
+    --color-sidebar-active: #DC2626;
+    --color-success:        #16A34A;
+    --color-warning:        #D97706;
+    --color-danger:         #DC2626;
+    --color-info:           #2563EB;
+
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+    --shadow:    0 4px 12px rgba(0,0,0,.08);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+
+    --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-display: "Segoe UI", Roboto, sans-serif;
+}
+
+html.dark {
+    --color-text:           #E5E7EB;
+    --color-text-muted:     #9CA3AF;
+    --color-bg:             #0B1220;
+    --color-surface:        #111827;
+    --color-surface-2:      #1F2937;
+    --color-border:         #374151;
+    --color-sidebar-bg:     #070B14;
+    --color-sidebar-text:   #CBD5E1;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+    --shadow:    0 4px 12px rgba(0,0,0,.45);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,.55);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-base);
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* Botones */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 15px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn-primary {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+.btn-primary:hover { background: var(--color-primary-dark); border-color: var(--color-primary-dark); color: #fff; }
+
+.btn-outline {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.btn-outline:hover { background: var(--color-primary); color: #fff; }
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+.btn-ghost:hover { background: var(--color-surface-2); }
+
+.btn-danger { background: var(--color-danger); color: #fff; border-color: var(--color-danger); }
+.btn-success { background: var(--color-success); color: #fff; border-color: var(--color-success); }
+
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-lg { padding: 14px 28px; font-size: 16px; }
+
+/* Forms */
+.form-group { margin-bottom: 16px; }
+.form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--color-text);
+}
+.form-label .required { color: var(--color-primary); margin-right: 2px; }
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(220,38,38,.15);
+}
+.form-control.is-invalid {
+    border-color: var(--color-danger);
+}
+.form-error {
+    color: var(--color-danger);
+    font-size: 13px;
+    margin-top: 4px;
+}
+.form-hint {
+    color: var(--color-text-muted);
+    font-size: 13px;
+    margin-top: 4px;
+}
+textarea.form-control { resize: vertical; min-height: 96px; }
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%236B7280' d='M6 8L0 0h12z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+}
+
+/* Alerts / flash messages */
+.alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 16px;
+    font-size: 14px;
+    border-left: 4px solid;
+}
+.alert-success { background: #DCFCE7; color: #166534; border-color: var(--color-success); }
+.alert-danger  { background: #FEE2E2; color: #991B1B; border-color: var(--color-danger); }
+.alert-warning { background: #FEF3C7; color: #92400E; border-color: var(--color-warning); }
+.alert-info    { background: #DBEAFE; color: #1E40AF; border-color: var(--color-info); }
+html.dark .alert-success { background: #052e16; color: #86efac; }
+html.dark .alert-danger  { background: #450a0a; color: #fca5a5; }
+html.dark .alert-warning { background: #451a03; color: #fcd34d; }
+html.dark .alert-info    { background: #0c1e3e; color: #93c5fd; }
+
+/* Cards */
+.card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.badge-primary { background: var(--color-primary-light); color: var(--color-primary-dark); }
+.badge-success { background: #DCFCE7; color: #166534; }
+.badge-warning { background: #FEF3C7; color: #92400E; }
+.badge-danger  { background: #FEE2E2; color: #991B1B; }
+
+/* Utilidades */
+.text-center { text-align: center; }
+.text-muted  { color: var(--color-text-muted); }
+.flex { display: flex; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-sm { gap: 8px; }
+.gap { gap: 16px; }
+.gap-lg { gap: 24px; }
+.mt { margin-top: 16px; }
+.mb { margin-bottom: 16px; }
+
+/* Toggle tema (luna/sol) */
+.theme-toggle {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+.theme-toggle:hover { background: var(--color-primary-dark); }
+.theme-toggle svg { width: 18px; height: 18px; }
+
+/* Página de error */
+body.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.error-box {
+    text-align: center;
+    padding: 40px;
+}
+.error-box h1 {
+    font-size: 96px;
+    margin: 0;
+    color: var(--color-primary);
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+.error-box p {
+    font-size: 18px;
+    color: var(--color-text-muted);
+    margin: 8px 0 24px;
+}

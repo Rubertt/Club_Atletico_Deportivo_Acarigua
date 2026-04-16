@@ -1,0 +1,17 @@
+/vendor/
+/node_modules/
+.env
+*.log
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/public/assets/uploads/**/*
+!/public/assets/uploads/**/.gitkeep
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+composer.phar
