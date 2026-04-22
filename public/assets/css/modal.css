@@ -1,0 +1,68 @@
+/* Custom Modal Overlay */
+.cada-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.cada-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Box */
+.cada-modal-box {
+    background: var(--color-bg);
+    width: 90%;
+    max-width: 400px;
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.9);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cada-modal-box.show {
+    transform: scale(1);
+}
+
+.cada-modal-icon {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+.cada-modal-box h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 8px;
+}
+
+.cada-modal-box p {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.cada-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.cada-modal-actions .btn {
+    flex: 1;
+    justify-content: center;
+}

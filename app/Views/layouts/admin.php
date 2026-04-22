@@ -12,9 +12,24 @@ $breadcrumb = $breadcrumb ?? [$title];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <title><?= e($title) ?> - <?= e(config('app.name')) ?></title>
+    <!-- Precarga de fuentes para evitar parpadeo (FOUT) -->
+    <link rel="preload" href="<?= e(asset('fonts/Inter-Regular.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="<?= e(asset('fonts/Inter-SemiBold.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="<?= e(asset('fonts/Outfit-Bold.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="<?= e(asset('fonts/Phosphor.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+
+    <!-- Tipografías (Local Offline) -->
+    <link rel="stylesheet" href="<?= e(asset('css/fonts.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('css/phosphor/style.css')) ?>">
+
+    <!-- Core CSS -->
     <link rel="stylesheet" href="<?= e(asset('css/main.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('css/admin.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('css/modal.css')) ?>">
+
+    <!-- Scripts Base -->
     <script src="<?= e(asset('js/core/theme.js')) ?>"></script>
+    <script src="<?= e(asset('js/core/modal.js')) ?>"></script>
 </head>
 <body class="admin-body">
     <div class="admin-layout" id="admin-layout">
@@ -42,10 +57,16 @@ $breadcrumb = $breadcrumb ?? [$title];
                                 <span class="text-muted"><?= e($user['nombre_rol'] ?? '') ?></span>
                             </div>
                             <hr>
-                            <a href="<?= e(url('/admin/configuracion')) ?>">Configuración</a>
+                            <?php if (can('admin')): ?>
+                                <a href="<?= e(url('/admin/personal')) ?>"><i class="ph ph-identification-card"></i> Control de Personal</a>
+                                <a href="<?= e(url('/admin/configuracion/usuarios')) ?>"><i class="ph ph-users"></i> Usuarios y Permisos</a>
+                                <a href="<?= e(url('/admin/configuracion')) ?>"><i class="ph ph-gear"></i> Ajustes Generales</a>
+                                <hr>
+                            <?php endif; ?>
+                            
                             <a href="<?= e(url('/logout')) ?>"
-                               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Cerrar sesión
+                               onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-danger">
+                                <i class="ph ph-sign-out"></i> Cerrar sesión
                             </a>
                             <form id="logout-form" method="POST" action="<?= e(url('/logout')) ?>" style="display:none;">
                                 <?= csrf_field() ?>
@@ -55,17 +76,8 @@ $breadcrumb = $breadcrumb ?? [$title];
                 </div>
             </header>
 
-            <?php if (!empty($tabs)): ?>
-                <div class="admin-tabs">
-                    <?php foreach ($tabs as $tab): ?>
-                        <a href="<?= e(url($tab['href'])) ?>" class="<?= !empty($tab['active']) ? 'active' : '' ?>"><?= e($tab['label']) ?></a>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="admin-tabs">
-                    <a href="#" class="active"><?= e($title) ?></a>
-                </div>
-            <?php endif; ?>
+
+
 
             <div class="admin-content">
                 <?php include view_path('partials.flash'); ?>

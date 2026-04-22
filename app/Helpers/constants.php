@@ -23,3 +23,4 @@ const TIPO_ACTIVIDAD = [0 => 'Partido', 1 => 'Entrenamiento', 2 => 'Pruebas Fís
 
 const ESTATUS_ASISTENCIA = [0 => 'Ausente', 1 => 'Presente', 2 => 'Justificado'];
 
+const TIPO_EVENTO = ['Entrenamiento', 'Partido Oficial', 'Partido Amistoso', 'Torneo'];

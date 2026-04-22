@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CADA — Mockups de Móduloss</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #BE123C;
+            --color-primary-dark: #9F1239;
+            --color-primary-light: #FFE4E6;
+            --color-accent: #EA580C;
+            --color-text: #1E293B;
+            --color-text-muted: #64748B;
+            --color-bg: #FFFFFF;
+            --color-surface: #F8FAFC;
+            --color-surface-2: #F1F5F9;
+            --color-border: #E2E8F0;
+            --color-sidebar-bg: #0F172A;
+            --color-sidebar-text: #CBD5E1;
+            --color-success: #16A34A;
+            --color-warning: #D97706;
+            --color-danger: #DC2626;
+            --color-info: #2563EB;
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --shadow-btn-primary: 0 4px 14px rgba(190, 18, 60, 0.39);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --font-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-display: 'Outfit', "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-base);
+            color: var(--color-text);
+            background: var(--color-surface);
+        }
+
+        /* ========== NAVIGATION ========== */
+        .mockup-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--color-sidebar-bg);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            border-bottom: 3px solid var(--color-primary);
+        }
+
+        .mockup-nav a {
+            color: var(--color-sidebar-text);
+            text-decoration: none;
+            padding: 14px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            margin-bottom: -3px;
+        }
+
+        .mockup-nav a:hover,
+        .mockup-nav a.active {
+            color: #fff;
+            border-bottom-color: var(--color-primary);
+        }
+
+        .mockup-nav .nav-title {
+            color: var(--color-primary);
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 800;
+            margin-right: 24px;
+            padding: 14px 0;
+        }
+
+        /* ========== MODULE SECTION ========== */
+        .module-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .module-section:last-child {
+            border-bottom: none;
+        }
+
+        .module-badge {
+            display: inline-block;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+        }
+
+        .module-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+
+        .module-desc {
+            color: var(--color-text-muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* ========== NOTES ========== */
+        .design-note {
+            background: #FFFBEB;
+            border-left: 4px solid var(--color-warning);
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 13px;
+            color: #92400E;
+            margin-bottom: 24px;
+        }
+
+        .design-note strong {
+            color: #78350F;
+        }
+
+        /* ========== CARDS & LAYOUT ========== */
+        .card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card+.card {
+            margin-top: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-number {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 800;
+        }
+
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-top: 4px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .quick-card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            text-decoration: none;
+            color: var(--color-text);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .quick-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            border-color: var(--color-primary-light);
+        }
+
+        .quick-card .qc-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .quick-card .qc-icon.red {
+            background: var(--color-primary-light);
+        }
+
+        .quick-card .qc-icon.blue {
+            background: #DBEAFE;
+        }
+
+        .quick-card .qc-icon.green {
+            background: #DCFCE7;
+        }
+
+        .quick-card .qc-icon.orange {
+            background: #FFF7ED;
+        }
+
+        .quick-card .qc-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .quick-card .qc-desc {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin-top: 2px;
+        }
+
+        /* ========== HEADER ========== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h2 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .page-header .subtitle {
+            font-size: 13px;
+            color: var(--color-text-muted);
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-base);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: #fff;
+            box-shadow: var(--shadow-btn-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(190, 18, 60, 0.45);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1.5px solid var(--color-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--color-primary-light);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--color-text-muted);
+        }
+
+        .btn-ghost:hover {
+            color: var(--color-text);
+            background: var(--color-surface-2);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger-ghost {
+            background: transparent;
+            color: var(--color-danger);
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .btn-danger-ghost:hover {
+            background: #FEF2F2;
+        }
+
+        /* ========== TABLE ========== */
+        .data-table-wrap {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: var(--color-surface);
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--color-text-muted);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--color-border);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--color-surface);
+        }
+
+        /* ========== BADGES ========== */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .badge-danger {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .badge-primary {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .badge-info {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        /* ========== AVATAR ========== */
+        .avatar-sm {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* ========== FILTERS ========== */
+        .table-filters {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 16px 20px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group.grow {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-muted);
+        }
+
+        .form-control {
+            padding: 9px 14px;
+            border: 1.5px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: var(--font-base);
+            color: var(--color-text);
+            background: var(--color-bg);
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(190, 18, 60, 0.1);
+        }
+
+        /* ========== TABS ========== */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--color-border);
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-muted);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .tab:hover {
+            color: var(--color-text);
+        }
+
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        /* ========== WELCOME CARD ========== */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: #fff;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-card .wc-title {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .welcome-card .wc-sub {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        /* ========== HISTORIAL ========== */
+        .historial-row {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .historial-row:last-child {
+            border-bottom: none;
+        }
+
+        .historial-date {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-muted);
+        }
+
+        .historial-values {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+        }
+
+        .historial-values span {
+            color: var(--color-text-muted);
+            font-size: 12px;
+        }
+
+        .mini-chart {
+            height: 60px;
+            background: var(--color-surface);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            padding: 4px 8px;
+        }
+
+        .mini-chart .bar {
+            width: 16px;
+            border-radius: 4px 4px 0 0;
+            background: var(--color-primary);
+            opacity: 0.7;
+            transition: all 0.3s;
+        }
+
+        .mini-chart .bar:hover {
+            opacity: 1;
+        }
+
+        /* ========== FORM LAYOUT ========== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ========== EMPTY STATE ========== */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--color-text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state .title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .empty-state .desc {
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ========== RESPONSIVENESS ========== */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav class="mockup-nav">
+        <span class="nav-title">CADA Mockups</span>
+        <a href="#dashboard" class="active">Dashboard</a>
+        <a href="#categorias">Categorías</a>
+        <a href="#atletas">Atletas</a>
+        <a href="#atleta-detalle">Ficha Atleta</a>
+        <a href="#asistencias">Pase de Lista</a>
+        <a href="#antropometria">Antropometría</a>
+        <a href="#pruebas">Pruebas Físicas</a>
+        <a href="#reportes">Reportes</a>
+    </nav>
+
+    <!-- ============================= DASHBOARD ============================= -->
+    <section class="module-section" id="dashboard">
+        <span class="module-badge">Módulo 1</span>
+        <h1 class="module-title">Dashboard — Inicio</h1>
+        <p class="module-desc">Pantalla de bienvenida con accesos rápidos y estadísticas globales.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> El dashboard es un "hub" de navegación rápida. Muestra las métricas más
+            importantes y enlaces directos a las acciones más frecuentes. No tiene formularios ni tablas pesadas.
+        </div>
+
+        <div class="welcome-card">
+            <div class="wc-title">Bienvenido, admin@gmail.com</div>
+            <div class="wc-sub">Administrador — Club Atlético Deportivo Acarigua</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-primary);">42</div>
+                <div class="stat-label">Atletas registrados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-success);">38</div>
+                <div class="stat-label">Atletas activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-info);">6</div>
+                <div class="stat-label">Categorías activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-warning);">12</div>
+                <div class="stat-label">Actividades (30 días)</div>
+            </div>
+        </div>
+
+        <h3 style="font-family: var(--font-display); margin-bottom: 16px;">Accesos rápidos</h3>
+        <div class="quick-grid">
+            <div class="quick-card">
+                <div class="qc-icon red">👥</div>
+                <div>
+                    <div class="qc-title">Atletas</div>
+                    <div class="qc-desc">Gestión del equipo</div>
+                </div>
+            </div>
+            <div class="quick-card">
+                <div class="qc-icon blue">📋</div>
+                <div>
+                    <div class="qc-title">Pase de Lista</div>
+                    <div class="qc-desc">Registrar asistencia</div>
+                </div>
+            </div>
+            <div class="quick-card">
+                <div class="qc-icon green">📊</div>
+                <div>
+                    <div class="qc-title">Reportes</div>
+                    <div class="qc-desc">Estadísticas y PDF</div>
+                </div>
+            </div>
+            <div class="quick-card">
+                <div class="qc-icon orange">📏</div>
+                <div>
+                    <div class="qc-title">Antropometría</div>
+                    <div class="qc-desc">Mediciones físicas</div>
+                </div>
+            </div>
+            <div class="quick-card">
+                <div class="qc-icon blue">⏱️</div>
+                <div>
+                    <div class="qc-title">Pruebas Físicas</div>
+                    <div class="qc-desc">Tests de rendimiento</div>
+                </div>
+            </div>
+            <div class="quick-card">
+                <div class="qc-icon red">📂</div>
+                <div>
+                    <div class="qc-title">Categorías</div>
+                    <div class="qc-desc">6 activas</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================= CATEGORÍAS ============================= -->
+    <section class="module-section" id="categorias">
+        <span class="module-badge">Módulo 2</span>
+        <h1 class="module-title">Categorías</h1>
+        <p class="module-desc">Grupos por rango de edad. Vista minimalista sin buscador (pocas categorías), con filtro
+            de estatus discreto y columna de acciones con editar/eliminar.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> Sin buscador (normalmente hay pocas categorías). Botón de <strong>Editar
+                ✏️</strong> en columna "Acciones" al final de cada fila. Filtro de estatus simplificado.
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h2>Categorías</h2>
+                <div class="subtitle">Grupos por rango de edad</div>
+            </div>
+            <a class="btn btn-primary">+ Nueva categoría</a>
+        </div>
+
+        <!-- Filtro discreto -->
+        <div style="margin-bottom: 16px; display: flex; gap: 8px; align-items: center;">
+            <span style="font-size:12px; font-weight:600; color: var(--color-text-muted);">Filtrar:</span>
+            <select class="form-control" style="padding: 6px 10px; font-size: 13px; width: auto;">
+                <option>Todos</option>
+                <option selected>Activas</option>
+                <option>Inactivas</option>
+            </select>
+        </div>
+
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Rango de Edad</th>
+                        <th>Entrenador</th>
+                        <th>Atletas</th>
+                        <th>Estatus</th>
+                        <th style="width:140px">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pre-Mini</strong></td>
+                        <td>6 a 8 años</td>
+                        <td>Carlos Rodríguez</td>
+                        <td>8</td>
+                        <td><span class="badge badge-success">Activa</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                            <a class="btn btn-sm btn-danger-ghost">🗑️</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mini</strong></td>
+                        <td>9 a 10 años</td>
+                        <td>Luis Pérez</td>
+                        <td>12</td>
+                        <td><span class="badge badge-success">Activa</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                            <a class="btn btn-sm btn-danger-ghost">🗑️</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Infantil</strong></td>
+                        <td>11 a 12 años</td>
+                        <td>María González</td>
+                        <td>10</td>
+                        <td><span class="badge badge-success">Activa</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                            <a class="btn btn-sm btn-danger-ghost">🗑️</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pre-Juvenil</strong></td>
+                        <td>13 a 14 años</td>
+                        <td>Carlos Rodríguez</td>
+                        <td>7</td>
+                        <td><span class="badge badge-success">Activa</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                            <a class="btn btn-sm btn-danger-ghost">🗑️</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Juvenil</strong></td>
+                        <td>15 a 17 años</td>
+                        <td>—</td>
+                        <td>5</td>
+                        <td><span class="badge badge-warning">Inactiva</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                            <a class="btn btn-sm btn-danger-ghost">🗑️</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================= ATLETAS ============================= -->
+    <section class="module-section" id="atletas">
+        <span class="module-badge">Módulo 3</span>
+        <h1 class="module-title">Atletas — Listado</h1>
+        <p class="module-desc">Tabla principal con buscador, filtros por categoría y estatus, avatar, paginación.
+            Acciones: Ver ficha, Editar.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> El buscador SÍ es necesario aquí (pueden ser muchos atletas). Filtros por
+            <strong>Categoría</strong> y <strong>Estatus</strong>. Avatar con iniciales. Botón "Ver" lleva a la ficha
+            completa con pestañas.
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h2>Atletas</h2>
+                <div class="subtitle">Gestión del equipo — 42 atleta(s) en total</div>
+            </div>
+            <a class="btn btn-primary">+ Nuevo atleta</a>
+        </div>
+
+        <div class="table-filters">
+            <div class="form-group grow">
+                <label class="form-label">Buscar</label>
+                <input type="search" class="form-control" placeholder="Nombre, apellido o cédula">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <select class="form-control">
+                    <option>Todas</option>
+                    <option>Pre-Mini</option>
+                    <option>Mini</option>
+                    <option>Infantil</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Estatus</label>
+                <select class="form-control">
+                    <option>Todos</option>
+                    <option>Activo</option>
+                    <option>Inactivo</option>
+                    <option>Lesionado</option>
+                </select>
+            </div>
+            <button class="btn btn-outline">Filtrar</button>
+            <button class="btn btn-ghost">Limpiar</button>
+        </div>
+
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width:52px"></th>
+                        <th>Nombre</th>
+                        <th>Cédula</th>
+                        <th>Categoría</th>
+                        <th>Posición</th>
+                        <th>Estatus</th>
+                        <th style="width:150px">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="avatar-sm">JM</span></td>
+                        <td><strong>Juan Martínez</strong></td>
+                        <td>V-12345678</td>
+                        <td>Infantil</td>
+                        <td>Delantero</td>
+                        <td><span class="badge badge-success">Activo</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-ghost">👁️ Ver</a>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="avatar-sm">AP</span></td>
+                        <td><strong>Ana Pérez</strong></td>
+                        <td>V-23456789</td>
+                        <td>Mini</td>
+                        <td>Portera</td>
+                        <td><span class="badge badge-success">Activo</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-ghost">👁️ Ver</a>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="avatar-sm">CR</span></td>
+                        <td><strong>Carlos Rodríguez</strong></td>
+                        <td>V-34567890</td>
+                        <td>Pre-Juvenil</td>
+                        <td>Mediocampista</td>
+                        <td><span class="badge badge-warning">Lesionado</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-ghost">👁️ Ver</a>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="avatar-sm">LG</span></td>
+                        <td><strong>Laura Gómez</strong></td>
+                        <td>V-45678901</td>
+                        <td>Infantil</td>
+                        <td>Defensa</td>
+                        <td><span class="badge badge-danger">Suspendido</span></td>
+                        <td>
+                            <a class="btn btn-sm btn-ghost">👁️ Ver</a>
+                            <a class="btn btn-sm btn-outline">✏️ Editar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:16px; display: flex; justify-content: center; gap: 4px;">
+            <span class="btn btn-sm btn-primary" style="min-width:36px; justify-content:center;">1</span>
+            <a class="btn btn-sm btn-ghost" style="min-width:36px; justify-content:center;">2</a>
+            <a class="btn btn-sm btn-ghost" style="min-width:36px; justify-content:center;">3</a>
+            <a class="btn btn-sm btn-ghost" style="min-width:36px; justify-content:center;">4</a>
+        </div>
+    </section>
+
+    <!-- ============================= FICHA ATLETA ============================= -->
+    <section class="module-section" id="atleta-detalle">
+        <span class="module-badge">Módulo 3b</span>
+        <h1 class="module-title">Ficha del Atleta — Sistema de Pestañas</h1>
+        <p class="module-desc">El formulario largo del atleta se divide en pestañas para mejorar la UX. Cada pestaña
+            agrupa información temática.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> En lugar de un formulario que scrolleas eternamente, usamos
+            <strong>Tabs</strong>. Cada pestaña agrupa información temática: datos personales, representante, historial
+            médico, evaluaciones deportivas.
+        </div>
+
+        <div class="card">
+            <!-- Header del atleta -->
+            <div
+                style="display: flex; gap: 20px; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--color-border);">
+                <div
+                    style="width:64px; height:64px; border-radius:50%; background: var(--color-primary-light); color: var(--color-primary); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; font-family: var(--font-display);">
+                    JM</div>
+                <div>
+                    <h2 style="font-family: var(--font-display); font-size: 22px; margin-bottom: 4px;">Juan Martínez
+                    </h2>
+                    <span class="badge badge-success">Activo</span>
+                    <span style="font-size:13px; color: var(--color-text-muted); margin-left: 8px;">Infantil · Delantero
+                        · V-12345678</span>
+                </div>
+                <div style="margin-left:auto; display: flex; gap: 8px;">
+                    <a class="btn btn-outline btn-sm">✏️ Editar</a>
+                    <a class="btn btn-primary btn-sm">📄 Generar PDF</a>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <span class="tab active">📋 Datos Personales</span>
+                <span class="tab">👨‍👩‍👦 Representante</span>
+                <span class="tab">🏥 Ficha Médica</span>
+                <span class="tab">📏 Evaluaciones</span>
+                <span class="tab">📊 Asistencia</span>
+            </div>
+
+            <!-- Contenido tab activo: Datos Personales -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input class="form-control" value="Juan" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Apellido</label>
+                    <input class="form-control" value="Martínez" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cédula</label>
+                    <input class="form-control" value="V-12345678" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <input class="form-control" value="2012-05-14" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input class="form-control" value="0412-1234567" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoría</label>
+                    <input class="form-control" value="Infantil" disabled>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">Dirección</label>
+                    <input class="form-control" value="Acarigua, Portuguesa, Venezuela" disabled>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mockup de la pestaña Evaluaciones -->
+        <div class="card" style="margin-top: 24px;">
+            <div class="design-note">
+                <strong>💡 Pestaña "Evaluaciones":</strong> Aquí se muestra el historial cronológico de medidas
+                antropométricas y pruebas físicas del atleta, con un botón para registrar nuevas.
+            </div>
+
+            <div class="tabs">
+                <span class="tab">📋 Datos Personales</span>
+                <span class="tab">👨‍👩‍👦 Representante</span>
+                <span class="tab">🏥 Ficha Médica</span>
+                <span class="tab active">📏 Evaluaciones</span>
+                <span class="tab">📊 Asistencia</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <a class="btn btn-primary btn-sm">+ Nueva Medida</a>
+                <a class="btn btn-outline btn-sm">+ Nueva Prueba</a>
+            </div>
+
+            <h4 style="font-family: var(--font-display); margin-bottom: 12px;">📏 Historial Antropométrico</h4>
+            <div class="data-table-wrap" style="margin-bottom: 24px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Peso (kg)</th>
+                            <th>Talla (cm)</th>
+                            <th>IMC</th>
+                            <th>Envergadura</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-04-01</td>
+                            <td>45.2</td>
+                            <td>152</td>
+                            <td>19.6</td>
+                            <td>155 cm</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-15</td>
+                            <td>43.8</td>
+                            <td>150</td>
+                            <td>19.5</td>
+                            <td>153 cm</td>
+                        </tr>
+                        <tr>
+                            <td>2025-10-10</td>
+                            <td>42.0</td>
+                            <td>148</td>
+                            <td>19.2</td>
+                            <td>150 cm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 style="font-family: var(--font-display); margin-bottom: 12px;">⏱️ Historial de Pruebas Físicas</h4>
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Velocidad 30m</th>
+                            <th>Resistencia</th>
+                            <th>Salto Vertical</th>
+                            <th>Flexibilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-04-01</td>
+                            <td>5.2s</td>
+                            <td>8:30 min</td>
+                            <td>32 cm</td>
+                            <td>12 cm</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-15</td>
+                            <td>5.5s</td>
+                            <td>8:45 min</td>
+                            <td>30 cm</td>
+                            <td>10 cm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; gap: 16px;">
+                <div style="flex:1;">
+                    <h5
+                        style="font-size: 12px; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 1px; margin-bottom: 8px;">
+                        Evolución del peso</h5>
+                    <div class="mini-chart">
+                        <div class="bar" style="height: 60%;"></div>
+                        <div class="bar" style="height: 70%;"></div>
+                        <div class="bar" style="height: 75%;"></div>
+                        <div class="bar" style="height: 78%;"></div>
+                        <div class="bar" style="height: 82%;"></div>
+                        <div class="bar" style="height: 90%;"></div>
+                    </div>
+                </div>
+                <div style="flex:1;">
+                    <h5
+                        style="font-size: 12px; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 1px; margin-bottom: 8px;">
+                        Evolución de la talla</h5>
+                    <div class="mini-chart">
+                        <div class="bar" style="height: 50%; background: var(--color-info);"></div>
+                        <div class="bar" style="height: 55%; background: var(--color-info);"></div>
+                        <div class="bar" style="height: 62%; background: var(--color-info);"></div>
+                        <div class="bar" style="height: 68%; background: var(--color-info);"></div>
+                        <div class="bar" style="height: 75%; background: var(--color-info);"></div>
+                        <div class="bar" style="height: 85%; background: var(--color-info);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================= PASE DE LISTA ============================= -->
+    <section class="module-section" id="asistencias">
+        <span class="module-badge">Módulo 4</span>
+        <h1 class="module-title">Pase de Lista</h1>
+        <p class="module-desc">Historial de actividades con asistencia. Acceso rápido para registrar un nuevo pase.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> La tabla muestra el historial. Dado que la tabla <code>actividades</code>
+            no tiene entrenador directo, mostramos tipo y fecha. El botón "Nuevo pase" abre el formulario con selector
+            de categoría para cargar los atletas dinámicamente.
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h2>Pase de Lista</h2>
+                <div class="subtitle">Historial de pases de lista</div>
+            </div>
+            <a class="btn btn-primary">+ Nuevo pase de lista</a>
+        </div>
+
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Presentes / Total</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-04-18</td>
+                        <td><span class="badge badge-primary">Entrenamiento</span></td>
+                        <td><strong>15</strong> de 18</td>
+                        <td><span class="badge badge-success">Completo</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-04-16</td>
+                        <td><span class="badge badge-info">Partido</span></td>
+                        <td><strong>12</strong> de 14</td>
+                        <td><span class="badge badge-success">Completo</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026-04-14</td>
+                        <td><span class="badge badge-primary">Entrenamiento</span></td>
+                        <td><strong>16</strong> de 18</td>
+                        <td><span class="badge badge-success">Completo</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================= ANTROPOMETRÍA ============================= -->
+    <section class="module-section" id="antropometria">
+        <span class="module-badge">Módulo 5</span>
+        <h1 class="module-title">Antropometría</h1>
+        <p class="module-desc">Selección de atleta para registrar o consultar medidas corporales. Accesible también
+            desde la pestaña "Evaluaciones" de cada atleta.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> Lista de atletas con acceso directo a su historial de medidas. Se puede
+            acceder desde aquí (masivamente) O desde la ficha individual del atleta (pestaña Evaluaciones).
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h2>Antropometría</h2>
+                <div class="subtitle">Selecciona un atleta para registrar o ver mediciones</div>
+            </div>
+        </div>
+
+        <div class="table-filters">
+            <div class="form-group grow">
+                <label class="form-label">Buscar atleta</label>
+                <input type="search" class="form-control" placeholder="Nombre o cédula">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <select class="form-control">
+                    <option>Todas</option>
+                    <option>Infantil</option>
+                    <option>Mini</option>
+                </select>
+            </div>
+            <button class="btn btn-outline">Filtrar</button>
+        </div>
+
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Atleta</th>
+                        <th>Cédula</th>
+                        <th>Categoría</th>
+                        <th>Última medida</th>
+                        <th style="width:160px">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="avatar-sm">JM</span></td>
+                        <td><strong>Juan Martínez</strong></td>
+                        <td>V-12345678</td>
+                        <td>Infantil</td>
+                        <td><span style="font-size:12px; color: var(--color-text-muted);">2026-04-01</span></td>
+                        <td><a class="btn btn-sm btn-primary">📏 Ver / Registrar</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="avatar-sm">AP</span></td>
+                        <td><strong>Ana Pérez</strong></td>
+                        <td>V-23456789</td>
+                        <td>Mini</td>
+                        <td><span style="font-size:12px; color: var(--color-text-muted);">2026-03-15</span></td>
+                        <td><a class="btn btn-sm btn-primary">📏 Ver / Registrar</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="avatar-sm">CR</span></td>
+                        <td><strong>Carlos Rodríguez</strong></td>
+                        <td>V-34567890</td>
+                        <td>Pre-Juvenil</td>
+                        <td><span style="font-size:12px; color: var(--color-warning);">Sin medidas</span></td>
+                        <td><a class="btn btn-sm btn-primary">📏 Ver / Registrar</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================= PRUEBAS FÍSICAS ============================= -->
+    <section class="module-section" id="pruebas">
+        <span class="module-badge">Módulo 6</span>
+        <h1 class="module-title">Pruebas Físicas</h1>
+        <p class="module-desc">Mismo patrón que Antropometría: seleccionar atleta → ver historial / registrar nueva
+            prueba.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> Misma estructura que Antropometría para mantener <strong>consistencia
+                visual</strong>. Diferente contenido pero mismo flujo de navegación.
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h2>Pruebas Físicas</h2>
+                <div class="subtitle">Selecciona un atleta para registrar o ver resultados de pruebas</div>
+            </div>
+        </div>
+
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Atleta</th>
+                        <th>Cédula</th>
+                        <th>Categoría</th>
+                        <th>Última prueba</th>
+                        <th style="width:160px">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="avatar-sm">JM</span></td>
+                        <td><strong>Juan Martínez</strong></td>
+                        <td>V-12345678</td>
+                        <td>Infantil</td>
+                        <td><span style="font-size:12px; color: var(--color-text-muted);">2026-04-01</span></td>
+                        <td><a class="btn btn-sm btn-primary">⏱️ Ver / Registrar</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="avatar-sm">AP</span></td>
+                        <td><strong>Ana Pérez</strong></td>
+                        <td>V-23456789</td>
+                        <td>Mini</td>
+                        <td><span style="font-size:12px; color: var(--color-warning);">Sin pruebas</span></td>
+                        <td><a class="btn btn-sm btn-primary">⏱️ Ver / Registrar</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================= REPORTES ============================= -->
+    <section class="module-section" id="reportes">
+        <span class="module-badge">Módulo 7</span>
+        <h1 class="module-title">Centro de Reportes</h1>
+        <p class="module-desc">Estadísticas globales + generación de fichas técnicas individuales en PDF.</p>
+
+        <div class="design-note">
+            <strong>💡 Decisión UX:</strong> Consolidamos todos los reportes en un solo centro. Tarjetas de estadísticas
+            arriba, tabla de generación individual de PDF abajo. Los PDF se generarán con una librería PHP tipo TCPDF o
+            Dompdf.
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h2>Centro de Reportes</h2>
+                <div class="subtitle">Estadísticas globales y fichas individuales</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-primary);">42</div>
+                <div class="stat-label">Atletas totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-success);">38</div>
+                <div class="stat-label">Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-info);">6</div>
+                <div class="stat-label">Categorías activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: var(--color-warning);">12</div>
+                <div class="stat-label">Actividades (30 días)</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-family: var(--font-display); margin-top: 0; margin-bottom: 4px;">📄 Ficha Técnica Individual
+                (PDF)</h3>
+            <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 16px;">Genera una ficha técnica
+                completa por atleta con datos personales, antropometría, pruebas físicas y asistencia.</p>
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Atleta</th>
+                            <th>Cédula</th>
+                            <th>Categoría</th>
+                            <th style="width:160px">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Juan Martínez</strong></td>
+                            <td>V-12345678</td>
+                            <td>Infantil</td>
+                            <td><a class="btn btn-sm btn-primary">📄 Descargar PDF</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ana Pérez</strong></td>
+                            <td>V-23456789</td>
+                            <td>Mini</td>
+                            <td><a class="btn btn-sm btn-primary">📄 Descargar PDF</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Carlos Rodríguez</strong></td>
+                            <td>V-34567890</td>
+                            <td>Pre-Juvenil</td>
+                            <td><a class="btn btn-sm btn-primary">📄 Descargar PDF</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- NAV active highlight script -->
+    <script>
+        // Smooth scroll + active nav
+        document.querySelectorAll('.mockup-nav a[href^="#"]').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.mockup-nav a').forEach(a => a.classList.remove('active'));
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Highlight on scroll
+        const sections = document.querySelectorAll('.module-section');
+        const navLinks = document.querySelectorAll('.mockup-nav a[href^="#"]');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const top = section.offsetTop - 80;
+                if (window.scrollY >= top) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+            });
+        });
+
+        // Tab click simulation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const parent = tab.closest('.card') || tab.closest('.module-section');
+                parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+    </script>
+
+</body>
+
+</html>

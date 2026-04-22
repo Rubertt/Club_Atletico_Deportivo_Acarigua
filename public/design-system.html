@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativa de UI/UX - Club Deportivo Acarigua</title>
+
+    <!-- Fuentes comparativas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- FIGTREE (Sistema Viejo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- INTER & OUTFIT (Mi Propuesta) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Colores */
+            --rojo-viejo: #ff3b30;
+            /* Fire Red */
+            --rojo-profe: #dc2626;
+            /* Tailwind Red 600 */
+            --rojo-nuevo: #be123c;
+            /* Crimson Red */
+            --rojo-nuevo-hover: #9f1239;
+
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+
+            /* Tipografías */
+            --font-viejo: 'Figtree', sans-serif;
+            --font-profe: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-nuevo-cuerpo: 'Inter', sans-serif;
+            --font-nuevo-titulo: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-nuevo-cuerpo);
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: var(--font-nuevo-titulo);
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            font-family: var(--font-nuevo-titulo);
+            margin-top: 0;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Grid comparativo */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .col {
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fafafa;
+        }
+
+        .col h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CIRCULOS DE COLOR */
+        .color-ball {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* TEXTOS */
+        .text-preview {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        /* BOTONES */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* Botón Sistema Viejo (Element UI Style) */
+        .btn-viejo {
+            font-family: var(--font-viejo);
+            background-color: var(--rojo-viejo);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Botón Profe (Estilo Bootstrap/Tailwind standard) */
+        .btn-profe {
+            font-family: var(--font-profe);
+            background-color: var(--rojo-profe);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            /* semi cuadrado */
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Botón Mi Propuesta (Premium Sleek) */
+        .btn-nuevo {
+            font-family: var(--font-nuevo-cuerpo);
+            background-color: var(--rojo-nuevo);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            /* moderno */
+            font-weight: 500;
+            font-size: 15px;
+            box-shadow: 0 4px 14px 0 rgba(190, 18, 60, 0.39);
+            transition: all 0.2s;
+        }
+
+        .btn-nuevo:hover {
+            transform: translateY(-2px);
+            background-color: var(--rojo-nuevo-hover);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Análisis Comparativo Visual</h1>
+
+        <!-- 1. COLORES -->
+        <div class="section">
+            <h2>1. Paleta de Colores (Rojos)</h2>
+            <div class="comparison-grid">
+                <div class="col">
+                    <h3>Sistema Viejo (Vue)</h3>
+                    <div class="color-ball" style="background-color: var(--rojo-viejo);">#FF3B30</div>
+                    <p style="font-family: var(--font-viejo); font-size: 13px;">"Fire Red". Es muy vibrante e
+                        incandescente. Llama la atención rápido, pero cansa los ojos en fondos blancos.</p>
+                </div>
+                <div class="col">
+                    <h3>Plantilla del Profesor</h3>
+                    <div class="color-ball" style="background-color: var(--rojo-profe);">#DC2626</div>
+                    <p style="font-family: var(--font-profe); font-size: 13px;">"Tailwind Red 600". Es el rojo genérico
+                        de los tutoriales de internet. Un poco agresivo y sin personalidad de marca deportiva.</p>
+                </div>
+                <div class="col" style="border-color: var(--rojo-nuevo); background: #fff0f2;">
+                    <h3>Mi Propuesta (Premium)</h3>
+                    <div class="color-ball" style="background-color: var(--rojo-nuevo);">#BE123C</div>
+                    <p style="font-family: var(--font-nuevo-cuerpo); font-size: 13px;">"Crimson Red". Es profundo,
+                        profesional y corporativo. Relaja la vista mientras sigue transmitiendo energía deportiva
+                        ("Deportivo Acarigua").</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. TIPOGRAFÍA -->
+        <div class="section">
+            <h2>2. Tipografía (Fuentes)</h2>
+            <div class="comparison-grid">
+                <div class="col">
+                    <h3>Sistema Viejo: FIGTREE</h3>
+                    <div class="text-preview" style="font-family: var(--font-viejo);">
+                        <h4 style="margin:0 0 10px;">Gestión de Atletas</h4>
+                        <p style="font-size: 14px; margin:0;">Figtree es una fuente geométrica y redondeada. Muy
+                            amigable y bonita, pero a veces parece un poco informal para un sistema de datos serios.</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3>Profe: SEGOE UI (Windows)</h3>
+                    <div class="text-preview" style="font-family: var(--font-profe);">
+                        <h4 style="margin:0 0 10px;">Gestión de Atletas</h4>
+                        <p style="font-size: 14px; margin:0;">Es la letra por defecto que trae Windows ("Arial/Segoe").
+                            Es rápida de cargar pero hace que el sistema se vea aburrido y "común", como Word o Excel.
+                        </p>
+                    </div>
+                </div>
+                <div class="col" style="border-color: var(--rojo-nuevo); background: #fff0f2;">
+                    <h3>Propuesta: OUTFIT & INTER</h3>
+                    <div class="text-preview">
+                        <h4 style="margin:0 0 10px; font-family: var(--font-nuevo-titulo); font-size: 18px;">Gestión de
+                            Atletas</h4>
+                        <p style="font-size: 14px; margin:0; font-family: var(--font-nuevo-cuerpo);">Usa <b>Outfit</b>
+                            para títulos (elegante y geométrica) e <b>Inter</b> para leer datos sin desgastar la vista.
+                            Se ve 100% como una Aplicación Premium de iOS.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. BOTONES -->
+        <div class="section">
+            <h2>3. Botones y Elementos Interactivos</h2>
+            <div class="comparison-grid">
+                <div class="col text-center">
+                    <h3>Sistema Viejo</h3>
+                    <button class="btn btn-viejo">Element UI Button</button>
+                    <p style="font-family: var(--font-viejo); font-size: 13px; text-align: left;">Muy cuadrado (radius
+                        4px), es el que venía de la librería de Vue (Element-UI). Funcional pero genérico.</p>
+                </div>
+                <div class="col text-center">
+                    <h3>Plantilla del Profesor</h3>
+                    <button class="btn btn-profe">Guardar Cambios</button>
+                    <p style="font-family: var(--font-profe); font-size: 13px; text-align: left;">Bordes toscos, color
+                        rojo chirriante. Muy parecido al clásico Bootstrap.</p>
+                </div>
+                <div class="col text-center" style="border-color: var(--rojo-nuevo); background: #fff0f2;">
+                    <h3>Mi Propuesta</h3>
+                    <button class="btn btn-nuevo">Guardar Atleta</button>
+                    <p style="font-family: var(--font-nuevo-cuerpo); font-size: 13px; text-align: left;">Shadow rojo
+                        flotante (mira cuándo pones el mouse encima), bordes amigables, tipografía nítida.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

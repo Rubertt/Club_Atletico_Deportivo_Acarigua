@@ -21,20 +21,18 @@ final class AsistenciasController extends Controller
     {
         $hoy = date('Y-m-d');
         $eventos = Database::connection()->query(
-            "SELECT ev.evento_id, ev.tipo_evento, ev.fecha_evento,
-                    CONCAT_WS(' ', p.nombre, p.apellido) AS entrenador,
-                    (SELECT COUNT(*) FROM detalle_asistencia da WHERE da.evento_id = ev.evento_id) AS total,
-                    (SELECT COUNT(*) FROM detalle_asistencia da WHERE da.evento_id = ev.evento_id AND da.estatus='Presente') AS presentes
-             FROM evento_deportivo ev
-             JOIN plantel p ON p.plantel_id = ev.entrenador_id
-             ORDER BY ev.fecha_evento DESC, ev.evento_id DESC
+            "SELECT a.actividad_id AS evento_id, a.tipo_actividad, a.fecha AS fecha_evento,
+                    (SELECT COUNT(*) FROM asistencias ast WHERE ast.actividad_id = a.actividad_id) AS total,
+                    (SELECT COUNT(*) FROM asistencias ast WHERE ast.actividad_id = a.actividad_id AND ast.estatus = 1) AS presentes
+             FROM actividades a
+             ORDER BY a.fecha DESC, a.actividad_id DESC
              LIMIT 50"
         )->fetchAll();
 
         return $this->view('asistencias.index', [
             'title' => 'Asistencia',
-            'active' => 'asistencia',
-            'breadcrumb' => ['Inicio', 'Asistencia'],
+            'active' => 'asistencias',
+            'breadcrumb' => ['Inicio', 'Pase de Lista'],
             'eventos' => $eventos,
             'hoy' => $hoy,
         ], 'admin');
@@ -46,8 +44,8 @@ final class AsistenciasController extends Controller
         $entrenadores = (new Personal())->entrenadores();
         return $this->view('asistencias.pase_lista', [
             'title' => 'Pase de lista',
-            'active' => 'asistencia',
-            'breadcrumb' => ['Inicio', 'Asistencia', 'Pase de lista'],
+            'active' => 'asistencias',
+            'breadcrumb' => ['Inicio', 'Evaluaciones', 'Pase de lista'],
             'categorias' => $categorias,
             'entrenadores' => $entrenadores,
         ], 'admin');
@@ -67,7 +65,7 @@ final class AsistenciasController extends Controller
         ]);
         if (!$v->validate()) {
             $this->withErrors($v->errors());
-            return $this->redirect('/admin/asistencia/pase');
+            return $this->redirect('/admin/asistencias/pase');
         }
 
         $atletaIds = (array) ($request->body('atletas') ?? []);
@@ -92,11 +90,11 @@ final class AsistenciasController extends Controller
                 $detalles
             );
             flash('success', 'Asistencia registrada correctamente.');
-            return $this->redirect('/admin/asistencia');
+            return $this->redirect('/admin/asistencias');
         } catch (Throwable $e) {
             Logger::error($e);
             flash('error', 'Error al guardar: ' . $e->getMessage());
-            return $this->redirect('/admin/asistencia/pase');
+            return $this->redirect('/admin/asistencias/pase');
         }
     }
 }

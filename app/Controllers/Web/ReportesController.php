@@ -18,8 +18,8 @@ final class ReportesController extends Controller
             'atletas'         => (int) $db->query('SELECT COUNT(*) FROM atletas')->fetchColumn(),
             'activos'         => (int) $db->query("SELECT COUNT(*) FROM atletas WHERE estatus='Activo'")->fetchColumn(),
             'categorias'      => (int) $db->query("SELECT COUNT(*) FROM categoria WHERE estatus='Activa'")->fetchColumn(),
-            'plantel'         => (int) $db->query('SELECT COUNT(*) FROM plantel')->fetchColumn(),
-            'eventos_30dias'  => (int) $db->query("SELECT COUNT(*) FROM evento_deportivo WHERE fecha_evento >= (CURDATE() - INTERVAL 30 DAY)")->fetchColumn(),
+            'personal'        => (int) $db->query('SELECT COUNT(*) FROM personal')->fetchColumn(),
+            'eventos_30dias'  => (int) $db->query("SELECT COUNT(*) FROM actividades WHERE fecha >= (CURDATE() - INTERVAL 30 DAY)")->fetchColumn(),
         ];
         $atletas = $db->query("SELECT atleta_id, nombre, apellido, cedula FROM atletas ORDER BY apellido, nombre")->fetchAll();
         return $this->view('reportes.index', [
