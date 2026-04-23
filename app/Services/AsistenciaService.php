@@ -6,7 +6,7 @@ namespace App\Services;
 use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Logger;
-use App\Models\EventoDeportivo;
+use App\Models\Actividad;
 use Throwable;
 
 final class AsistenciaService
@@ -28,7 +28,7 @@ final class AsistenciaService
 
         Database::beginTransaction();
         try {
-            $eventoId = (new EventoDeportivo())->insert([
+            $eventoId = (new Actividad())->insert([
                 'entrenador_id' => $entrenadorId,
                 'tipo_evento'   => $tipoEvento,
                 'fecha_evento'  => $fechaEvento,

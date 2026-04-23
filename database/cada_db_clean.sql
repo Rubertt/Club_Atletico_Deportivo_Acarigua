@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-04-2026 a las 23:47:13
+-- Tiempo de generación: 19-04-2026 a las 20:21:39
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `cada_db`
+-- Base de datos: `cada_db_clean`
 --
 
 -- --------------------------------------------------------
@@ -34,38 +34,13 @@ CREATE TABLE `actividades` (
   `fecha` date NOT NULL,
   `hora_inicio` time DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
-  `ubicacion` varchar(100) DEFAULT '''Cancha uptp''',
+  `ubicacion` varchar(255) DEFAULT '''Cancha uptp''',
   `clima` tinyint(4) DEFAULT NULL,
   `estatus` tinyint(4) DEFAULT 1 COMMENT '0: Cancelado, 1: Programado, 2: Finalizado',
   `micro_id` int(11) DEFAULT NULL COMMENT 'Relación con el microciclo de planificación',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `actividades`
---
-
-INSERT INTO `actividades` (`actividad_id`, `tipo_actividad`, `objetivo_principal`, `fecha`, `hora_inicio`, `hora_fin`, `ubicacion`, `clima`, `estatus`, `micro_id`, `created_at`, `updated_at`) VALUES
-(1, 2, 'Pruebas Físicas', '2026-03-24', NULL, NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-03-24 19:46:55', '2026-03-24 19:46:55'),
-(2, 2, 'Pruebas Físicas', '2026-03-24', '00:00:00', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-03-24 20:34:43', '2026-03-24 20:34:43'),
-(3, 2, 'Pruebas Físicas', '2026-04-01', '16:06:12', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-01 20:06:28', '2026-04-01 20:06:28'),
-(4, 2, 'Pruebas Físicas', '2026-04-04', '18:19:51', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:19:53', '2026-04-04 22:19:53'),
-(5, 2, 'Pruebas Físicas', '2026-04-04', '18:19:58', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:20:03', '2026-04-04 22:20:03'),
-(6, 2, 'Pruebas Físicas', '2026-04-04', '18:20:20', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:20:26', '2026-04-04 22:20:26'),
-(7, 2, 'Pruebas Físicas', '0000-00-00', '18:21:18', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:21:14', '2026-04-04 22:21:14'),
-(8, 2, 'Pruebas Físicas', '0000-00-00', '23:59:59', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:21:57', '2026-04-04 22:21:57'),
-(9, 2, 'Pruebas Físicas', '0000-00-00', '06:22:23', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:23:02', '2026-04-04 22:23:02'),
-(10, 2, 'Pruebas Físicas', '2026-04-04', '18:28:07', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:28:19', '2026-04-04 22:28:19'),
-(11, 2, 'Pruebas Físicas', '2026-04-04', '18:26:07', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:28:29', '2026-04-04 22:28:29'),
-(12, 2, 'Pruebas Físicas', '2025-04-04', '18:26:07', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:28:40', '2026-04-04 22:28:40'),
-(13, 2, 'Pruebas Físicas', '2025-03-04', '18:26:00', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:28:48', '2026-04-04 22:28:48'),
-(14, 2, 'Pruebas Físicas', '2025-02-04', '18:26:00', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:28:56', '2026-04-04 22:28:56'),
-(15, 2, 'Pruebas Físicas', '2026-04-04', '18:29:22', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:29:29', '2026-04-04 22:29:29'),
-(16, 2, 'Pruebas Físicas', '2026-04-08', '18:29:47', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-04 22:29:58', '2026-04-04 22:29:58'),
-(17, 1, 'Control de asistencia - Evento Tipo 1', '2026-04-04', NULL, NULL, '\'Cancha uptp\'', NULL, 1, NULL, '2026-04-05 00:23:37', '2026-04-05 00:23:37'),
-(18, 2, 'Pruebas Físicas', '2026-01-04', '20:36:00', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-05 00:37:07', '2026-04-05 00:37:07'),
-(19, 2, 'Pruebas Físicas', '2026-04-04', '20:37:10', NULL, '\'Cancha uptp\'', NULL, 2, NULL, '2026-04-05 00:37:35', '2026-04-05 00:37:35');
 
 -- --------------------------------------------------------
 
@@ -91,16 +66,8 @@ CREATE TABLE `asistencias` (
   `actividad_id` int(11) NOT NULL,
   `atleta_id` int(11) NOT NULL,
   `estatus` tinyint(4) NOT NULL COMMENT 'definir: 0=Ausente, 1=Presente, 2=Justificado',
-  `observaciones` text DEFAULT NULL
+  `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `asistencias`
---
-
-INSERT INTO `asistencias` (`asistencia_id`, `actividad_id`, `atleta_id`, `estatus`, `observaciones`) VALUES
-(4, 17, 25, 1, ''),
-(5, 17, 35, 1, 'Boludo');
 
 -- --------------------------------------------------------
 
@@ -112,8 +79,7 @@ CREATE TABLE `atencion_medica` (
   `atencion_id` int(11) NOT NULL,
   `atleta_id` int(11) NOT NULL,
   `tipo_registro` tinyint(4) NOT NULL COMMENT '1:Lesion, 2:Enfermedad, 3:Control',
-  `descripcion` text NOT NULL,
-  `diagnostico` varchar(255) DEFAULT NULL,
+  `descripcion` varchar(200) NOT NULL,
   `fecha_suceso` date NOT NULL,
   `fecha_alta_estimada` date DEFAULT NULL,
   `fecha_alta_real` date DEFAULT NULL,
@@ -121,13 +87,6 @@ CREATE TABLE `atencion_medica` (
   `especialista_id` int(11) NOT NULL COMMENT 'FK a personal (medico/fisio)',
   `estado_disponibilidad` tinyint(4) DEFAULT 0 COMMENT '0: No apto, 1: Trabajo diferenciado, 2: Apto'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `atencion_medica`
---
-
-INSERT INTO `atencion_medica` (`atencion_id`, `atleta_id`, `tipo_registro`, `descripcion`, `diagnostico`, `fecha_suceso`, `fecha_alta_estimada`, `fecha_alta_real`, `tratamiento_indicado`, `especialista_id`, `estado_disponibilidad`) VALUES
-(1, 35, 1, 'xdfgx', 'Lol', '2026-04-01', NULL, NULL, NULL, 10, 0);
 
 -- --------------------------------------------------------
 
@@ -154,14 +113,6 @@ CREATE TABLE `atletas` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `atletas`
---
-
-INSERT INTO `atletas` (`atleta_id`, `nombre`, `apellido`, `fecha_nacimiento`, `sexo`, `cedula`, `telefono`, `posicion_de_juego`, `pierna_dominante`, `direccion_id`, `categoria_id`, `representante_id`, `foto`, `estatus`, `created_at`, `updated_at`) VALUES
-(25, 'leonel', 'messi', '2001-02-20', 'M', '1523', '04121234567', 8, 'izquierda', 85, 13, 28, NULL, 1, '2026-02-10 23:39:20', '2026-04-01 20:44:10'),
-(35, 'Robert Alcides', 'Legon Flores', '2005-04-25', 'M', '314934343', '04145231445', 2, 'derecha', 111, 13, 36, NULL, 1, '2026-04-01 17:48:46', '2026-04-05 19:25:41');
-
 -- --------------------------------------------------------
 
 --
@@ -169,20 +120,13 @@ INSERT INTO `atletas` (`atleta_id`, `nombre`, `apellido`, `fecha_nacimiento`, `s
 --
 
 CREATE TABLE `carnet_discapacidad` (
-  `id` int(20) UNSIGNED NOT NULL,
+  `carnet_id` int(20) UNSIGNED NOT NULL,
   `ficha_id` int(11) DEFAULT NULL,
   `tipo_discapacidad_id` int(11) NOT NULL,
   `nro_carnet` varchar(20) DEFAULT NULL,
   `porcentaje_discapacidad` int(11) DEFAULT NULL,
   `fecha_registro` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `carnet_discapacidad`
---
-
-INSERT INTO `carnet_discapacidad` (`id`, `ficha_id`, `tipo_discapacidad_id`, `nro_carnet`, `porcentaje_discapacidad`, `fecha_registro`) VALUES
-(1, 3, 4, '1234567', 21, '2026-04-01');
 
 -- --------------------------------------------------------
 
@@ -259,58 +203,8 @@ CREATE TABLE `direcciones` (
   `parroquias_id` int(11) NOT NULL,
   `localidad` varchar(100) NOT NULL COMMENT 'nombre=urbanismo, barrio, sector...',
   `tipo_vivienda` enum('casa','apto','edificio','') NOT NULL,
-  `ubicación vivienda` varchar(100) NOT NULL COMMENT 'ej:calle#15 vereda#12 casa#4'
+  `ubicacion_vivienda` varchar(100) NOT NULL COMMENT 'ej:calle#15 vereda#12 casa#4'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `direcciones`
---
-
-INSERT INTO `direcciones` (`direccion_id`, `parroquias_id`, `localidad`, `tipo_vivienda`, `ubicación vivienda`) VALUES
-(18, 739, 'la gonzalo', 'casa', 'calle#15 vereda#12 casa#4'),
-(19, 722, 'baraure 2', '', 'calle#4 casa#2'),
-(34, 30, '242rwsfsdf', '', '242rwsfsdf'),
-(65, 30, '242rwsfsdf', '', '242rwsfsdf'),
-(67, 1, 'Lucasgoalt', '', 'Lucasgoalt'),
-(68, 1, 'Lucasgoalt', '', 'Lucasgoalt'),
-(69, 1, 'Villas del pilar', '', 'Villas del pilar'),
-(70, 1, 'Lucasgoalt', '', 'Lucasgoalt'),
-(71, 1, 'Lucasgoalt', '', 'Lucasgoalt'),
-(72, 1, '', '', ''),
-(73, 1, 'Barrio Bolivar', '', 'Barrio Bolivar'),
-(74, 739, 'la gonzalo', '', 'la gonzalo'),
-(75, 739, 'la gonzalo', '', 'la gonzalo'),
-(76, 739, 'la gonzalo', '', 'la gonzalo'),
-(77, 739, 'la gonzalo', '', 'la gonzalo'),
-(78, 739, 'la gonzalo', '', 'la gonzalo'),
-(79, 739, 'la gonzalo', '', 'la gonzalo'),
-(80, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(85, 739, 'la gonzalo', '', 'la gonzalo'),
-(87, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(88, 722, 'Villa araure', '', 'Villa araure'),
-(89, 722, 'Villa araure', '', 'Villa araure'),
-(90, 722, 'Villa araure', '', 'Villa araure'),
-(91, 722, 'Villa araure', '', 'Villa araure'),
-(92, 722, 'Villa araure', '', 'Villa araure'),
-(93, 722, 'Villa araure', '', 'Villa araure'),
-(94, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(95, 722, 'Villa araure', '', 'Villa araure'),
-(96, 722, 'Villa araure', '', 'Villa araure'),
-(97, 255, 'kjhlkhk', '', 'kjhlkhk'),
-(98, 255, 'kjhlkhk', '', 'kjhlkhk'),
-(99, 255, 'kjhlkhk', '', 'kjhlkhk'),
-(100, 255, 'kjhlkhk', '', 'kjhlkhk'),
-(101, 255, 'kjhlkhk', '', 'kjhlkhk'),
-(102, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(103, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(104, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(105, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(106, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(107, 722, 'Villas del pilar', '', 'Villas del pilar'),
-(108, 722, 'Villas del pilar', 'casa', 'Calle 15A'),
-(109, 722, 'Villas del pilar', 'casa', 'Villas del pilar'),
-(110, 722, 'Villas del pilar', 'casa', 'calle 15A casa 412'),
-(111, 722, 'Villas del pilar', 'casa', 'Calle 15A');
 
 -- --------------------------------------------------------
 
@@ -321,7 +215,7 @@ INSERT INTO `direcciones` (`direccion_id`, `parroquias_id`, `localidad`, `tipo_v
 CREATE TABLE `estados` (
   `estado_id` int(11) NOT NULL,
   `estado` varchar(250) NOT NULL,
-  `iso_3166-2` varchar(4) NOT NULL
+  `iso_3166-2` varchar(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
@@ -373,14 +267,6 @@ CREATE TABLE `ficha_medica` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `ficha_medica`
---
-
-INSERT INTO `ficha_medica` (`ficha_id`, `atleta_id`, `grupo_sanguineo`, `alergias`, `antecedentes_familiares`, `antecedentes_quirurgicos`, `condicion_cronica`, `medicacion_actual`, `updated_at`) VALUES
-(1, 25, 'B-', 'Maní', 'Antecedentes', 'Lesion', 'Asma', 'Medicacion', '2026-03-24 21:29:18'),
-(3, 35, 'O+', 'Polvo', 'Asma', '', 'Asma', '', '2026-04-01 20:15:29');
-
 -- --------------------------------------------------------
 
 --
@@ -389,7 +275,7 @@ INSERT INTO `ficha_medica` (`ficha_id`, `atleta_id`, `grupo_sanguineo`, `alergia
 
 CREATE TABLE `historial_partidos` (
   `partido_id` int(11) NOT NULL,
-  `cateogira_id` int(11) NOT NULL,
+  `categoria_id` int(11) NOT NULL,
   `nombre_rival` varchar(100) NOT NULL,
   `tipo_partido` enum('liga','clasificatorio','amistoso','torneo','benefico') NOT NULL,
   `fecha_partido` date NOT NULL,
@@ -440,15 +326,6 @@ CREATE TABLE `medidas_antropometricas` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `medidas_antropometricas`
---
-
-INSERT INTO `medidas_antropometricas` (`medidas_id`, `atleta_id`, `fecha_medicion`, `peso`, `altura`, `porcentaje_grasa`, `porcentaje_musculatura`, `envergadura`, `largo_de_pierna`, `largo_de_torso`, `created_at`) VALUES
-(43, 25, '2026-03-24 16:28:59', 56.00, 56.00, 56.00, 56.00, 56.00, 56.00, 56.00, '2026-03-24 20:29:16'),
-(44, 35, '2026-01-04 01:50:00', 58.50, 168.00, 14.20, 38.50, 170.00, 88.00, 55.00, '2026-04-01 17:50:37'),
-(53, 35, '2026-04-04 20:34:32', 60.20, 169.00, 13.50, 40.10, 172.00, 89.00, 55.50, '2026-04-05 00:35:34');
-
 -- --------------------------------------------------------
 
 --
@@ -457,7 +334,7 @@ INSERT INTO `medidas_antropometricas` (`medidas_id`, `atleta_id`, `fecha_medicio
 
 CREATE TABLE `municipios` (
   `municipio_id` int(11) NOT NULL,
-  `estadoi_id` int(11) NOT NULL,
+  `estado_id` int(11) NOT NULL,
   `municipio` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -465,7 +342,7 @@ CREATE TABLE `municipios` (
 -- Volcado de datos para la tabla `municipios`
 --
 
-INSERT INTO `municipios` (`municipio_id`, `estadoi_id`, `municipio`) VALUES
+INSERT INTO `municipios` (`municipio_id`, `estado_id`, `municipio`) VALUES
 (1, 1, 'Alto Orinoco'),
 (2, 1, 'Atabapo'),
 (3, 1, 'Atures'),
@@ -1981,14 +1858,6 @@ CREATE TABLE `personal` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `personal`
---
-
-INSERT INTO `personal` (`personal_id`, `email_id`, `nombre`, `apellido`, `cedula`, `telefono`, `fecha_nac`, `direccion_id`, `rol_personal`, `foto`, `created_at`, `updated_at`) VALUES
-(9, 'entrenador@gmail.com', 'leonel', 'messi', '15234567', '04245530385', '1996-02-01', 19, 1, NULL, '2026-02-10 18:20:48', '2026-02-10 18:20:48'),
-(10, 'medico@gmail.com', 'Felipe', 'López', '1876542', '', '2016-05-05', 74, 4, NULL, '2026-04-01 20:51:58', '2026-04-01 20:51:58');
-
 -- --------------------------------------------------------
 
 --
@@ -2140,17 +2009,6 @@ CREATE TABLE `representante` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `representante`
---
-
-INSERT INTO `representante` (`representante_id`, `nombre_completo`, `telefono`, `cedula`, `tipo_relacion`, `direccion_id`, `foto`, `created_at`, `updated_at`) VALUES
-(26, 'leonel messi', '04121234567', '15234567', 'representante', 18, NULL, '2026-03-24 02:32:20', '2026-03-24 02:32:20'),
-(28, 'Cristina ronalda', '42134213477', '2134213412', 'tio/a', 79, NULL, '2026-03-24 02:37:30', '2026-03-24 02:37:53'),
-(29, 'Robert Alcides Legon Flores', '04145231462', '31492108', 'representante', 80, NULL, '2026-04-01 17:48:46', '2026-04-01 17:48:46'),
-(33, 'werr asdfafa', '87878787877', 'S/N', 'representante', 97, NULL, '2026-04-04 21:52:16', '2026-04-04 21:52:16'),
-(36, 'Lucas', '04245003082', '3527516', 'padres', 110, NULL, '2026-04-05 13:40:44', '2026-04-05 16:14:14');
-
 -- --------------------------------------------------------
 
 --
@@ -2191,15 +2049,6 @@ CREATE TABLE `resultado_pruebas` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Volcado de datos para la tabla `resultado_pruebas`
---
-
-INSERT INTO `resultado_pruebas` (`test_id`, `actividad_id`, `atleta_id`, `test_de_fuerza`, `test_resistencia`, `test_velocidad`, `test_coordinacion`, `test_de_reaccion`, `created_at`) VALUES
-(25, 2, 25, 38.00, 25.00, 46.00, 76.00, 37.00, '2026-03-24 19:48:47'),
-(33, 18, 35, 62.00, 58.00, 71.00, 68.00, 65.00, '2026-04-05 00:37:07'),
-(34, 19, 35, 74.00, 68.00, 78.00, 76.00, 73.00, '2026-04-05 00:37:35');
-
 -- --------------------------------------------------------
 
 --
@@ -2231,7 +2080,7 @@ INSERT INTO `rol_usuarios` (`rol_id`, `nombre_rol`, `descripcion`, `fecha_creaci
 
 CREATE TABLE `usuarios` (
   `email` varchar(100) NOT NULL,
-  `password` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
   `token` varchar(500) DEFAULT NULL,
   `rol` int(11) NOT NULL,
   `estatus` enum('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
@@ -2246,7 +2095,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`email`, `password`, `token`, `rol`, `estatus`, `foto`, `ultimo_acceso`, `created_at`, `updated_at`) VALUES
-('admin@gmail.com', '12345678', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbkBnbWFpbC5jb20iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbCI6MiwiaWF0IjoxNzc1NDIwMjU0LCJleHAiOjE3NzU1MDY2NTR9.nBd608QkxarpxKRjSlklllQ2aHGLIhRYRZY_LFiTFYI', 2, 'Activo', NULL, '2026-04-05 16:17:34', '2026-02-10 17:32:05', '2026-04-05 20:17:34'),
+('admin@gmail.com', '$2y$12$Hn8oxN4Z84I8hGPhrwSPBeA.SMCDaTdjp9sx9.ifeCeePYzXxcOlG', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbkBnbWFpbC5jb20iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbCI6MiwiaWF0IjoxNzc1NDIwMjU0LCJleHAiOjE3NzU1MDY2NTR9.nBd608QkxarpxKRjSlklllQ2aHGLIhRYRZY_LFiTFYI', 2, 'Activo', NULL, '2026-04-05 16:17:34', '2026-02-10 17:32:05', '2026-04-05 20:17:34'),
 ('directivo@gmail.com', '12345678', NULL, 1, 'Activo', NULL, NULL, '2026-02-10 17:33:31', '2026-02-10 17:33:31'),
 ('entrenador@gmail.com', '12345678', NULL, 3, 'Activo', NULL, NULL, '2026-02-10 17:31:04', '2026-02-10 17:31:04'),
 ('medico@gmail.com', '12345678', NULL, 4, 'Activo', NULL, NULL, '2026-02-10 17:32:05', '2026-02-10 17:32:05');
@@ -2300,7 +2149,7 @@ ALTER TABLE `atletas`
 -- Indices de la tabla `carnet_discapacidad`
 --
 ALTER TABLE `carnet_discapacidad`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`carnet_id`),
   ADD UNIQUE KEY `nro_carnet` (`nro_carnet`),
   ADD KEY `tipo_discapacidad_id` (`tipo_discapacidad_id`),
   ADD KEY `ficha_id` (`ficha_id`);
@@ -2352,7 +2201,7 @@ ALTER TABLE `ficha_medica`
 --
 ALTER TABLE `historial_partidos`
   ADD PRIMARY KEY (`partido_id`),
-  ADD KEY `cateogira_id` (`cateogira_id`);
+  ADD KEY `categoria_id` (`categoria_id`);
 
 --
 -- Indices de la tabla `implementos_deportivos`
@@ -2373,7 +2222,7 @@ ALTER TABLE `medidas_antropometricas`
 --
 ALTER TABLE `municipios`
   ADD PRIMARY KEY (`municipio_id`),
-  ADD KEY `id_estado` (`estadoi_id`);
+  ADD KEY `id_estado` (`estado_id`);
 
 --
 -- Indices de la tabla `parroquias`
@@ -2469,7 +2318,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `actividades`
 --
 ALTER TABLE `actividades`
-  MODIFY `actividad_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `actividad_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `asignacion`
@@ -2481,25 +2330,25 @@ ALTER TABLE `asignacion`
 -- AUTO_INCREMENT de la tabla `asistencias`
 --
 ALTER TABLE `asistencias`
-  MODIFY `asistencia_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `asistencia_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `atencion_medica`
 --
 ALTER TABLE `atencion_medica`
-  MODIFY `atencion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `atencion_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `atletas`
 --
 ALTER TABLE `atletas`
-  MODIFY `atleta_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `atleta_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `carnet_discapacidad`
 --
 ALTER TABLE `carnet_discapacidad`
-  MODIFY `id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `carnet_id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `categoria`
@@ -2523,7 +2372,7 @@ ALTER TABLE `detalle_asignacion`
 -- AUTO_INCREMENT de la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  MODIFY `direccion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
+  MODIFY `direccion_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `estados`
@@ -2535,7 +2384,7 @@ ALTER TABLE `estados`
 -- AUTO_INCREMENT de la tabla `ficha_medica`
 --
 ALTER TABLE `ficha_medica`
-  MODIFY `ficha_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `ficha_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `historial_partidos`
@@ -2553,7 +2402,7 @@ ALTER TABLE `implementos_deportivos`
 -- AUTO_INCREMENT de la tabla `medidas_antropometricas`
 --
 ALTER TABLE `medidas_antropometricas`
-  MODIFY `medidas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `medidas_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `municipios`
@@ -2571,7 +2420,7 @@ ALTER TABLE `parroquias`
 -- AUTO_INCREMENT de la tabla `personal`
 --
 ALTER TABLE `personal`
-  MODIFY `personal_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `personal_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `plan_macrociclo`
@@ -2607,7 +2456,7 @@ ALTER TABLE `preguntas_seguridad`
 -- AUTO_INCREMENT de la tabla `representante`
 --
 ALTER TABLE `representante`
-  MODIFY `representante_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `representante_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `respuesta_seguridad`
@@ -2619,7 +2468,7 @@ ALTER TABLE `respuesta_seguridad`
 -- AUTO_INCREMENT de la tabla `resultado_pruebas`
 --
 ALTER TABLE `resultado_pruebas`
-  MODIFY `test_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `test_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `rol_usuarios`
@@ -2702,7 +2551,7 @@ ALTER TABLE `ficha_medica`
 -- Filtros para la tabla `historial_partidos`
 --
 ALTER TABLE `historial_partidos`
-  ADD CONSTRAINT `historial_partidos_ibfk_1` FOREIGN KEY (`cateogira_id`) REFERENCES `categoria` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `historial_partidos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categoria` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `medidas_antropometricas`
@@ -2714,7 +2563,7 @@ ALTER TABLE `medidas_antropometricas`
 -- Filtros para la tabla `municipios`
 --
 ALTER TABLE `municipios`
-  ADD CONSTRAINT `municipios_ibfk_1` FOREIGN KEY (`estadoi_id`) REFERENCES `estados` (`estado_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `municipios_ibfk_1` FOREIGN KEY (`estado_id`) REFERENCES `estados` (`estado_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `parroquias`

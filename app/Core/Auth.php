@@ -6,6 +6,18 @@ namespace App\Core;
 use RuntimeException;
 use Throwable;
 
+/**
+ * Autenticación adaptada a la tabla `usuarios` de cada_db.
+ *
+ * Estructura de la tabla:
+ *   - email       VARCHAR(100)  PK
+ *   - password    VARCHAR(255)  bcrypt hash
+ *   - token       VARCHAR(500)  (legacy, no usado por PHP)
+ *   - rol         INT           FK → rol_usuarios.rol_id
+ *   - estatus     ENUM('Activo','Inactivo')
+ *   - foto        VARCHAR(255)
+ *   - ultimo_acceso DATETIME
+ */
 final class Auth
 {
     private static ?array $user = null;
@@ -18,9 +30,9 @@ final class Auth
     {
         $db = Database::connection();
         $stmt = $db->prepare(
-            'SELECT u.usuario_id, u.email, u.password, u.rol_id, u.plantel_id, u.estatus, u.foto, r.nombre_rol
+            'SELECT u.email, u.password, u.rol, u.estatus, u.foto, r.nombre_rol
              FROM usuarios u
-             JOIN rol_usuarios r ON r.rol_id = u.rol_id
+             JOIN rol_usuarios r ON r.rol_id = u.rol
              WHERE u.email = :email
              LIMIT 1'
         );
@@ -36,8 +48,8 @@ final class Auth
             return null;
         }
 
-        $db->prepare('UPDATE usuarios SET ultimo_acceso = NOW() WHERE usuario_id = :id')
-            ->execute([':id' => $row['usuario_id']]);
+        $db->prepare('UPDATE usuarios SET ultimo_acceso = NOW() WHERE email = :email')
+            ->execute([':email' => $row['email']]);
 
         unset($row['password']);
         self::$user = $row;
@@ -55,14 +67,12 @@ final class Auth
 
         $now = time();
         $token = JWT::encode([
-            'iss'  => (string) config('auth.jwt.issuer'),
-            'iat'  => $now,
-            'exp'  => $now + $ttl,
-            'sub'  => (int) $user['usuario_id'],
-            'email' => $user['email'],
-            'rol_id' => (int) $user['rol_id'],
-            'rol'  => $user['nombre_rol'] ?? null,
-            'plantel_id' => $user['plantel_id'] ?? null,
+            'iss'   => (string) config('auth.jwt.issuer'),
+            'iat'   => $now,
+            'exp'   => $now + $ttl,
+            'sub'   => $user['email'],
+            'rol'   => (int) $user['rol'],
+            'rol_name' => $user['nombre_rol'] ?? null,
         ]);
 
         setcookie($cfg['name'], $token, [
@@ -118,13 +128,13 @@ final class Auth
 
         $db = Database::connection();
         $stmt = $db->prepare(
-            'SELECT u.usuario_id, u.email, u.rol_id, u.plantel_id, u.estatus, u.foto, r.nombre_rol
+            'SELECT u.email, u.rol, u.estatus, u.foto, r.nombre_rol
              FROM usuarios u
-             JOIN rol_usuarios r ON r.rol_id = u.rol_id
-             WHERE u.usuario_id = :id AND u.estatus = "Activo"
+             JOIN rol_usuarios r ON r.rol_id = u.rol
+             WHERE u.email = :email AND u.estatus = "Activo"
              LIMIT 1'
         );
-        $stmt->execute([':id' => $payload['sub'] ?? 0]);
+        $stmt->execute([':email' => $payload['sub'] ?? '']);
         $row = $stmt->fetch();
         if (!$row) {
             return null;
@@ -138,10 +148,10 @@ final class Auth
         return self::user() !== null;
     }
 
-    public static function id(): ?int
+    public static function id(): ?string
     {
         $u = self::user();
-        return $u ? (int) $u['usuario_id'] : null;
+        return $u ? $u['email'] : null;
     }
 
     public static function hasRole(int|string $role): bool
@@ -154,17 +164,22 @@ final class Auth
             $map = config('auth.roles') ?? [];
             $role = $map[$role] ?? 0;
         }
-        return (int) $u['rol_id'] === (int) $role;
+        return (int) $u['rol'] === (int) $role;
     }
 
     public static function isAdmin(): bool
     {
-        return self::hasRole(ROL_ADMIN);
+        return self::hasRole(ROL_ADMIN) || self::hasRole(ROL_SUPERUSER);
     }
 
     public static function isEntrenador(): bool
     {
         return self::hasRole(ROL_ENTRENADOR);
+    }
+
+    public static function isMedico(): bool
+    {
+        return self::hasRole(ROL_MEDICO);
     }
 
     /** Para tests o flujos especiales. */

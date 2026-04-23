@@ -1,22 +1,26 @@
 <?php
 declare(strict_types=1);
 
-const ROL_ADMIN      = 1;
-const ROL_ENTRENADOR = 2;
+const ROL_SUPERUSER   = 1;
+const ROL_ADMIN       = 2;
+const ROL_ENTRENADOR  = 3;
+const ROL_MEDICO      = 4;
 
 const ESTATUS_ATLETA = [
-    'Activo'     => 'Activo',
-    'Inactivo'   => 'Inactivo',
-    'Lesionado'  => 'Lesionado',
-    'Suspendido' => 'Suspendido',
+    1 => 'Activo',
+    0 => 'Suspendido',
+    2 => 'Lesionado',
+    3 => 'Inactivo',
 ];
 
-const PIERNA_DOMINANTE = ['Derecha', 'Izquierda', 'Ambidiestro'];
+const PIERNA_DOMINANTE = ['derecha', 'izquierda', 'ambidiestro'];
 
-const TIPO_RELACION_TUTOR = [
-    'Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Hermano/a', 'Tutor Legal', 'Otro',
+const TIPO_RELACION_REPRESENTANTE = [
+    'abuelo/a', 'padres', 'tio/a', 'hermano/a', 'primo/a', 'representante',
 ];
 
-const TIPO_EVENTO = ['Entrenamiento', 'Partido', 'Pruebas', 'Evento especial'];
+const TIPO_ACTIVIDAD = [0 => 'Partido', 1 => 'Entrenamiento', 2 => 'Pruebas Físicas'];
 
-const ESTATUS_ASISTENCIA = ['Presente', 'Ausente', 'Justificado'];
+const ESTATUS_ASISTENCIA = [0 => 'Ausente', 1 => 'Presente', 2 => 'Justificado'];
+
+const TIPO_EVENTO = ['Entrenamiento', 'Partido Oficial', 'Partido Amistoso', 'Torneo'];

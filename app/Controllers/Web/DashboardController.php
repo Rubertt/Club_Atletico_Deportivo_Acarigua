@@ -17,13 +17,13 @@ final class DashboardController extends Controller
         $atletas   = (int) $db->query('SELECT COUNT(*) FROM atletas')->fetchColumn();
         $activos   = (int) $db->query("SELECT COUNT(*) FROM atletas WHERE estatus = 'Activo'")->fetchColumn();
         $categorias = (int) $db->query("SELECT COUNT(*) FROM categoria WHERE estatus = 'Activa'")->fetchColumn();
-        $plantel    = (int) $db->query('SELECT COUNT(*) FROM plantel')->fetchColumn();
+        $personal    = (int) $db->query('SELECT COUNT(*) FROM personal')->fetchColumn();
 
         return $this->view('dashboard.index', [
             'title'      => 'Inicio',
             'active'     => 'inicio',
             'breadcrumb' => ['Inicio'],
-            'stats'      => compact('atletas', 'activos', 'categorias', 'plantel'),
+            'stats'      => ['atletas' => $atletas, 'activos' => $activos, 'categorias' => $categorias, 'plantel' => $personal],
         ], 'admin');
     }
 }

@@ -10,18 +10,18 @@ use App\Controllers\Web\AuthController;
 use App\Controllers\Web\DashboardController;
 use App\Controllers\Web\AtletasController;
 use App\Controllers\Web\CategoriasController;
-use App\Controllers\Web\PlantelController;
-use App\Controllers\Web\AsistenciaController;
-use App\Controllers\Web\AntropometriaController;
-use App\Controllers\Web\PruebasController;
+use App\Controllers\Web\PersonalController;
+use App\Controllers\Web\AsistenciasController;
+use App\Controllers\Web\MedidasAntropometricasController;
+use App\Controllers\Web\ResultadosPruebasController;
 use App\Controllers\Web\FichaMedicaController;
 use App\Controllers\Web\ReportesController;
 use App\Controllers\Web\ConfiguracionController;
-use App\Controllers\Api\UbicacionesApiController;
+use App\Controllers\Api\DireccionesApiController;
 use App\Controllers\Api\AtletasApiController;
-use App\Controllers\Api\AntropometriaApiController;
-use App\Controllers\Api\PruebasApiController;
-use App\Controllers\Api\AsistenciaApiController;
+use App\Controllers\Api\MedidasAntropometricasApiController;
+use App\Controllers\Api\ResultadosPruebasApiController;
+use App\Controllers\Api\AsistenciasApiController;
 use App\Controllers\Api\ReportesApiController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
@@ -66,28 +66,28 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
     $r->post('/categorias/{id}',        [CategoriasController::class, 'update'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
     $r->post('/categorias/{id}/eliminar', [CategoriasController::class, 'destroy'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
 
-    // Plantel (sólo admin)
-    $r->get('/plantel',               [PlantelController::class, 'index'], [[RoleMiddleware::class, ['admin']]]);
-    $r->get('/plantel/crear',         [PlantelController::class, 'create'], [[RoleMiddleware::class, ['admin']]]);
-    $r->post('/plantel',              [PlantelController::class, 'store'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
-    $r->get('/plantel/{id}/editar',   [PlantelController::class, 'edit'], [[RoleMiddleware::class, ['admin']]]);
-    $r->post('/plantel/{id}',         [PlantelController::class, 'update'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
-    $r->post('/plantel/{id}/eliminar', [PlantelController::class, 'destroy'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
+    // Personal (sólo admin)
+    $r->get('/personal',               [PersonalController::class, 'index'], [[RoleMiddleware::class, ['admin']]]);
+    $r->get('/personal/crear',         [PersonalController::class, 'create'], [[RoleMiddleware::class, ['admin']]]);
+    $r->post('/personal',              [PersonalController::class, 'store'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
+    $r->get('/personal/{id}/editar',   [PersonalController::class, 'edit'], [[RoleMiddleware::class, ['admin']]]);
+    $r->post('/personal/{id}',         [PersonalController::class, 'update'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
+    $r->post('/personal/{id}/eliminar', [PersonalController::class, 'destroy'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin']]]);
 
-    // Asistencia (admin + entrenador)
-    $r->get('/asistencia',            [AsistenciaController::class, 'index']);
-    $r->get('/asistencia/pase',       [AsistenciaController::class, 'pase']);
-    $r->post('/asistencia/pase',      [AsistenciaController::class, 'guardarPase'], [CsrfMiddleware::class]);
+    // Asistencias (admin + entrenador)
+    $r->get('/asistencias',            [AsistenciasController::class, 'index']);
+    $r->get('/asistencias/pase',       [AsistenciasController::class, 'pase']);
+    $r->post('/asistencias/pase',      [AsistenciasController::class, 'guardarPase'], [CsrfMiddleware::class]);
 
-    // Antropometría
-    $r->get('/antropometria',              [AntropometriaController::class, 'index']);
-    $r->get('/antropometria/atleta/{id}',  [AntropometriaController::class, 'atleta']);
-    $r->post('/antropometria/atleta/{id}', [AntropometriaController::class, 'store'], [CsrfMiddleware::class]);
+    // Medidas Antropometricas
+    $r->get('/medidas',              [MedidasAntropometricasController::class, 'index']);
+    $r->get('/medidas/atleta/{id}',  [MedidasAntropometricasController::class, 'atleta']);
+    $r->post('/medidas/atleta/{id}', [MedidasAntropometricasController::class, 'store'], [CsrfMiddleware::class]);
 
     // Pruebas físicas
-    $r->get('/pruebas',                [PruebasController::class, 'index']);
-    $r->get('/pruebas/atleta/{id}',    [PruebasController::class, 'atleta']);
-    $r->post('/pruebas/atleta/{id}',   [PruebasController::class, 'store'], [CsrfMiddleware::class]);
+    $r->get('/resultados-pruebas',                [ResultadosPruebasController::class, 'index']);
+    $r->get('/resultados-pruebas/atleta/{id}',    [ResultadosPruebasController::class, 'atleta']);
+    $r->post('/resultados-pruebas/atleta/{id}',   [ResultadosPruebasController::class, 'store'], [CsrfMiddleware::class]);
 
     // Ficha médica (lectura entrenador; escritura admin)
     $r->get('/ficha-medica/{id}',      [FichaMedicaController::class, 'show']);
@@ -110,23 +110,23 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
 // ---------------------------------------------------------------------------
 $router->group('/api', [AuthMiddleware::class], function ($r) {
     // Ubicaciones cascada
-    $r->get('/ubicaciones/paises',                       [UbicacionesApiController::class, 'paises']);
-    $r->get('/ubicaciones/estados/{paisId}',             [UbicacionesApiController::class, 'estados']);
-    $r->get('/ubicaciones/municipios/{estadoId}',        [UbicacionesApiController::class, 'municipios']);
-    $r->get('/ubicaciones/parroquias/{municipioId}',     [UbicacionesApiController::class, 'parroquias']);
+    $r->get('/direcciones/paises',                       [DireccionesApiController::class, 'paises']);
+    $r->get('/direcciones/estados/{paisId}',             [DireccionesApiController::class, 'estados']);
+    $r->get('/direcciones/municipios/{estadoId}',        [DireccionesApiController::class, 'municipios']);
+    $r->get('/direcciones/parroquias/{municipioId}',     [DireccionesApiController::class, 'parroquias']);
 
     // Atletas (JSON para tablas y selects)
     $r->get('/atletas',            [AtletasApiController::class, 'index']);
     $r->get('/atletas/{id}',       [AtletasApiController::class, 'show']);
 
     // Antropometría (datos para gráficos)
-    $r->get('/antropometria/atleta/{id}', [AntropometriaApiController::class, 'historial']);
+    $r->get('/medidas/atleta/{id}', [MedidasAntropometricasApiController::class, 'historial']);
 
     // Pruebas físicas (datos para radar chart)
-    $r->get('/pruebas/atleta/{id}',       [PruebasApiController::class, 'historial']);
+    $r->get('/resultados-pruebas/atleta/{id}',       [ResultadosPruebasApiController::class, 'historial']);
 
     // Asistencia (lista atletas por categoría para pase)
-    $r->get('/asistencia/categoria/{id}', [AsistenciaApiController::class, 'atletasCategoria']);
+    $r->get('/asistencias/categoria/{id}', [AsistenciasApiController::class, 'atletasCategoria']);
 
     // Reportes (endpoints de datos agregados)
     $r->get('/reportes/resumen',          [ReportesApiController::class, 'resumen']);

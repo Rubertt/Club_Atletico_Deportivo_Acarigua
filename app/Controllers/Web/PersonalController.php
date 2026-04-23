@@ -7,29 +7,29 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
-use App\Models\Plantel;
+use App\Models\Personal;
 use App\Models\Rol;
 
-final class PlantelController extends Controller
+final class PersonalController extends Controller
 {
     public function index(Request $request): Response
     {
-        return $this->view('plantel.index', [
+        return $this->view('personal.index', [
             'title' => 'Plantel',
             'active' => 'plantel',
             'breadcrumb' => ['Inicio', 'Plantel'],
-            'items' => (new Plantel())->allWithRol(),
+            'items' => (new Personal())->allWithRol(),
         ], 'admin');
     }
 
     public function create(Request $request): Response
     {
-        return $this->view('plantel.form', [
+        return $this->view('personal.form', [
             'title' => 'Nuevo miembro del plantel',
             'active' => 'plantel',
             'breadcrumb' => ['Inicio', 'Plantel', 'Nuevo'],
             'item' => null,
-            'roles' => (new Rol())->all(),
+            'roles' => (new Rol())->allActive(),
             'action' => url('/admin/plantel'),
         ], 'admin');
     }
@@ -48,7 +48,7 @@ final class PlantelController extends Controller
             $this->withOld($data)->withErrors($v->errors());
             return $this->redirect('/admin/plantel/crear');
         }
-        (new Plantel())->insert($data);
+        (new Personal())->insert($data);
         flash('success', 'Miembro del plantel registrado.');
         return $this->redirect('/admin/plantel');
     }
@@ -56,14 +56,14 @@ final class PlantelController extends Controller
     public function edit(Request $request): Response
     {
         $id = (int) $request->param('id');
-        $item = (new Plantel())->find($id);
+        $item = (new Personal())->find($id);
         if (!$item) { flash('error', 'No encontrado.'); return $this->redirect('/admin/plantel'); }
-        return $this->view('plantel.form', [
+        return $this->view('personal.form', [
             'title' => 'Editar plantel',
             'active' => 'plantel',
             'breadcrumb' => ['Inicio', 'Plantel', 'Editar'],
             'item' => $item,
-            'roles' => (new Rol())->all(),
+            'roles' => (new Rol())->allActive(),
             'action' => url("/admin/plantel/$id"),
         ], 'admin');
     }
@@ -71,7 +71,7 @@ final class PlantelController extends Controller
     public function update(Request $request): Response
     {
         $id = (int) $request->param('id');
-        (new Plantel())->update($id, $this->input($request));
+        (new Personal())->update($id, $this->input($request));
         flash('success', 'Plantel actualizado.');
         return $this->redirect('/admin/plantel');
     }
@@ -80,7 +80,7 @@ final class PlantelController extends Controller
     {
         $id = (int) $request->param('id');
         try {
-            (new Plantel())->delete($id);
+            (new Personal())->delete($id);
             flash('success', 'Eliminado.');
         } catch (\Throwable $e) {
             flash('error', 'No se pudo eliminar (tiene categorías o eventos asociados).');

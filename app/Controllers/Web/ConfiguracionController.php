@@ -28,7 +28,7 @@ final class ConfiguracionController extends Controller
             'active' => 'configuracion',
             'breadcrumb' => ['Inicio', 'Configuración', 'Usuarios'],
             'usuarios' => (new Usuario())->allWithRol(),
-            'roles'    => (new Rol())->all(),
+            'roles'    => (new Rol())->allActive(),
         ], 'admin');
     }
 

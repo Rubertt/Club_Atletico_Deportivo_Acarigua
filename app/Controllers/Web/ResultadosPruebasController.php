@@ -8,14 +8,14 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Response;
 use App\Models\Atleta;
-use App\Models\ResultadoPruebas;
+use App\Models\ResultadoPrueba;
 
-final class PruebasController extends Controller
+final class ResultadosPruebasController extends Controller
 {
     public function index(Request $request): Response
     {
         $pag = (new Atleta())->paginate(['estatus' => 'Activo'], (int) $request->query('page', 1), 20);
-        return $this->view('pruebas.index', [
+        return $this->view('resultados_pruebas.index', [
             'title' => 'Pruebas físicas',
             'active' => 'pruebas',
             'breadcrumb' => ['Inicio', 'Reportes', 'Pruebas físicas'],
@@ -28,12 +28,12 @@ final class PruebasController extends Controller
         $id = (int) $request->param('id');
         $atleta = (new Atleta())->findCompleto($id);
         if (!$atleta) { flash('error', 'No encontrado.'); return $this->redirect('/admin/pruebas'); }
-        return $this->view('pruebas.atleta', [
+        return $this->view('resultados_pruebas.atleta', [
             'title' => 'Pruebas - ' . $atleta['nombre'],
             'active' => 'pruebas',
             'breadcrumb' => ['Inicio', 'Pruebas', $atleta['nombre']],
             'atleta' => $atleta,
-            'historial' => (new ResultadoPruebas())->historial($id),
+            'historial' => (new ResultadoPrueba())->historial($id),
         ], 'admin');
     }
 
@@ -71,7 +71,7 @@ final class PruebasController extends Controller
             'test_de_reaccion'  => $this->num($request->input('test_de_reaccion')),
         ];
         try {
-            (new ResultadoPruebas())->insert($data);
+            (new ResultadoPrueba())->insert($data);
             flash('success', 'Prueba registrada.');
         } catch (\Throwable $e) {
             flash('error', 'No se pudo registrar: ' . $e->getMessage());

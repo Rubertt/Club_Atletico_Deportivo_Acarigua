@@ -11,7 +11,7 @@ use App\Core\Logger;
 use App\Models\Atleta;
 use App\Models\Categoria;
 use App\Models\PosicionJuego;
-use App\Models\Ubicacion;
+use App\Models\Direccion;
 use App\Services\AtletaService;
 use Throwable;
 
@@ -63,7 +63,7 @@ final class AtletasController extends Controller
             'atleta'     => null,
             'categorias' => (new Categoria())->activas(),
             'posiciones' => (new PosicionJuego())->all('nombre_posicion'),
-            'paises'     => (new Ubicacion())->paises(),
+            'paises'     => (new Direccion())->paises(),
             'action'     => url('/admin/atletas'),
         ], 'admin');
     }
@@ -104,7 +104,7 @@ final class AtletasController extends Controller
             'atleta'     => $atleta,
             'categorias' => (new Categoria())->activas(),
             'posiciones' => (new PosicionJuego())->all('nombre_posicion'),
-            'paises'     => (new Ubicacion())->paises(),
+            'paises'     => (new Direccion())->paises(),
             'action'     => url("/admin/atletas/{$atleta['atleta_id']}"),
         ], 'admin');
     }
@@ -149,33 +149,34 @@ final class AtletasController extends Controller
             'nombre'            => trim((string) $request->input('nombre', '')),
             'apellido'          => trim((string) $request->input('apellido', '')),
             'cedula'            => trim((string) $request->input('cedula', '')),
+            'sexo'              => trim((string) $request->input('sexo', 'M')), // Nuevo campo requerido en BD
             'telefono'          => trim((string) $request->input('telefono', '')),
             'fecha_nacimiento'  => trim((string) $request->input('fecha_nacimiento', '')),
             'posicion_de_juego' => $request->input('posicion_de_juego') ?: null,
             'pierna_dominante'  => $request->input('pierna_dominante') ?: null,
             'categoria_id'      => $request->input('categoria_id') ?: null,
-            'estatus'           => $request->input('estatus', 'Activo'),
+            'estatus'           => $request->input('estatus') !== null ? (int)$request->input('estatus') : 1,
 
-            // Dirección
-            'parroquia_id'     => $request->input('parroquia_id') ?: null,
-            'punto_referencia' => trim((string) $request->input('punto_referencia', '')),
-            'calle_avenida'    => trim((string) $request->input('calle_avenida', '')),
-            'casa_edificio'    => trim((string) $request->input('casa_edificio', '')),
+            // Dirección (Adaptado a tabla direcciones)
+            'parroquia_id'       => $request->input('parroquia_id') ?: null,
+            'localidad'          => trim((string) $request->input('localidad', '')),
+            'tipo_vivienda'      => trim((string) $request->input('tipo_vivienda', '')),
+            'ubicacion_vivienda' => trim((string) $request->input('ubicacion_vivienda', '')),
 
-            // Tutor
+            // Representante (Adaptado a tabla representante)
             'tutor_nombres'   => trim((string) $request->input('tutor_nombres', '')),
             'tutor_apellidos' => trim((string) $request->input('tutor_apellidos', '')),
             'tutor_cedula'    => trim((string) $request->input('tutor_cedula', '')),
             'tutor_telefono'  => trim((string) $request->input('tutor_telefono', '')),
-            'tutor_correo'    => trim((string) $request->input('tutor_correo', '')),
-            'tutor_relacion'  => $request->input('tutor_relacion', 'Padre'),
+            'tutor_relacion'  => trim((string) $request->input('tutor_relacion', 'representante')),
 
-            // Ficha médica
-            'alergias'        => trim((string) $request->input('alergias', '')),
-            'tipo_sanguineo'  => trim((string) $request->input('tipo_sanguineo', '')),
-            'lesion'          => trim((string) $request->input('lesion', '')),
-            'condicion_medica' => trim((string) $request->input('condicion_medica', '')),
-            'observacion'     => trim((string) $request->input('observacion', '')),
+            // Ficha médica (Adaptado a tabla ficha_medica)
+            'alergias'                 => trim((string) $request->input('alergias', '')),
+            'grupo_sanguineo'          => trim((string) $request->input('grupo_sanguineo', '')),
+            'antecedentes_familiares'  => trim((string) $request->input('antecedentes_familiares', '')),
+            'antecedentes_quirurgicos' => trim((string) $request->input('antecedentes_quirurgicos', '')),
+            'condicion_cronica'        => trim((string) $request->input('condicion_cronica', '')),
+            'medicacion_actual'        => trim((string) $request->input('medicacion_actual', '')),
         ];
     }
 
@@ -185,10 +186,8 @@ final class AtletasController extends Controller
             'nombre'           => 'required|min:2|max:100',
             'apellido'         => 'required|min:2|max:100',
             'fecha_nacimiento' => 'required|date',
-            'estatus'          => 'required|in:Activo,Inactivo,Lesionado,Suspendido',
-            'pierna_dominante' => 'in:Derecha,Izquierda,Ambidiestro',
-            'tutor_relacion'   => 'in:Padre,Madre,Abuelo/a,Tío/a,Hermano/a,Tutor Legal,Otro',
-            'tutor_correo'     => 'email|max:100',
+            'estatus'          => 'required|in:0,1,2,3',
+            'pierna_dominante' => 'in:derecha,izquierda,ambidiestro',
         ];
         $v = Validator::make($data, $rules);
         $v->validate();

@@ -27,7 +27,7 @@ final class RoleMiddleware
             $allowed[] = is_string($r) ? ($map[$r] ?? 0) : (int) $r;
         }
 
-        if (!in_array((int) $user['rol_id'], $allowed, true)) {
+        if (!in_array((int) $user['rol'], $allowed, true)) {
             if ($request->isJson()) {
                 return Response::json(['error' => 'No autorizado'], 403);
             }

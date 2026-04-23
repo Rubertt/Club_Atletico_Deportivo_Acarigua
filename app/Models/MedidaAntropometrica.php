@@ -5,7 +5,7 @@ namespace App\Models;
 
 use App\Core\Model;
 
-final class MedidasAntropometricas extends Model
+final class MedidaAntropometrica extends Model
 {
     protected string $table = 'medidas_antropometricas';
     protected string $primaryKey = 'medidas_id';

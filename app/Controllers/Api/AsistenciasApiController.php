@@ -8,7 +8,7 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Response;
 
-final class AsistenciaApiController extends Controller
+final class AsistenciasApiController extends Controller
 {
     public function atletasCategoria(Request $request): Response
     {

@@ -8,14 +8,14 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
 use App\Models\Atleta;
-use App\Models\MedidasAntropometricas;
+use App\Models\MedidaAntropometrica;
 
-final class AntropometriaController extends Controller
+final class MedidasAntropometricasController extends Controller
 {
     public function index(Request $request): Response
     {
         $pag = (new Atleta())->paginate(['estatus' => 'Activo'], (int) $request->query('page', 1), 20);
-        return $this->view('antropometria.index', [
+        return $this->view('medidas.index', [
             'title' => 'Antropometría',
             'active' => 'antropometria',
             'breadcrumb' => ['Inicio', 'Reportes', 'Antropometría'],
@@ -28,8 +28,8 @@ final class AntropometriaController extends Controller
         $id = (int) $request->param('id');
         $atleta = (new Atleta())->findCompleto($id);
         if (!$atleta) { flash('error', 'Atleta no encontrado.'); return $this->redirect('/admin/antropometria'); }
-        $historial = (new MedidasAntropometricas())->historial($id);
-        return $this->view('antropometria.atleta', [
+        $historial = (new MedidaAntropometrica())->historial($id);
+        return $this->view('medidas.atleta', [
             'title' => 'Antropometría - ' . $atleta['nombre'] . ' ' . $atleta['apellido'],
             'active' => 'antropometria',
             'breadcrumb' => ['Inicio', 'Antropometría', $atleta['nombre']],
@@ -59,7 +59,7 @@ final class AntropometriaController extends Controller
             $this->withErrors($v->errors());
             return $this->redirect("/admin/antropometria/atleta/$id");
         }
-        (new MedidasAntropometricas())->insert($data);
+        (new MedidaAntropometrica())->insert($data);
         flash('success', 'Medición registrada.');
         return $this->redirect("/admin/antropometria/atleta/$id");
     }

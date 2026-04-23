@@ -6,13 +6,13 @@ namespace App\Controllers\Api;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
-use App\Models\ResultadoPruebas;
+use App\Models\ResultadoPrueba;
 
-final class PruebasApiController extends Controller
+final class ResultadosPruebasApiController extends Controller
 {
     public function historial(Request $request): Response
     {
         $id = (int) $request->param('id');
-        return $this->json((new ResultadoPruebas())->historial($id));
+        return $this->json((new ResultadoPrueba())->historial($id));
     }
 }

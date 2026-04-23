@@ -8,7 +8,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
 use App\Models\Categoria;
-use App\Models\Plantel;
+use App\Models\Personal;
 
 final class CategoriasController extends Controller
 {
@@ -29,7 +29,7 @@ final class CategoriasController extends Controller
             'active' => 'categorias',
             'breadcrumb' => ['Inicio', 'Categorías', 'Nueva'],
             'item' => null,
-            'entrenadores' => (new Plantel())->entrenadores(),
+            'entrenadores' => (new Personal())->entrenadores(),
             'action' => url('/admin/categorias'),
         ], 'admin');
     }
@@ -62,7 +62,7 @@ final class CategoriasController extends Controller
             'active' => 'categorias',
             'breadcrumb' => ['Inicio', 'Categorías', 'Editar'],
             'item' => $item,
-            'entrenadores' => (new Plantel())->entrenadores(),
+            'entrenadores' => (new Personal())->entrenadores(),
             'action' => url("/admin/categorias/$id"),
         ], 'admin');
     }

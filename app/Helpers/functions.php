@@ -106,7 +106,7 @@ if (!function_exists('can')) {
             $map = config('auth.roles') ?? [];
             $role = $map[$role] ?? 0;
         }
-        return (int) ($user['rol_id'] ?? 0) === (int) $role;
+        return (int) ($user['rol'] ?? 0) === (int) $role;
     }
 }
 

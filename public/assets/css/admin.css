@@ -210,7 +210,9 @@ body.admin-body {
 }
 .user-menu.is-open .user-menu__dropdown { display: block; }
 .user-menu__dropdown a {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 12px;
     color: var(--color-text);
     border-radius: var(--radius-sm);
@@ -257,54 +259,7 @@ body.admin-body {
     width: 100%;
 }
 
-/* ---------- Cards del dashboard ---------- */
-.welcome-card {
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    box-shadow: var(--shadow-sm);
-    max-width: 900px;
-    margin: 40px auto;
-}
-.welcome-card__head {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 24px;
-}
-.welcome-card__avatar {
-    width: 72px; height: 72px;
-    background: linear-gradient(135deg, #00E5FF, #00B8D9);
-    border-radius: var(--radius-lg);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #0B1220;
-    font-size: 28px;
-    font-weight: 700;
-    position: relative;
-}
-.welcome-card__avatar::after {
-    content: '';
-    position: absolute;
-    bottom: 4px; right: 4px;
-    width: 14px; height: 14px;
-    background: var(--color-success);
-    border-radius: 50%;
-    border: 2px solid var(--color-bg);
-}
-.welcome-card__title {
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 0 4px;
-}
-.welcome-card__role {
-    color: var(--color-text-muted);
-    font-size: 14px;
-}
+/* (Borrados estilos duplicados de welcome-card para respetar main.css) */
 
 .quick-grid {
     display: grid;

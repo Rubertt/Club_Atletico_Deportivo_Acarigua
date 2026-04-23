@@ -6,13 +6,13 @@ namespace App\Controllers\Api;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
-use App\Models\MedidasAntropometricas;
+use App\Models\MedidaAntropometrica;
 
-final class AntropometriaApiController extends Controller
+final class MedidasAntropometricasApiController extends Controller
 {
     public function historial(Request $request): Response
     {
         $id = (int) $request->param('id');
-        return $this->json((new MedidasAntropometricas())->historial($id));
+        return $this->json((new MedidaAntropometrica())->historial($id));
     }
 }

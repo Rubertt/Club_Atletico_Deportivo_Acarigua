@@ -5,6 +5,15 @@ namespace App\Models;
 
 use App\Core\Model;
 
+/**
+ * Modelo para la tabla `atletas` de cada_db.
+ *
+ * Relaciones clave:
+ *   - representante_id → representante.representante_id
+ *   - direccion_id     → direcciones.direccion_id
+ *   - categoria_id     → categoria.categoria_id
+ *   - posicion_de_juego→ posicion_juego.posicion_id
+ */
 final class Atleta extends Model
 {
     protected string $table = 'atletas';
@@ -22,9 +31,9 @@ final class Atleta extends Model
             $where[] = 'a.categoria_id = :categoria';
             $params[':categoria'] = (int) $filters['categoria_id'];
         }
-        if (!empty($filters['estatus'])) {
+        if (isset($filters['estatus']) && $filters['estatus'] !== '') {
             $where[] = 'a.estatus = :estatus';
-            $params[':estatus'] = $filters['estatus'];
+            $params[':estatus'] = (int) $filters['estatus'];
         }
         if (!empty($filters['q'])) {
             $where[] = '(a.nombre LIKE :q OR a.apellido LIKE :q OR a.cedula LIKE :q)';
@@ -64,29 +73,34 @@ final class Atleta extends Model
         ];
     }
 
+    /**
+     * Obtiene un atleta con todos sus datos relacionados (representante, dirección, ficha médica).
+     */
     public function findCompleto(int $id): ?array
     {
         $sql = "
             SELECT a.*,
                    c.nombre_categoria,
                    p.nombre_posicion,
-                   t.nombres AS tutor_nombres, t.apellidos AS tutor_apellidos,
-                   t.cedula AS tutor_cedula, t.telefono AS tutor_telefono,
-                   t.correo AS tutor_correo, t.tipo_relacion AS tutor_relacion,
-                   d.parroquia_id, d.punto_referencia, d.calle_avenida, d.casa_edificio,
-                   pa.nombre AS parroquia, m.nombre AS municipio,
-                   e.nombre AS estado, pais.nombre AS pais,
-                   pa.municipio_id, m.estado_id, e.pais_id,
-                   f.alergias, f.tipo_sanguineo, f.lesion, f.condicion_medica, f.observacion
+                   rep.nombre_completo AS representante_nombre,
+                   rep.cedula AS representante_cedula,
+                   rep.telefono AS representante_telefono,
+                   rep.tipo_relacion AS representante_relacion,
+                   d.parroquias_id, d.localidad, d.tipo_vivienda, d.ubicacion_vivienda,
+                   pa.parroquia AS parroquia_nombre,
+                   m.municipio AS municipio_nombre,
+                   e.estado AS estado_nombre,
+                   pa.municipio_id, m.estado_id,
+                   f.ficha_id, f.grupo_sanguineo, f.alergias, f.antecedentes_familiares,
+                   f.antecedentes_quirurgicos, f.condicion_cronica, f.medicacion_actual
             FROM atletas a
             LEFT JOIN categoria c ON c.categoria_id = a.categoria_id
             LEFT JOIN posicion_juego p ON p.posicion_id = a.posicion_de_juego
-            LEFT JOIN tutor t ON t.tutor_id = a.tutor_id
+            LEFT JOIN representante rep ON rep.representante_id = a.representante_id
             LEFT JOIN direcciones d ON d.direccion_id = a.direccion_id
-            LEFT JOIN ubicacion_parroquia pa ON pa.parroquia_id = d.parroquia_id
-            LEFT JOIN ubicacion_municipio m ON m.municipio_id = pa.municipio_id
-            LEFT JOIN ubicacion_estado e ON e.estado_id = m.estado_id
-            LEFT JOIN ubicacion_pais pais ON pais.pais_id = e.pais_id
+            LEFT JOIN parroquias pa ON pa.parroquia_id = d.parroquias_id
+            LEFT JOIN municipios m ON m.municipio_id = pa.municipio_id
+            LEFT JOIN estados e ON e.estado_id = m.estado_id
             LEFT JOIN ficha_medica f ON f.atleta_id = a.atleta_id
             WHERE a.atleta_id = :id
             LIMIT 1

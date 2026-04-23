@@ -6,7 +6,7 @@ namespace App\Services;
 use App\Core\Database;
 use App\Core\Logger;
 use App\Models\Atleta;
-use App\Models\Tutor;
+use App\Models\Representante;
 use App\Models\Direccion;
 use App\Models\FichaMedica;
 use RuntimeException;
@@ -14,7 +14,7 @@ use Throwable;
 
 /**
  * Encapsula la creación/actualización de un atleta con sus entidades
- * relacionadas (tutor, dirección, ficha médica) en una única transacción.
+ * relacionadas (representante, dirección, ficha médica) en una única transacción.
  */
 final class AtletaService
 {
@@ -23,23 +23,24 @@ final class AtletaService
         Database::beginTransaction();
         try {
             $direccionId = $this->guardarDireccion($data);
-            $tutorId     = $this->guardarTutor($data, $direccionId);
+            $representanteId = $this->guardarRepresentante($data, $direccionId);
             $fotoPath    = $this->guardarFoto($fotoFile);
 
             $atleta = new Atleta();
             $atletaId = $atleta->insert([
                 'nombre'            => $data['nombre'],
                 'apellido'          => $data['apellido'],
+                'fecha_nacimiento'  => $data['fecha_nacimiento'],
+                'sexo'              => $data['sexo'] ?? 'M', // Por default para evitar error
                 'cedula'            => $data['cedula'] ?: null,
                 'telefono'          => $data['telefono'] ?? null,
-                'fecha_nacimiento'  => $data['fecha_nacimiento'],
                 'posicion_de_juego' => $data['posicion_de_juego'] ?? null,
                 'pierna_dominante'  => $data['pierna_dominante'] ?? null,
                 'categoria_id'      => $data['categoria_id'] ?? null,
-                'tutor_id'          => $tutorId,
+                'representante_id'  => $representanteId,
                 'direccion_id'      => $direccionId,
                 'foto'              => $fotoPath,
-                'estatus'           => $data['estatus'] ?? 'Activo',
+                'estatus'           => $data['estatus'] ?? 1, // 1: Activo
             ]);
 
             $this->guardarFichaMedica($atletaId, $data);
@@ -67,27 +68,28 @@ final class AtletaService
             $direccionId = $actual['direccion_id'] ?? null;
             if ($direccionId) {
                 (new Direccion())->update((int) $direccionId, [
-                    'parroquia_id'    => $data['parroquia_id'] ?? null,
-                    'punto_referencia' => $data['punto_referencia'] ?? null,
-                    'calle_avenida'   => $data['calle_avenida'] ?? null,
-                    'casa_edificio'   => $data['casa_edificio'] ?? null,
+                    'parroquias_id'     => $data['parroquia_id'] ?? null,
+                    'localidad'         => $data['localidad'] ?? null,
+                    'tipo_vivienda'     => $data['tipo_vivienda'] ?? null,
+                    'ubicacion_vivienda'=> $data['ubicacion_vivienda'] ?? null,
                 ]);
             } else {
                 $direccionId = $this->guardarDireccion($data);
             }
 
-            $tutorId = $this->guardarTutor($data, $direccionId, (int) ($actual['tutor_id'] ?? 0));
+            $representanteId = $this->guardarRepresentante($data, $direccionId, (int) ($actual['representante_id'] ?? 0));
 
             $update = [
                 'nombre'            => $data['nombre'],
                 'apellido'          => $data['apellido'],
+                'fecha_nacimiento'  => $data['fecha_nacimiento'],
+                'sexo'              => $data['sexo'] ?? $actual['sexo'],
                 'cedula'            => $data['cedula'] ?: null,
                 'telefono'          => $data['telefono'] ?? null,
-                'fecha_nacimiento'  => $data['fecha_nacimiento'],
                 'posicion_de_juego' => $data['posicion_de_juego'] ?? null,
                 'pierna_dominante'  => $data['pierna_dominante'] ?? null,
                 'categoria_id'      => $data['categoria_id'] ?? null,
-                'tutor_id'          => $tutorId,
+                'representante_id'  => $representanteId,
                 'direccion_id'      => $direccionId,
                 'estatus'           => $data['estatus'] ?? $actual['estatus'],
             ];
@@ -107,63 +109,56 @@ final class AtletaService
         }
     }
 
-    private function guardarDireccion(array $data): ?int
+    private function guardarDireccion(array $data): int
     {
-        if (empty($data['parroquia_id']) && empty($data['calle_avenida']) && empty($data['casa_edificio'])) {
-            return null;
-        }
         return (new Direccion())->insert([
-            'parroquia_id'    => $data['parroquia_id'] ?? null,
-            'punto_referencia' => $data['punto_referencia'] ?? null,
-            'calle_avenida'   => $data['calle_avenida'] ?? null,
-            'casa_edificio'   => $data['casa_edificio'] ?? null,
+            'parroquias_id'     => $data['parroquia_id'] ?? 1, // Fix temporal si es requerido
+            'localidad'         => $data['localidad'] ?? '',
+            'tipo_vivienda'     => $data['tipo_vivienda'] ?? 'casa',
+            'ubicacion_vivienda'=> $data['ubicacion_vivienda'] ?? '',
         ]);
     }
 
-    private function guardarTutor(array $data, ?int $direccionId, int $tutorIdExistente = 0): ?int
+    private function guardarRepresentante(array $data, int $direccionId, int $representanteIdExistente = 0): int
     {
-        if (empty($data['tutor_cedula']) && empty($data['tutor_nombres'])) {
-            return $tutorIdExistente ?: null;
-        }
-        $tutorModel = new Tutor();
-        $existente = !empty($data['tutor_cedula']) ? $tutorModel->findByCedula($data['tutor_cedula']) : null;
+        $representanteModel = new Representante(); // Apunta a representante
+        $existente = !empty($data['tutor_cedula']) ? $representanteModel->findByCedula($data['tutor_cedula']) : null;
+        
+        $nombreCompleto = !empty($data['tutor_nombres']) ? ($data['tutor_nombres'] . ' ' . ($data['tutor_apellidos'] ?? '')) : 'Sin Nombre';
+
         if ($existente) {
-            $tutorModel->update((int) $existente['tutor_id'], [
-                'nombres'       => $data['tutor_nombres'] ?? $existente['nombres'],
-                'apellidos'     => $data['tutor_apellidos'] ?? $existente['apellidos'],
-                'telefono'      => $data['tutor_telefono'] ?? $existente['telefono'],
-                'correo'        => $data['tutor_correo'] ?? $existente['correo'],
-                'tipo_relacion' => $data['tutor_relacion'] ?? $existente['tipo_relacion'],
-                'direccion_id'  => $direccionId ?? $existente['direccion_id'],
+            $representanteModel->update((int) $existente['representante_id'], [
+                'nombre_completo' => $nombreCompleto,
+                'telefono'        => $data['tutor_telefono'] ?? $existente['telefono'],
+                'tipo_relacion'   => $data['tutor_relacion'] ?? $existente['tipo_relacion'],
+                'direccion_id'    => $direccionId,
             ]);
-            return (int) $existente['tutor_id'];
+            return (int) $existente['representante_id'];
         }
-        return $tutorModel->insert([
-            'nombres'       => $data['tutor_nombres'] ?? '',
-            'apellidos'     => $data['tutor_apellidos'] ?? '',
-            'cedula'        => $data['tutor_cedula'] ?? '',
-            'telefono'      => $data['tutor_telefono'] ?? '',
-            'correo'        => $data['tutor_correo'] ?? null,
-            'tipo_relacion' => $data['tutor_relacion'] ?? 'Padre',
-            'direccion_id'  => $direccionId,
+        return $representanteModel->insert([
+            'nombre_completo' => $nombreCompleto,
+            'cedula'          => $data['tutor_cedula'] ?? 'S/N',
+            'telefono'        => $data['tutor_telefono'] ?? '',
+            'tipo_relacion'   => $data['tutor_relacion'] ?? 'representante',
+            'direccion_id'    => $direccionId,
         ]);
     }
 
     private function guardarFichaMedica(int $atletaId, array $data): void
     {
-        $tieneData = !empty($data['alergias']) || !empty($data['tipo_sanguineo'])
-            || !empty($data['lesion']) || !empty($data['condicion_medica'])
-            || !empty($data['observacion']);
+        $tieneData = !empty($data['alergias']) || !empty($data['grupo_sanguineo'])
+            || !empty($data['condicion_cronica']) || !empty($data['antecedentes_quirurgicos']);
         if (!$tieneData) return;
 
         $model = new FichaMedica();
         $actual = $model->byAtleta($atletaId);
         $payload = [
-            'alergias'        => $data['alergias'] ?? null,
-            'tipo_sanguineo'  => $data['tipo_sanguineo'] ?? null,
-            'lesion'          => $data['lesion'] ?? null,
-            'condicion_medica' => $data['condicion_medica'] ?? null,
-            'observacion'     => $data['observacion'] ?? null,
+            'grupo_sanguineo'          => $data['grupo_sanguineo'] ?? 'O+',
+            'alergias'                 => $data['alergias'] ?? null,
+            'antecedentes_familiares'  => $data['antecedentes_familiares'] ?? null,
+            'antecedentes_quirurgicos' => $data['antecedentes_quirurgicos'] ?? null,
+            'condicion_cronica'        => $data['condicion_cronica'] ?? null,
+            'medicacion_actual'        => $data['medicacion_actual'] ?? null,
         ];
         if ($actual) {
             $model->update((int) $actual['ficha_id'], $payload);

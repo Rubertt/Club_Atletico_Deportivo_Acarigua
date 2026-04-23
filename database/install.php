@@ -1,11 +1,10 @@
 <?php
 /**
- * Instalador de la base de datos.
+ * Instalador de la base de datos de LEGADO (adaptada al MVC)
  *
  * Uso:
- *   php database/install.php             (crea DB + schema + seeds)
- *   php database/install.php --fresh     (dropea DB antes de crearla)
- *   php database/install.php --seed-only (solo ejecuta seeds asumiendo schema existente)
+ *   php database/install.php             (Crea DB + importa cada_db_clean.sql)
+ *   php database/install.php --fresh     (Dropea DB antes de crearla)
  */
 declare(strict_types=1);
 
@@ -23,12 +22,11 @@ if (is_file(BASE_PATH . '/.env')) {
 
 $args = $argv;
 array_shift($args);
-$fresh    = in_array('--fresh', $args, true);
-$seedOnly = in_array('--seed-only', $args, true);
+$fresh = in_array('--fresh', $args, true);
 
 $dbHost = $_ENV['DB_HOST'] ?? '127.0.0.1';
 $dbPort = (int) ($_ENV['DB_PORT'] ?? 3306);
-$dbName = $_ENV['DB_NAME'] ?? 'club_atletico_db_normalized';
+$dbName = $_ENV['DB_NAME'] ?? 'cada_db';
 $dbUser = $_ENV['DB_USER'] ?? 'root';
 $dbPass = $_ENV['DB_PASS'] ?? '';
 
@@ -46,83 +44,54 @@ try {
     ]);
     $ok("Conectado a MySQL en $dbHost:$dbPort");
 
-    if (!$seedOnly) {
-        if ($fresh) {
-            $step("Eliminando base de datos `$dbName` (--fresh)...");
-            $server->exec("DROP DATABASE IF EXISTS `$dbName`");
-        }
-
-        // Importar schema
-        $step("Importando schema normalizado...");
-        $schema = file_get_contents(__DIR__ . '/normalized_schema.sql');
-        if ($schema === false) {
-            throw new RuntimeException('No se pudo leer normalized_schema.sql');
-        }
-        $server->exec($schema);
-        $ok("Schema importado: base `$dbName` creada con todas las tablas.");
+    if ($fresh) {
+        $step("Eliminando base de datos `$dbName` (--fresh)...");
+        $server->exec("DROP DATABASE IF EXISTS `$dbName`");
     }
 
-    // Conectar ya a la base creada
+    // Crear DB
+    $server->exec("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+
+    // Conectar a la DB
     $dsn = "mysql:host=$dbHost;port=$dbPort;dbname=$dbName;charset=utf8mb4";
     $pdo = new PDO($dsn, $dbUser, $dbPass, [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
     ]);
-    $pdo->exec('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci');
 
-    // Ejecutar seeds SQL en orden
-    $seedFiles = glob(__DIR__ . '/seeds/*.sql') ?: [];
-    sort($seedFiles);
-    foreach ($seedFiles as $file) {
-        $step('Seed: ' . basename($file));
-        $sql = file_get_contents($file);
-        if ($sql === false || trim($sql) === '') continue;
-        $pdo->exec($sql);
+    // Importar el schema legacy corregido
+    $step("Importando schema de legado: cada_db_clean.sql ...");
+    $schema = file_get_contents(__DIR__ . '/cada_db_clean.sql');
+    if ($schema === false) {
+        throw new RuntimeException('No se pudo leer cada_db_clean.sql');
     }
-
-    // Seed del usuario admin (password dinámico con bcrypt)
-    $step('Seed: usuario administrador');
-    $adminEmail = 'admin@cada.com';
-    $adminPass  = 'Admin2026!';
-    $hash = password_hash($adminPass, PASSWORD_BCRYPT, ['cost' => 12]);
-
-    $stmt = $pdo->prepare('SELECT usuario_id FROM usuarios WHERE email = :email');
-    $stmt->execute([':email' => $adminEmail]);
-    if ($stmt->fetchColumn()) {
-        $pdo->prepare('UPDATE usuarios SET password = :p, rol_id = 1, estatus = "Activo" WHERE email = :email')
-            ->execute([':p' => $hash, ':email' => $adminEmail]);
-        $ok("Usuario admin actualizado ($adminEmail)");
-    } else {
-        $pdo->prepare('INSERT INTO usuarios (email, password, rol_id, estatus) VALUES (:email, :p, 1, "Activo")')
-            ->execute([':email' => $adminEmail, ':p' => $hash]);
-        $ok("Usuario admin creado ($adminEmail)");
-    }
+    
+    // Ejecutar el script SQL
+    $pdo->exec($schema);
+    $ok("Base de datos `$dbName` importada correctamente.");
 
     // Estadísticas
     $step('Verificando instalación...');
     $tables = $pdo->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$dbName'")->fetchColumn();
     $users  = $pdo->query('SELECT COUNT(*) FROM usuarios')->fetchColumn();
     $roles  = $pdo->query('SELECT COUNT(*) FROM rol_usuarios')->fetchColumn();
-    $posic  = $pdo->query('SELECT COUNT(*) FROM posicion_juego')->fetchColumn();
     $cats   = $pdo->query('SELECT COUNT(*) FROM categoria')->fetchColumn();
-    $estados = $pdo->query('SELECT COUNT(*) FROM ubicacion_estado')->fetchColumn();
+    $estados = $pdo->query('SELECT COUNT(*) FROM estados')->fetchColumn();
 
     $log('');
     $log(str_repeat('=', 60));
-    $ok("Instalación completada");
+    $ok("Instalación completada (Base de Legado Alineada)");
     $log(str_repeat('=', 60));
     $log("  Base de datos : $dbName");
     $log("  Tablas        : $tables");
     $log("  Roles         : $roles");
-    $log("  Posiciones    : $posic");
     $log("  Categorías    : $cats");
     $log("  Estados VE    : $estados");
     $log("  Usuarios      : $users");
     $log('');
-    $log("  🔐 CREDENCIALES INICIALES");
-    $log("     Email    : $adminEmail");
-    $log("     Password : $adminPass");
-    $log("     ⚠  Cambia esta contraseña al iniciar sesión por primera vez.");
+    $log("  🔐 USUARIOS DISPONIBLES");
+    $log("     admin@gmail.com / directivo@gmail.com / entrenador@gmail.com / medico@gmail.com");
+    $log("     Contraseña   : 12345678");
     $log('');
     exit(0);
 } catch (Throwable $e) {
@@ -132,8 +101,8 @@ try {
     }
     $log('');
     $log('Sugerencias:');
-    $log('  1. Verifica que MySQL/MariaDB esté corriendo (systemctl status mysql / XAMPP)');
+    $log('  1. Verifica que MySQL/MariaDB esté corriendo (XAMPP).');
     $log('  2. Revisa las credenciales en .env (DB_HOST, DB_USER, DB_PASS)');
-    $log('  3. Intenta --fresh para recrear la base desde cero');
+    $log('  3. Si la base ya existe, intenta: php database/install.php --fresh');
     exit(1);
 }

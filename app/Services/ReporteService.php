@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Atleta;
-use App\Models\MedidasAntropometricas;
-use App\Models\ResultadoPruebas;
-use App\Models\DetalleAsistencia;
+use App\Models\MedidaAntropometrica;
+use App\Models\ResultadoPrueba;
+use App\Models\Asistencia;
 
 final class ReporteService
 {
@@ -20,9 +20,9 @@ final class ReporteService
         $atleta = (new Atleta())->findCompleto($atletaId);
         if (!$atleta) return null;
 
-        $antropometria = (new MedidasAntropometricas())->historial($atletaId);
-        $pruebas       = (new ResultadoPruebas())->historial($atletaId);
-        $asistencia    = (new DetalleAsistencia())->resumenAtleta($atletaId);
+        $antropometria = (new MedidaAntropometrica())->historial($atletaId);
+        $pruebas       = (new ResultadoPrueba())->historial($atletaId);
+        $asistencia    = (new Asistencia())->resumenAtleta($atletaId);
 
         $html = $this->construirHtml($atleta, $antropometria, $pruebas, $asistencia);
 

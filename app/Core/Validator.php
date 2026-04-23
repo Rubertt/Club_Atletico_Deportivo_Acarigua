@@ -78,21 +78,30 @@ final class Validator
     private function ruleMin(string $field, mixed $value, ?string $param): void
     {
         $min = (int) $param;
-        $len = is_numeric($value) ? (float) $value : mb_strlen((string) $value);
-        $isNumeric = is_numeric($value);
-        if ($isNumeric ? $len < $min : mb_strlen((string) $value) < $min) {
-            $label = $isNumeric ? "debe ser mayor o igual a $min" : "debe tener al menos $min caracteres";
-            $this->addError($field, "El campo $field $label.");
+        $rules = is_array($this->rules[$field]) ? $this->rules[$field] : explode('|', (string)$this->rules[$field]);
+        $isNumericContext = in_array('numeric', $rules, true) || in_array('integer', $rules, true);
+        
+        if ($isNumericContext && is_numeric($value)) {
+            if ((float) $value < $min) {
+                $this->addError($field, "El campo $field debe ser mayor o igual a $min.");
+            }
+        } elseif (mb_strlen((string) $value) < $min) {
+            $this->addError($field, "El campo $field debe tener al menos $min caracteres.");
         }
     }
 
     private function ruleMax(string $field, mixed $value, ?string $param): void
     {
         $max = (int) $param;
-        $isNumeric = is_numeric($value);
-        if ($isNumeric ? (float) $value > $max : mb_strlen((string) $value) > $max) {
-            $label = $isNumeric ? "debe ser menor o igual a $max" : "no puede superar los $max caracteres";
-            $this->addError($field, "El campo $field $label.");
+        $rules = is_array($this->rules[$field]) ? $this->rules[$field] : explode('|', (string)$this->rules[$field]);
+        $isNumericContext = in_array('numeric', $rules, true) || in_array('integer', $rules, true);
+
+        if ($isNumericContext && is_numeric($value)) {
+            if ((float) $value > $max) {
+                $this->addError($field, "El campo $field debe ser menor o igual a $max.");
+            }
+        } elseif (mb_strlen((string) $value) > $max) {
+            $this->addError($field, "El campo $field no puede superar los $max caracteres.");
         }
     }
 

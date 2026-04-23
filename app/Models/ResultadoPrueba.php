@@ -5,7 +5,10 @@ namespace App\Models;
 
 use App\Core\Model;
 
-final class ResultadoPruebas extends Model
+/**
+ * Modelo para la tabla `resultado_pruebas` de cada_db.
+ */
+final class ResultadoPrueba extends Model
 {
     protected string $table = 'resultado_pruebas';
     protected string $primaryKey = 'test_id';
@@ -13,11 +16,11 @@ final class ResultadoPruebas extends Model
     public function historial(int $atletaId): array
     {
         return $this->query(
-            'SELECT rp.*, ev.fecha_evento, ev.tipo_evento
+            'SELECT rp.*, act.fecha AS fecha_evento, act.tipo_actividad AS tipo_evento
              FROM resultado_pruebas rp
-             JOIN evento_deportivo ev ON ev.evento_id = rp.evento_id
+             JOIN actividades act ON act.actividad_id = rp.actividad_id
              WHERE rp.atleta_id = :a
-             ORDER BY ev.fecha_evento DESC',
+             ORDER BY act.fecha DESC',
             [':a' => $atletaId]
         );
     }
