@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-04-2026 a las 20:21:39
+-- Tiempo de generación: 04-05-2026 a las 20:08:11
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `cada_db_clean`
+-- Base de datos: `cada_db`
 --
 
 -- --------------------------------------------------------
@@ -28,31 +28,17 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `actividades` (
-  `actividad_id` int(11) NOT NULL,
+  `actividad_id` bigint(20) UNSIGNED NOT NULL,
   `tipo_actividad` tinyint(4) NOT NULL COMMENT 'ej: partid=0, entrenamiento=1, ',
-  `objetivo_principal` varchar(150) NOT NULL COMMENT 'Ej: Transiciones defensivas, Resistencia aeróbica',
   `fecha` date NOT NULL,
+  `usuario_id` int(10) UNSIGNED NOT NULL,
   `hora_inicio` time DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
-  `ubicacion` varchar(255) DEFAULT '''Cancha uptp''',
+  `ubicacion` varchar(100) DEFAULT '''Cancha uptp''',
   `clima` tinyint(4) DEFAULT NULL,
   `estatus` tinyint(4) DEFAULT 1 COMMENT '0: Cancelado, 1: Programado, 2: Finalizado',
-  `micro_id` int(11) DEFAULT NULL COMMENT 'Relación con el microciclo de planificación',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `asignacion`
---
-
-CREATE TABLE `asignacion` (
-  `asignacion_id` int(11) NOT NULL,
-  `categoria_id` int(11) NOT NULL,
-  `tipo_asignacion` enum('diaria','semanal','','') DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -62,30 +48,11 @@ CREATE TABLE `asignacion` (
 --
 
 CREATE TABLE `asistencias` (
-  `asistencia_id` int(11) NOT NULL,
-  `actividad_id` int(11) NOT NULL,
-  `atleta_id` int(11) NOT NULL,
-  `estatus` tinyint(4) NOT NULL COMMENT 'definir: 0=Ausente, 1=Presente, 2=Justificado',
-  `observaciones` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `atencion_medica`
---
-
-CREATE TABLE `atencion_medica` (
-  `atencion_id` int(11) NOT NULL,
-  `atleta_id` int(11) NOT NULL,
-  `tipo_registro` tinyint(4) NOT NULL COMMENT '1:Lesion, 2:Enfermedad, 3:Control',
-  `descripcion` varchar(200) NOT NULL,
-  `fecha_suceso` date NOT NULL,
-  `fecha_alta_estimada` date DEFAULT NULL,
-  `fecha_alta_real` date DEFAULT NULL,
-  `tratamiento_indicado` text DEFAULT NULL,
-  `especialista_id` int(11) NOT NULL COMMENT 'FK a personal (medico/fisio)',
-  `estado_disponibilidad` tinyint(4) DEFAULT 0 COMMENT '0: No apto, 1: Trabajo diferenciado, 2: Apto'
+  `asistencia_id` bigint(20) UNSIGNED NOT NULL,
+  `actividad_id` bigint(20) UNSIGNED NOT NULL,
+  `atleta_id` int(11) UNSIGNED NOT NULL,
+  `estatus` tinyint(4) NOT NULL,
+  `observaciones` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -95,101 +62,40 @@ CREATE TABLE `atencion_medica` (
 --
 
 CREATE TABLE `atletas` (
-  `atleta_id` int(11) NOT NULL,
-  `nombre` varchar(50) NOT NULL,
-  `apellido` varchar(50) NOT NULL,
-  `fecha_nacimiento` date NOT NULL,
+  `atleta_id` int(11) UNSIGNED NOT NULL,
+  `nombre` varchar(30) NOT NULL,
+  `apellido` varchar(30) NOT NULL,
+  `fecha_nac` date NOT NULL,
   `sexo` char(1) NOT NULL,
   `cedula` varchar(12) DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL,
-  `posicion_de_juego` int(11) DEFAULT NULL,
-  `pierna_dominante` enum('derecha','izquierda','ambidiestro','') DEFAULT 'derecha',
-  `direccion_id` int(11) NOT NULL,
-  `categoria_id` int(11) DEFAULT NULL,
-  `representante_id` int(11) NOT NULL,
+  `posicion_juego_id` tinyint(4) DEFAULT NULL,
+  `pierna_dominante` enum('derecha','izquierda','ambidiestro','') DEFAULT NULL,
+  `direccion_id` bigint(20) UNSIGNED NOT NULL,
+  `categoria_id` smallint(6) DEFAULT NULL,
+  `representante_id` int(11) UNSIGNED NOT NULL,
   `foto` varchar(255) DEFAULT NULL,
-  `estatus` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'usar logica boleana para definir, ejemplo: 0:suspendido, 1:activo, 2:lesionado, 3:inactivo''',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `carnet_discapacidad`
---
-
-CREATE TABLE `carnet_discapacidad` (
-  `carnet_id` int(20) UNSIGNED NOT NULL,
-  `ficha_id` int(11) DEFAULT NULL,
-  `tipo_discapacidad_id` int(11) NOT NULL,
-  `nro_carnet` varchar(20) DEFAULT NULL,
-  `porcentaje_discapacidad` int(11) DEFAULT NULL,
-  `fecha_registro` date DEFAULT NULL
+  `estatus` tinyint(4) NOT NULL,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `categoria`
+-- Estructura de tabla para la tabla `categorias`
 --
 
-CREATE TABLE `categoria` (
-  `categoria_id` int(11) NOT NULL,
-  `nombre_categoria` varchar(50) NOT NULL,
+CREATE TABLE `categorias` (
+  `categoria_id` smallint(6) NOT NULL,
+  `nombre_categoria` varchar(20) NOT NULL,
   `sexo_categoria` char(1) NOT NULL,
-  `edad_min` int(2) NOT NULL,
-  `edad_max` int(2) NOT NULL,
-  `entrenador_id` int(11) DEFAULT NULL,
-  `estatus` enum('Activa','Inactiva') DEFAULT 'Activa',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `categoria`
---
-
-INSERT INTO `categoria` (`categoria_id`, `nombre_categoria`, `sexo_categoria`, `edad_min`, `edad_max`, `entrenador_id`, `estatus`, `created_at`, `updated_at`) VALUES
-(13, 'sub-18(m)', '', 17, 18, NULL, 'Activa', '2026-02-10 18:23:12', '2026-02-10 18:23:12'),
-(14, 'sub-18(f)', '', 17, 18, NULL, 'Activa', '2026-02-10 18:23:12', '2026-02-10 18:23:12');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `cat_tipos_discapacidad`
---
-
-CREATE TABLE `cat_tipos_discapacidad` (
-  `tipos_discapacidad_id` int(11) NOT NULL,
-  `nombre_tipo` varchar(50) NOT NULL,
-  `descripcion` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `cat_tipos_discapacidad`
---
-
-INSERT INTO `cat_tipos_discapacidad` (`tipos_discapacidad_id`, `nombre_tipo`, `descripcion`) VALUES
-(1, 'Física o Motriz', 'Limitación o pérdida del movimiento corporal, post'),
-(2, 'Sensorial Visual', 'Pérdida total o parcial de la visión.'),
-(3, 'Sensorial Auditiva', 'Pérdida total o parcial de la audición.'),
-(4, 'Intelectual', 'Limitaciones en el funcionamiento intelectual y en'),
-(5, 'Psicosocial', 'Afectaciones en el pensamiento, sentimientos o rel'),
-(6, 'Orgánica o Visceral', 'Deficiencia en el funcionamiento de órganos intern'),
-(7, 'Múltiple', 'Presencia de dos o más discapacidades de forma sim');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `detalle_asignacion`
---
-
-CREATE TABLE `detalle_asignacion` (
-  `detalle_asignacion_id` int(11) NOT NULL,
-  `asignacion_id` int(11) NOT NULL,
-  `implemento_id` int(11) NOT NULL,
-  `cantidad` int(11) NOT NULL
+  `edad_min` tinyint(4) NOT NULL,
+  `edad_max` tinyint(4) NOT NULL,
+  `usuario_id` int(11) UNSIGNED NOT NULL,
+  `estatus` enum('activa','inactiva','','') NOT NULL,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -199,11 +105,33 @@ CREATE TABLE `detalle_asignacion` (
 --
 
 CREATE TABLE `direcciones` (
-  `direccion_id` int(11) NOT NULL,
-  `parroquias_id` int(11) NOT NULL,
+  `direccion_id` bigint(20) UNSIGNED NOT NULL,
+  `parroquias_id` smallint(6) NOT NULL,
   `localidad` varchar(100) NOT NULL COMMENT 'nombre=urbanismo, barrio, sector...',
   `tipo_vivienda` enum('casa','apto','edificio','') NOT NULL,
   `ubicacion_vivienda` varchar(100) NOT NULL COMMENT 'ej:calle#15 vereda#12 casa#4'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `direcciones`
+--
+
+INSERT INTO `direcciones` (`direccion_id`, `parroquias_id`, `localidad`, `tipo_vivienda`, `ubicacion_vivienda`) VALUES
+(1, 722, 'Urb. Villas del Pilar', 'casa', 'Calle 15A, Casa 412');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `discapacidades`
+--
+
+CREATE TABLE `discapacidades` (
+  `discapacidad_id` int(10) UNSIGNED NOT NULL,
+  `ficha_id` int(11) UNSIGNED NOT NULL,
+  `tipo_discapacidad_id` smallint(6) NOT NULL,
+  `nro_carnet` varchar(20) DEFAULT NULL,
+  `porcentaje_discapacidad` tinyint(4) DEFAULT NULL,
+  `fecha_registro` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -213,8 +141,8 @@ CREATE TABLE `direcciones` (
 --
 
 CREATE TABLE `estados` (
-  `estado_id` int(11) NOT NULL,
-  `estado` varchar(250) NOT NULL,
+  `estado_id` smallint(6) NOT NULL,
+  `estado` varchar(100) NOT NULL,
   `iso_3166-2` varchar(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -252,19 +180,20 @@ INSERT INTO `estados` (`estado_id`, `estado`, `iso_3166-2`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ficha_medica`
+-- Estructura de tabla para la tabla `fichas_medicas`
 --
 
-CREATE TABLE `ficha_medica` (
-  `ficha_id` int(11) NOT NULL,
-  `atleta_id` int(11) NOT NULL,
+CREATE TABLE `fichas_medicas` (
+  `ficha_id` int(11) UNSIGNED NOT NULL,
+  `atleta_id` int(11) UNSIGNED NOT NULL,
   `grupo_sanguineo` enum('A+','A-','B+','B-','AB+','AB-','O+','O-') NOT NULL,
-  `alergias` text DEFAULT NULL COMMENT 'Medicamentos, alimentos o ambientales',
-  `antecedentes_familiares` text DEFAULT NULL COMMENT 'Problemas cardíacos, diabetes, etc.',
-  `antecedentes_quirurgicos` text DEFAULT NULL COMMENT 'Cirugías previas',
-  `condicion_cronica` text DEFAULT NULL COMMENT 'Asma, diabetes, etc.',
-  `medicacion_actual` text DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `alergias` varchar(100) DEFAULT NULL COMMENT 'Medicamentos, alimentos o ambientales',
+  `antecedentes_familiares` varchar(100) DEFAULT NULL COMMENT 'Problemas cardíacos, diabetes, etc.',
+  `antecedentes_quirurgicos` varchar(100) DEFAULT NULL COMMENT 'Cirugías previas',
+  `condicion_cronica` varchar(100) DEFAULT NULL COMMENT 'Asma, diabetes, etc.',
+  `medicacion_actual` varchar(100) DEFAULT NULL,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -274,37 +203,19 @@ CREATE TABLE `ficha_medica` (
 --
 
 CREATE TABLE `historial_partidos` (
-  `partido_id` int(11) NOT NULL,
-  `categoria_id` int(11) NOT NULL,
+  `partido_id` int(11) UNSIGNED NOT NULL,
+  `categoria_id` smallint(6) NOT NULL,
   `nombre_rival` varchar(100) NOT NULL,
-  `tipo_partido` enum('liga','clasificatorio','amistoso','torneo','benefico') NOT NULL,
+  `tipo_partido` enum('liga','clasificatorio','amistoso','torneo','benefico') DEFAULT NULL,
   `fecha_partido` date NOT NULL,
-  `terreno` tinyint(4) NOT NULL COMMENT 'ej:cesped natural, artificial, tierra, altitud',
-  `clima` tinyint(4) NOT NULL COMMENT 'ej:lluvia,niebla, viento, calor',
+  `terreno` tinyint(4) DEFAULT NULL COMMENT 'ej:cesped natural, artificial, tierra, altitud',
+  `clima` tinyint(4) DEFAULT NULL COMMENT 'ej:lluvia,niebla, viento, calor',
   `goles_recibidos` tinyint(4) NOT NULL,
   `goles_anotados` tinyint(4) NOT NULL,
   `resultado` tinyint(4) NOT NULL COMMENT 'Codificación: 2=Victoria, 1=Empate, 0=Derrota',
   `observaciones` varchar(200) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `implementos_deportivos`
---
-
-CREATE TABLE `implementos_deportivos` (
-  `implemento_id` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `existencia` int(11) NOT NULL DEFAULT 0,
-  `cant_uso` tinyint(4) NOT NULL,
-  `cant_dañado` int(11) NOT NULL,
-  `cant_disponible` tinyint(4) NOT NULL,
-  `lugar_almacen` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -313,8 +224,8 @@ CREATE TABLE `implementos_deportivos` (
 --
 
 CREATE TABLE `medidas_antropometricas` (
-  `medidas_id` int(11) NOT NULL,
-  `atleta_id` int(11) NOT NULL,
+  `medidas_id` int(11) UNSIGNED NOT NULL,
+  `atleta_id` int(11) UNSIGNED NOT NULL,
   `fecha_medicion` datetime NOT NULL,
   `peso` double(5,2) DEFAULT NULL,
   `altura` double(5,2) DEFAULT NULL,
@@ -323,7 +234,7 @@ CREATE TABLE `medidas_antropometricas` (
   `envergadura` double(5,2) DEFAULT NULL,
   `largo_de_pierna` double(5,2) DEFAULT NULL,
   `largo_de_torso` double(5,2) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -333,8 +244,8 @@ CREATE TABLE `medidas_antropometricas` (
 --
 
 CREATE TABLE `municipios` (
-  `municipio_id` int(11) NOT NULL,
-  `estado_id` int(11) NOT NULL,
+  `municipio_id` smallint(11) NOT NULL,
+  `estado_id` smallint(11) NOT NULL,
   `municipio` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -687,9 +598,9 @@ INSERT INTO `municipios` (`municipio_id`, `estado_id`, `municipio`) VALUES
 --
 
 CREATE TABLE `parroquias` (
-  `parroquia_id` int(11) NOT NULL,
-  `municipio_id` int(11) NOT NULL,
-  `parroquia` varchar(250) NOT NULL
+  `parroquia_id` smallint(6) NOT NULL,
+  `municipio_id` smallint(6) NOT NULL,
+  `parroquia` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
@@ -1840,96 +1751,29 @@ INSERT INTO `parroquias` (`parroquia_id`, `municipio_id`, `parroquia`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `personal`
+-- Estructura de tabla para la tabla `posiciones_juegos`
 --
 
-CREATE TABLE `personal` (
-  `personal_id` int(11) NOT NULL,
-  `email_id` varchar(100) NOT NULL,
-  `nombre` varchar(50) NOT NULL,
-  `apellido` varchar(50) NOT NULL,
-  `cedula` varchar(12) NOT NULL,
-  `telefono` varchar(15) NOT NULL,
-  `fecha_nac` date NOT NULL,
-  `direccion_id` int(11) NOT NULL,
-  `rol_personal` tinyint(4) NOT NULL COMMENT 'ej: 0:Obrero, 1:Entrenador, 2:Medico, 3:Admin, 4:Directivo, 5:Vigilante, 6:Fisio, 7:Utillero''',
-  `foto` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `plan_macrociclo`
---
-
-CREATE TABLE `plan_macrociclo` (
-  `macro_id` int(11) NOT NULL,
-  `categoria_id` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL,
-  `objetivo_general` text DEFAULT NULL COMMENT 'Ej: Desarrollo de fuerza y técnica avanzada',
-  `estado` tinyint(4) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `plan_mesociclo`
---
-
-CREATE TABLE `plan_mesociclo` (
-  `meso_id` int(11) NOT NULL,
-  `macro_id` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `tipo` enum('Base','Desarrollo','Choque','Competición','Recuperación') NOT NULL,
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL,
-  `objetivo_especifico` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `plan_microciclo`
---
-
-CREATE TABLE `plan_microciclo` (
-  `micro_id` int(11) NOT NULL,
-  `meso_id` int(11) NOT NULL,
-  `nombre` varchar(100) DEFAULT 'Semana X',
-  `numero_semana` tinyint(4) NOT NULL,
-  `carga_trabajo` enum('Baja','Media','Alta','Muy Alta') NOT NULL COMMENT 'Intensidad planificada',
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `posicion_juego`
---
-
-CREATE TABLE `posicion_juego` (
-  `posicion_id` int(11) NOT NULL,
-  `nombre_posicion` varchar(50) NOT NULL
+CREATE TABLE `posiciones_juegos` (
+  `posicion_id` tinyint(4) NOT NULL,
+  `nombre_posicion` varchar(50) NOT NULL,
+  `descripcion` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `posicion_juego`
+-- Volcado de datos para la tabla `posiciones_juegos`
 --
 
-INSERT INTO `posicion_juego` (`posicion_id`, `nombre_posicion`) VALUES
-(2, 'defensa central'),
-(8, 'delantero'),
-(7, 'extremo derecho'),
-(6, 'extremo izquierdo'),
-(3, 'lateral derecho'),
-(4, 'lateral izquierdo'),
-(5, 'medio centro'),
-(1, 'portero');
+INSERT INTO `posiciones_juegos` (`posicion_id`, `nombre_posicion`, `descripcion`) VALUES
+(1, 'Portero', 'Encargado de defender la portería, único que puede usar las manos.'),
+(2, 'Defensa Central', 'Defensor principal en el centro de la zaga.'),
+(3, 'Lateral Derecho', 'Defensor por la banda derecha con proyección al ataque.'),
+(4, 'Lateral Izquierdo', 'Defensor por la banda izquierda con proyección al ataque.'),
+(5, 'Mediocentro Defensivo', 'Encargado de recuperar balones y equilibrio en el medio campo.'),
+(6, 'Mediocentro Ofensivo', 'Encargado de la creación de juego y asistencia a delanteros.'),
+(7, 'Extremo Derecho', 'Atacante veloz por la banda derecha.'),
+(8, 'Extremo Izquierdo', 'Atacante veloz por la banda izquierda.'),
+(9, 'Delantero Centro', 'Principal referente de ataque y goleador del equipo.');
 
 -- --------------------------------------------------------
 
@@ -1938,18 +1782,18 @@ INSERT INTO `posicion_juego` (`posicion_id`, `nombre_posicion`) VALUES
 --
 
 CREATE TABLE `preguntas_seguridad` (
-  `preguntas_id` int(11) NOT NULL,
+  `pregunta_id` smallint(6) NOT NULL,
   `preguntas` varchar(50) NOT NULL,
   `grupo` tinyint(4) NOT NULL COMMENT 'Define a qué select pertenece (1, 2, 3 o 4)',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `preguntas_seguridad`
 --
 
-INSERT INTO `preguntas_seguridad` (`preguntas_id`, `preguntas`, `grupo`, `created_at`, `updated_at`) VALUES
+INSERT INTO `preguntas_seguridad` (`pregunta_id`, `preguntas`, `grupo`, `creado_en`, `actualizado_en`) VALUES
 (5, '¿Cómo se llamaba tu primera mascota?', 1, '2026-02-10 17:11:21', '2026-02-10 17:11:21'),
 (6, '¿En qué ciudad se conocieron tus padres?', 1, '2026-02-10 17:11:21', '2026-02-10 17:11:21'),
 (7, '¿Cuál es el nombre de la calle donde creciste?', 1, '2026-02-10 17:11:21', '2026-02-10 17:11:21'),
@@ -1994,83 +1838,88 @@ INSERT INTO `preguntas_seguridad` (`preguntas_id`, `preguntas`, `grupo`, `create
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `representante`
+-- Estructura de tabla para la tabla `representantes`
 --
 
-CREATE TABLE `representante` (
-  `representante_id` int(11) NOT NULL,
-  `nombre_completo` varchar(150) NOT NULL,
+CREATE TABLE `representantes` (
+  `representante_id` int(11) UNSIGNED NOT NULL,
+  `nombre` varchar(30) NOT NULL,
+  `apellido` varchar(30) NOT NULL,
   `telefono` varchar(15) NOT NULL,
   `cedula` varchar(12) NOT NULL,
   `tipo_relacion` enum('abuelo/a','padres','tio/a','hermano/a','primo/a','representante') NOT NULL,
-  `direccion_id` int(11) NOT NULL,
+  `direccion_id` bigint(20) UNSIGNED NOT NULL,
   `foto` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `respuesta_seguridad`
+-- Estructura de tabla para la tabla `respuestas_seguridad`
 --
 
-CREATE TABLE `respuesta_seguridad` (
+CREATE TABLE `respuestas_seguridad` (
   `respuesta_id` int(11) NOT NULL,
-  `email_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `pregunta_id` int(11) NOT NULL,
+  `usuario_id` int(11) UNSIGNED NOT NULL,
+  `pregunta_id` smallint(6) NOT NULL,
   `respuesta` varchar(50) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `respuesta_seguridad`
---
-
-INSERT INTO `respuesta_seguridad` (`respuesta_id`, `email_id`, `pregunta_id`, `respuesta`, `created_at`) VALUES
-(1, 'directivo@gmail.com', 5, 'money', '2026-02-10 17:35:18'),
-(2, 'directivo@gmail.com', 19, 'money', '2026-02-10 17:35:18');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `resultado_pruebas`
+-- Estructura de tabla para la tabla `resultados_pruebas`
 --
 
-CREATE TABLE `resultado_pruebas` (
-  `test_id` int(11) NOT NULL,
-  `actividad_id` int(11) NOT NULL,
-  `atleta_id` int(11) NOT NULL,
+CREATE TABLE `resultados_pruebas` (
+  `test_id` int(11) UNSIGNED NOT NULL,
+  `actividad_id` bigint(20) UNSIGNED NOT NULL,
+  `atleta_id` int(11) UNSIGNED NOT NULL,
   `test_de_fuerza` double(10,2) DEFAULT NULL,
   `test_resistencia` double(10,2) DEFAULT NULL,
   `test_velocidad` double(10,2) DEFAULT NULL,
   `test_coordinacion` double(10,2) DEFAULT NULL,
   `test_de_reaccion` double(10,2) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `rol_usuarios`
+-- Estructura de tabla para la tabla `roles_usuarios`
 --
 
-CREATE TABLE `rol_usuarios` (
-  `rol_id` int(11) NOT NULL,
+CREATE TABLE `roles_usuarios` (
+  `rol_id` tinyint(4) NOT NULL,
   `nombre_rol` varchar(50) NOT NULL,
-  `descripcion` varchar(255) DEFAULT NULL,
+  `descripcion` varchar(100) DEFAULT NULL,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `rol_usuarios`
+-- Volcado de datos para la tabla `roles_usuarios`
 --
 
-INSERT INTO `rol_usuarios` (`rol_id`, `nombre_rol`, `descripcion`, `fecha_creacion`) VALUES
-(1, 'super_user', 'rol desarrollador, puede ver, modificar y eliminar todo tipo de vistas, maestras, y el sistema en general, usarlo solo para programarar.', '2025-12-03 20:08:31'),
-(2, 'administrador', 'usado por el personal administrativo del club, puede ver los implementos deportivos, control de asistencia, tutor, pagos.', '2025-12-03 20:14:19'),
-(3, 'entrenador', 'puede ver: los atletas, categorias, control asistencia, medidas antropometricas, test rendimiento.', '2025-12-03 20:13:54'),
-(4, 'medico', 'puede ver, el historial medico y tutor', '2025-12-03 20:15:57');
+INSERT INTO `roles_usuarios` (`rol_id`, `nombre_rol`, `descripcion`, `fecha_creacion`) VALUES
+(1, 'super_usuario', NULL, '2026-05-04 18:02:24'),
+(2, 'administrador', NULL, '2026-05-04 18:02:32'),
+(3, 'entrenador', NULL, '2026-05-04 18:02:38');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipos_discapacidades`
+--
+
+CREATE TABLE `tipos_discapacidades` (
+  `tipo_discapacidad_id` smallint(6) NOT NULL,
+  `nombre_tipo` varchar(50) NOT NULL,
+  `descripcion` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -2079,26 +1928,30 @@ INSERT INTO `rol_usuarios` (`rol_id`, `nombre_rol`, `descripcion`, `fecha_creaci
 --
 
 CREATE TABLE `usuarios` (
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
+  `usuario_id` int(11) UNSIGNED NOT NULL,
+  `correo` varchar(50) NOT NULL,
+  `contrasena` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci NOT NULL,
   `token` varchar(500) DEFAULT NULL,
-  `rol` int(11) NOT NULL,
+  `rol_id` tinyint(4) NOT NULL,
   `estatus` enum('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
+  `nombre` varchar(30) NOT NULL,
+  `apellido` varchar(30) NOT NULL,
+  `cedula` varchar(12) NOT NULL,
+  `telefono` varchar(15) NOT NULL,
+  `fecha_nac` date NOT NULL,
+  `direccion_id` bigint(20) UNSIGNED NOT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `ultimo_acceso` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`email`, `password`, `token`, `rol`, `estatus`, `foto`, `ultimo_acceso`, `created_at`, `updated_at`) VALUES
-('admin@gmail.com', '$2y$12$Hn8oxN4Z84I8hGPhrwSPBeA.SMCDaTdjp9sx9.ifeCeePYzXxcOlG', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZG1pbkBnbWFpbC5jb20iLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbCI6MiwiaWF0IjoxNzc1NDIwMjU0LCJleHAiOjE3NzU1MDY2NTR9.nBd608QkxarpxKRjSlklllQ2aHGLIhRYRZY_LFiTFYI', 2, 'Activo', NULL, '2026-04-05 16:17:34', '2026-02-10 17:32:05', '2026-04-05 20:17:34'),
-('directivo@gmail.com', '12345678', NULL, 1, 'Activo', NULL, NULL, '2026-02-10 17:33:31', '2026-02-10 17:33:31'),
-('entrenador@gmail.com', '12345678', NULL, 3, 'Activo', NULL, NULL, '2026-02-10 17:31:04', '2026-02-10 17:31:04'),
-('medico@gmail.com', '12345678', NULL, 4, 'Activo', NULL, NULL, '2026-02-10 17:32:05', '2026-02-10 17:32:05');
+INSERT INTO `usuarios` (`usuario_id`, `correo`, `contrasena`, `token`, `rol_id`, `estatus`, `nombre`, `apellido`, `cedula`, `telefono`, `fecha_nac`, `direccion_id`, `foto`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
+(1, 'superusuario@gmail.com', '$2y$12$FvJOqLYmN65k.5Rznkj/l.b1vf2bMBjJYntOzoqgCIgbO1J052LrG', NULL, 1, 'Activo', 'Robert', 'Legon', '31492108', '04145231462', '1990-01-01', 1, NULL, NULL, '2026-05-04 18:05:28', '2026-05-04 18:05:28');
 
 --
 -- Índices para tablas volcadas
@@ -2109,72 +1962,33 @@ INSERT INTO `usuarios` (`email`, `password`, `token`, `rol`, `estatus`, `foto`, 
 --
 ALTER TABLE `actividades`
   ADD PRIMARY KEY (`actividad_id`),
-  ADD KEY `fecha` (`fecha`),
-  ADD KEY `fk_actividad_entrenador` (`micro_id`);
-
---
--- Indices de la tabla `asignacion`
---
-ALTER TABLE `asignacion`
-  ADD PRIMARY KEY (`asignacion_id`),
-  ADD KEY `categoria_id` (`categoria_id`);
+  ADD KEY `usuario_id` (`usuario_id`);
 
 --
 -- Indices de la tabla `asistencias`
 --
 ALTER TABLE `asistencias`
   ADD PRIMARY KEY (`asistencia_id`),
-  ADD KEY `evento_id` (`actividad_id`),
-  ADD KEY `atleta_id` (`atleta_id`);
-
---
--- Indices de la tabla `atencion_medica`
---
-ALTER TABLE `atencion_medica`
-  ADD PRIMARY KEY (`atencion_id`),
-  ADD KEY `especialista_id` (`especialista_id`),
-  ADD KEY `ficha_id` (`atleta_id`);
+  ADD KEY `atleta_id` (`atleta_id`),
+  ADD KEY `actividad_id` (`actividad_id`);
 
 --
 -- Indices de la tabla `atletas`
 --
 ALTER TABLE `atletas`
   ADD PRIMARY KEY (`atleta_id`),
-  ADD KEY `idx_atletas_categoria` (`categoria_id`),
-  ADD KEY `idx_atletas_tutor` (`representante_id`),
-  ADD KEY `fk_atletas_direcciones` (`direccion_id`),
-  ADD KEY `posicion_de_juego` (`posicion_de_juego`);
+  ADD KEY `direccion_id` (`direccion_id`),
+  ADD KEY `categoria_id` (`categoria_id`),
+  ADD KEY `representante_id` (`representante_id`),
+  ADD KEY `posicion_juego_id` (`posicion_juego_id`);
 
 --
--- Indices de la tabla `carnet_discapacidad`
+-- Indices de la tabla `categorias`
 --
-ALTER TABLE `carnet_discapacidad`
-  ADD PRIMARY KEY (`carnet_id`),
-  ADD UNIQUE KEY `nro_carnet` (`nro_carnet`),
-  ADD KEY `tipo_discapacidad_id` (`tipo_discapacidad_id`),
-  ADD KEY `ficha_id` (`ficha_id`);
-
---
--- Indices de la tabla `categoria`
---
-ALTER TABLE `categoria`
+ALTER TABLE `categorias`
   ADD PRIMARY KEY (`categoria_id`),
-  ADD UNIQUE KEY `nombre_categoria` (`nombre_categoria`),
-  ADD KEY `entrenador_id` (`entrenador_id`);
-
---
--- Indices de la tabla `cat_tipos_discapacidad`
---
-ALTER TABLE `cat_tipos_discapacidad`
-  ADD PRIMARY KEY (`tipos_discapacidad_id`);
-
---
--- Indices de la tabla `detalle_asignacion`
---
-ALTER TABLE `detalle_asignacion`
-  ADD PRIMARY KEY (`detalle_asignacion_id`),
-  ADD KEY `asignacion_id` (`asignacion_id`),
-  ADD KEY `implemento_id` (`implemento_id`);
+  ADD UNIQUE KEY `nombre_categoria` (`nombre_categoria`,`sexo_categoria`),
+  ADD KEY `usuario_id` (`usuario_id`);
 
 --
 -- Indices de la tabla `direcciones`
@@ -2184,17 +1998,26 @@ ALTER TABLE `direcciones`
   ADD KEY `parroquias_id` (`parroquias_id`);
 
 --
+-- Indices de la tabla `discapacidades`
+--
+ALTER TABLE `discapacidades`
+  ADD PRIMARY KEY (`discapacidad_id`),
+  ADD UNIQUE KEY `nro_carnet` (`nro_carnet`),
+  ADD KEY `tipo_discapacidad_id` (`tipo_discapacidad_id`),
+  ADD KEY `ficha_id` (`ficha_id`);
+
+--
 -- Indices de la tabla `estados`
 --
 ALTER TABLE `estados`
   ADD PRIMARY KEY (`estado_id`);
 
 --
--- Indices de la tabla `ficha_medica`
+-- Indices de la tabla `fichas_medicas`
 --
-ALTER TABLE `ficha_medica`
+ALTER TABLE `fichas_medicas`
   ADD PRIMARY KEY (`ficha_id`),
-  ADD KEY `atleta_id` (`atleta_id`);
+  ADD UNIQUE KEY `atleta_id` (`atleta_id`) USING BTREE;
 
 --
 -- Indices de la tabla `historial_partidos`
@@ -2202,13 +2025,6 @@ ALTER TABLE `ficha_medica`
 ALTER TABLE `historial_partidos`
   ADD PRIMARY KEY (`partido_id`),
   ADD KEY `categoria_id` (`categoria_id`);
-
---
--- Indices de la tabla `implementos_deportivos`
---
-ALTER TABLE `implementos_deportivos`
-  ADD PRIMARY KEY (`implemento_id`),
-  ADD UNIQUE KEY `tipo` (`nombre`);
 
 --
 -- Indices de la tabla `medidas_antropometricas`
@@ -2232,39 +2048,9 @@ ALTER TABLE `parroquias`
   ADD KEY `id_municipio` (`municipio_id`);
 
 --
--- Indices de la tabla `personal`
+-- Indices de la tabla `posiciones_juegos`
 --
-ALTER TABLE `personal`
-  ADD PRIMARY KEY (`personal_id`),
-  ADD UNIQUE KEY `cedula` (`cedula`),
-  ADD UNIQUE KEY `email_id` (`email_id`) USING BTREE,
-  ADD KEY `direccion_id` (`direccion_id`);
-
---
--- Indices de la tabla `plan_macrociclo`
---
-ALTER TABLE `plan_macrociclo`
-  ADD PRIMARY KEY (`macro_id`),
-  ADD KEY `categoria_id` (`categoria_id`);
-
---
--- Indices de la tabla `plan_mesociclo`
---
-ALTER TABLE `plan_mesociclo`
-  ADD PRIMARY KEY (`meso_id`),
-  ADD KEY `macro_id` (`macro_id`);
-
---
--- Indices de la tabla `plan_microciclo`
---
-ALTER TABLE `plan_microciclo`
-  ADD PRIMARY KEY (`micro_id`),
-  ADD KEY `meso_id` (`meso_id`);
-
---
--- Indices de la tabla `posicion_juego`
---
-ALTER TABLE `posicion_juego`
+ALTER TABLE `posiciones_juegos`
   ADD PRIMARY KEY (`posicion_id`),
   ADD UNIQUE KEY `nombre_posicion` (`nombre_posicion`);
 
@@ -2272,43 +2058,52 @@ ALTER TABLE `posicion_juego`
 -- Indices de la tabla `preguntas_seguridad`
 --
 ALTER TABLE `preguntas_seguridad`
-  ADD PRIMARY KEY (`preguntas_id`);
+  ADD PRIMARY KEY (`pregunta_id`);
 
 --
--- Indices de la tabla `representante`
+-- Indices de la tabla `representantes`
 --
-ALTER TABLE `representante`
+ALTER TABLE `representantes`
   ADD PRIMARY KEY (`representante_id`),
   ADD KEY `fk_tutor_direccion` (`direccion_id`);
 
 --
--- Indices de la tabla `respuesta_seguridad`
+-- Indices de la tabla `respuestas_seguridad`
 --
-ALTER TABLE `respuesta_seguridad`
+ALTER TABLE `respuestas_seguridad`
   ADD PRIMARY KEY (`respuesta_id`),
   ADD KEY `pregunta_id` (`pregunta_id`),
-  ADD KEY `email_id` (`email_id`);
+  ADD KEY `usuario_id` (`usuario_id`);
 
 --
--- Indices de la tabla `resultado_pruebas`
+-- Indices de la tabla `resultados_pruebas`
 --
-ALTER TABLE `resultado_pruebas`
+ALTER TABLE `resultados_pruebas`
   ADD PRIMARY KEY (`test_id`),
   ADD KEY `idx_test_atleta` (`atleta_id`),
   ADD KEY `pruebas_id` (`actividad_id`);
 
 --
--- Indices de la tabla `rol_usuarios`
+-- Indices de la tabla `roles_usuarios`
 --
-ALTER TABLE `rol_usuarios`
+ALTER TABLE `roles_usuarios`
   ADD PRIMARY KEY (`rol_id`);
+
+--
+-- Indices de la tabla `tipos_discapacidades`
+--
+ALTER TABLE `tipos_discapacidades`
+  ADD PRIMARY KEY (`tipo_discapacidad_id`);
 
 --
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`email`),
-  ADD KEY `rol` (`rol`);
+  ADD PRIMARY KEY (`usuario_id`),
+  ADD UNIQUE KEY `cedula` (`cedula`),
+  ADD UNIQUE KEY `email_unico` (`correo`),
+  ADD KEY `rol` (`rol_id`),
+  ADD KEY `direccion` (`direccion_id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -2318,163 +2113,121 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `actividades`
 --
 ALTER TABLE `actividades`
-  MODIFY `actividad_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `asignacion`
---
-ALTER TABLE `asignacion`
-  MODIFY `asignacion_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `actividad_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `asistencias`
 --
 ALTER TABLE `asistencias`
-  MODIFY `asistencia_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `atencion_medica`
---
-ALTER TABLE `atencion_medica`
-  MODIFY `atencion_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `asistencia_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `atletas`
 --
 ALTER TABLE `atletas`
-  MODIFY `atleta_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `atleta_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `carnet_discapacidad`
+-- AUTO_INCREMENT de la tabla `categorias`
 --
-ALTER TABLE `carnet_discapacidad`
-  MODIFY `carnet_id` int(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `categoria`
---
-ALTER TABLE `categoria`
-  MODIFY `categoria_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
-
---
--- AUTO_INCREMENT de la tabla `cat_tipos_discapacidad`
---
-ALTER TABLE `cat_tipos_discapacidad`
-  MODIFY `tipos_discapacidad_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT de la tabla `detalle_asignacion`
---
-ALTER TABLE `detalle_asignacion`
-  MODIFY `detalle_asignacion_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `categorias`
+  MODIFY `categoria_id` smallint(6) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  MODIFY `direccion_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `direccion_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `discapacidades`
+--
+ALTER TABLE `discapacidades`
+  MODIFY `discapacidad_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `estados`
 --
 ALTER TABLE `estados`
-  MODIFY `estado_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `estado_id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
--- AUTO_INCREMENT de la tabla `ficha_medica`
+-- AUTO_INCREMENT de la tabla `fichas_medicas`
 --
-ALTER TABLE `ficha_medica`
-  MODIFY `ficha_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `fichas_medicas`
+  MODIFY `ficha_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `historial_partidos`
 --
 ALTER TABLE `historial_partidos`
-  MODIFY `partido_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `implementos_deportivos`
---
-ALTER TABLE `implementos_deportivos`
-  MODIFY `implemento_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `partido_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `medidas_antropometricas`
 --
 ALTER TABLE `medidas_antropometricas`
-  MODIFY `medidas_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `medidas_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `municipios`
 --
 ALTER TABLE `municipios`
-  MODIFY `municipio_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=464;
+  MODIFY `municipio_id` smallint(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=464;
 
 --
 -- AUTO_INCREMENT de la tabla `parroquias`
 --
 ALTER TABLE `parroquias`
-  MODIFY `parroquia_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1140;
+  MODIFY `parroquia_id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1140;
 
 --
--- AUTO_INCREMENT de la tabla `personal`
+-- AUTO_INCREMENT de la tabla `posiciones_juegos`
 --
-ALTER TABLE `personal`
-  MODIFY `personal_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `plan_macrociclo`
---
-ALTER TABLE `plan_macrociclo`
-  MODIFY `macro_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `plan_mesociclo`
---
-ALTER TABLE `plan_mesociclo`
-  MODIFY `meso_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `plan_microciclo`
---
-ALTER TABLE `plan_microciclo`
-  MODIFY `micro_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `posicion_juego`
---
-ALTER TABLE `posicion_juego`
-  MODIFY `posicion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+ALTER TABLE `posiciones_juegos`
+  MODIFY `posicion_id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `preguntas_seguridad`
 --
 ALTER TABLE `preguntas_seguridad`
-  MODIFY `preguntas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `pregunta_id` smallint(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
--- AUTO_INCREMENT de la tabla `representante`
+-- AUTO_INCREMENT de la tabla `representantes`
 --
-ALTER TABLE `representante`
-  MODIFY `representante_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `representantes`
+  MODIFY `representante_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `respuesta_seguridad`
+-- AUTO_INCREMENT de la tabla `respuestas_seguridad`
 --
-ALTER TABLE `respuesta_seguridad`
-  MODIFY `respuesta_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `respuestas_seguridad`
+  MODIFY `respuesta_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `resultado_pruebas`
+-- AUTO_INCREMENT de la tabla `resultados_pruebas`
 --
-ALTER TABLE `resultado_pruebas`
-  MODIFY `test_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `resultados_pruebas`
+  MODIFY `test_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `rol_usuarios`
+-- AUTO_INCREMENT de la tabla `roles_usuarios`
 --
-ALTER TABLE `rol_usuarios`
-  MODIFY `rol_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+ALTER TABLE `roles_usuarios`
+  MODIFY `rol_id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `tipos_discapacidades`
+--
+ALTER TABLE `tipos_discapacidades`
+  MODIFY `tipo_discapacidad_id` smallint(6) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `usuario_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Restricciones para tablas volcadas
@@ -2484,56 +2237,29 @@ ALTER TABLE `rol_usuarios`
 -- Filtros para la tabla `actividades`
 --
 ALTER TABLE `actividades`
-  ADD CONSTRAINT `fk_actividad_entrenador` FOREIGN KEY (`micro_id`) REFERENCES `plan_microciclo` (`micro_id`);
-
---
--- Filtros para la tabla `asignacion`
---
-ALTER TABLE `asignacion`
-  ADD CONSTRAINT `asignacion_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categoria` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `actividades_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `asistencias`
 --
 ALTER TABLE `asistencias`
-  ADD CONSTRAINT `asistencias_ibfk_2` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `asistencias_ibfk_3` FOREIGN KEY (`actividad_id`) REFERENCES `actividades` (`actividad_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `atencion_medica`
---
-ALTER TABLE `atencion_medica`
-  ADD CONSTRAINT `atencion_medica_ibfk_2` FOREIGN KEY (`especialista_id`) REFERENCES `personal` (`personal_id`),
-  ADD CONSTRAINT `atencion_medica_ibfk_3` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `asistencias_ibfk_6` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `asistencias_ibfk_7` FOREIGN KEY (`actividad_id`) REFERENCES `actividades` (`actividad_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `atletas`
 --
 ALTER TABLE `atletas`
-  ADD CONSTRAINT `atletas_ibfk_4` FOREIGN KEY (`categoria_id`) REFERENCES `categoria` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `atletas_ibfk_5` FOREIGN KEY (`posicion_de_juego`) REFERENCES `posicion_juego` (`posicion_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `atletas_ibfk_7` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `atletas_ibfk_8` FOREIGN KEY (`representante_id`) REFERENCES `representante` (`representante_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `atletas_ibfk_10` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `atletas_ibfk_11` FOREIGN KEY (`representante_id`) REFERENCES `representantes` (`representante_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `atletas_ibfk_8` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `atletas_ibfk_9` FOREIGN KEY (`posicion_juego_id`) REFERENCES `posiciones_juegos` (`posicion_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `carnet_discapacidad`
+-- Filtros para la tabla `categorias`
 --
-ALTER TABLE `carnet_discapacidad`
-  ADD CONSTRAINT `carnet_discapacidad_ibfk_1` FOREIGN KEY (`tipo_discapacidad_id`) REFERENCES `cat_tipos_discapacidad` (`tipos_discapacidad_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `carnet_discapacidad_ibfk_2` FOREIGN KEY (`ficha_id`) REFERENCES `ficha_medica` (`ficha_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `categoria`
---
-ALTER TABLE `categoria`
-  ADD CONSTRAINT `categoria_ibfk_1` FOREIGN KEY (`entrenador_id`) REFERENCES `personal` (`personal_id`) ON DELETE SET NULL;
-
---
--- Filtros para la tabla `detalle_asignacion`
---
-ALTER TABLE `detalle_asignacion`
-  ADD CONSTRAINT `detalle_asignacion_ibfk_1` FOREIGN KEY (`asignacion_id`) REFERENCES `asignacion` (`asignacion_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `detalle_asignacion_ibfk_2` FOREIGN KEY (`implemento_id`) REFERENCES `implementos_deportivos` (`implemento_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+ALTER TABLE `categorias`
+  ADD CONSTRAINT `categorias_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `direcciones`
@@ -2542,85 +2268,68 @@ ALTER TABLE `direcciones`
   ADD CONSTRAINT `direcciones_ibfk_1` FOREIGN KEY (`parroquias_id`) REFERENCES `parroquias` (`parroquia_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `ficha_medica`
+-- Filtros para la tabla `discapacidades`
 --
-ALTER TABLE `ficha_medica`
-  ADD CONSTRAINT `fk_ficha_atleta` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE CASCADE;
+ALTER TABLE `discapacidades`
+  ADD CONSTRAINT `discapacidades_ibfk_3` FOREIGN KEY (`ficha_id`) REFERENCES `fichas_medicas` (`ficha_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `discapacidades_ibfk_4` FOREIGN KEY (`tipo_discapacidad_id`) REFERENCES `tipos_discapacidades` (`tipo_discapacidad_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `fichas_medicas`
+--
+ALTER TABLE `fichas_medicas`
+  ADD CONSTRAINT `fichas_medicas_ibfk_1` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `historial_partidos`
 --
 ALTER TABLE `historial_partidos`
-  ADD CONSTRAINT `historial_partidos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categoria` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `historial_partidos_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categorias` (`categoria_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `medidas_antropometricas`
 --
 ALTER TABLE `medidas_antropometricas`
-  ADD CONSTRAINT `medidas_antropometricas_ibfk_1` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `medidas_antropometricas_ibfk_1` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `municipios`
 --
 ALTER TABLE `municipios`
-  ADD CONSTRAINT `municipios_ibfk_1` FOREIGN KEY (`estado_id`) REFERENCES `estados` (`estado_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `municipios_ibfk_1` FOREIGN KEY (`estado_id`) REFERENCES `estados` (`estado_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `parroquias`
 --
 ALTER TABLE `parroquias`
-  ADD CONSTRAINT `parroquias_ibfk_1` FOREIGN KEY (`municipio_id`) REFERENCES `municipios` (`municipio_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `parroquias_ibfk_1` FOREIGN KEY (`municipio_id`) REFERENCES `municipios` (`municipio_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `personal`
+-- Filtros para la tabla `representantes`
 --
-ALTER TABLE `personal`
-  ADD CONSTRAINT `personal_ibfk_5` FOREIGN KEY (`email_id`) REFERENCES `usuarios` (`email`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `personal_ibfk_6` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+ALTER TABLE `representantes`
+  ADD CONSTRAINT `representantes_ibfk_1` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `plan_macrociclo`
+-- Filtros para la tabla `respuestas_seguridad`
 --
-ALTER TABLE `plan_macrociclo`
-  ADD CONSTRAINT `plan_macrociclo_ibfk_1` FOREIGN KEY (`categoria_id`) REFERENCES `categoria` (`categoria_id`);
+ALTER TABLE `respuestas_seguridad`
+  ADD CONSTRAINT `respuestas_seguridad_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `respuestas_seguridad_ibfk_2` FOREIGN KEY (`pregunta_id`) REFERENCES `preguntas_seguridad` (`pregunta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `plan_mesociclo`
+-- Filtros para la tabla `resultados_pruebas`
 --
-ALTER TABLE `plan_mesociclo`
-  ADD CONSTRAINT `plan_mesociclo_ibfk_1` FOREIGN KEY (`macro_id`) REFERENCES `plan_macrociclo` (`macro_id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `plan_microciclo`
---
-ALTER TABLE `plan_microciclo`
-  ADD CONSTRAINT `plan_microciclo_ibfk_1` FOREIGN KEY (`meso_id`) REFERENCES `plan_mesociclo` (`meso_id`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `representante`
---
-ALTER TABLE `representante`
-  ADD CONSTRAINT `representante_ibfk_1` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `respuesta_seguridad`
---
-ALTER TABLE `respuesta_seguridad`
-  ADD CONSTRAINT `respuesta_seguridad_ibfk_1` FOREIGN KEY (`pregunta_id`) REFERENCES `preguntas_seguridad` (`preguntas_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `respuesta_seguridad_ibfk_2` FOREIGN KEY (`email_id`) REFERENCES `usuarios` (`email`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `resultado_pruebas`
---
-ALTER TABLE `resultado_pruebas`
-  ADD CONSTRAINT `resultado_pruebas_ibfk_1` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `resultado_pruebas_ibfk_2` FOREIGN KEY (`actividad_id`) REFERENCES `actividades` (`actividad_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+ALTER TABLE `resultados_pruebas`
+  ADD CONSTRAINT `resultados_pruebas_ibfk_4` FOREIGN KEY (`actividad_id`) REFERENCES `actividades` (`actividad_id`),
+  ADD CONSTRAINT `resultados_pruebas_ibfk_5` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `rol_usuarios` (`rol_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `usuarios_ibfk_2` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `usuarios_ibfk_3` FOREIGN KEY (`rol_id`) REFERENCES `roles_usuarios` (`rol_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
