@@ -317,7 +317,7 @@
 </style>
 
 <!-- Inclusión de ECharts para gráficos -->
-<script src="<?= e(url('/assets/js/echarts.min.js')) ?>"></script>
+<script src="<?= e(url('/assets/js/lib/echarts.min.js')) ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Manejo de Pestañas

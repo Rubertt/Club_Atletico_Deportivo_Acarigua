@@ -25,8 +25,18 @@ final class AtletasController extends Controller
             'q'            => $request->query('q'),
         ];
         $page = max(1, (int) $request->query('page', 1));
-        $data = (new Atleta())->paginate(array_filter($filters, fn($v) => $v !== null && $v !== ''), $page, 15);
+        $atletaModel = new Atleta();
+        $data = $atletaModel->paginate(array_filter($filters, fn($v) => $v !== null && $v !== ''), $page, 15);
         $categorias = (new Categoria())->allWithEntrenador();
+
+        // Calcular conteos reales para las tarjetas
+        $countsRaw = $atletaModel->countByEstatus();
+        $stats = ['activo' => 0, 'lesionado' => 0, 'suspendido' => 0];
+        foreach ($countsRaw as $c) {
+            if ((int)$c['estatus'] === 1) $stats['activo'] = (int)$c['total'];
+            if ((int)$c['estatus'] === 2) $stats['lesionado'] = (int)$c['total'];
+            if ((int)$c['estatus'] === 3) $stats['suspendido'] = (int)$c['total'];
+        }
 
         return $this->view('atletas.index', [
             'title'      => 'Atletas',
@@ -35,6 +45,7 @@ final class AtletasController extends Controller
             'pag'        => $data,
             'categorias' => $categorias,
             'filters'    => $filters,
+            'stats'      => $stats,
         ], 'admin');
     }
 
@@ -73,7 +84,7 @@ final class AtletasController extends Controller
         $data = $this->rawInput($request);
         $errors = $this->validar($data)->errors();
         if ($errors) {
-            $this->withOld($data)->withErrors($errors);
+            $this->withErrors($errors);
             return $this->redirect('/admin/atletas/crear');
         }
         try {
@@ -84,7 +95,6 @@ final class AtletasController extends Controller
         } catch (Throwable $e) {
             Logger::error($e);
             flash('error', 'No se pudo crear el atleta: ' . $e->getMessage());
-            $this->withOld($data);
             return $this->redirect('/admin/atletas/crear');
         }
     }
@@ -115,7 +125,7 @@ final class AtletasController extends Controller
         $data = $this->rawInput($request);
         $errors = $this->validar($data, $id)->errors();
         if ($errors) {
-            $this->withOld($data)->withErrors($errors);
+            $this->withErrors($errors);
             return $this->redirect("/admin/atletas/$id/editar");
         }
         try {
@@ -182,6 +192,11 @@ final class AtletasController extends Controller
 
     private function validar(array $data, ?int $ignoreId = null): Validator
     {
+        // Regex: cédula venezolana V-X.XXX.XXX o E-XX.XXX.XXX (hasta 8 dígitos)
+        $cedRegex = '/^[VE]-\d{1,3}(\.\d{3})*$/';
+        // Regex: teléfono 11 dígitos con prefijo venezolano (prefijo 4 dígitos + 7 dígitos = 11 total)
+        $telRegex = '/^0(412|414|416|422|424|426)\d{7}$/';
+
         $rules = [
             'nombre'           => 'required|min:2|max:100',
             'apellido'         => 'required|min:2|max:100',
@@ -189,7 +204,32 @@ final class AtletasController extends Controller
             'estatus'          => 'required|in:0,1,2,3',
             'pierna_dominante' => 'in:derecha,izquierda,ambidiestro',
         ];
-        $v = Validator::make($data, $rules);
+
+        // Validar cédula del atleta solo si fue ingresada
+        if (!empty($data['cedula'])) {
+            $rules['cedula'] = ["regex:$cedRegex"];
+        }
+        // Validar teléfono del atleta solo si fue ingresado
+        if (!empty($data['telefono'])) {
+            $rules['telefono'] = ["regex:$telRegex"];
+        }
+        // Validar cédula del representante solo si fue ingresada
+        if (!empty($data['tutor_cedula'])) {
+            $rules['tutor_cedula'] = ["regex:$cedRegex"];
+        }
+        // Validar teléfono del representante solo si fue ingresado
+        if (!empty($data['tutor_telefono'])) {
+            $rules['tutor_telefono'] = ["regex:$telRegex"];
+        }
+
+        $messages = [
+            'cedula'        => 'La cédula debe tener el formato V-12.345.678 o E-1.234.567.',
+            'telefono'      => 'El teléfono debe comenzar con 0412, 0414, 0416, 0422 o 0424 y tener 11 dígitos.',
+            'tutor_cedula'  => 'La cédula del representante debe tener el formato V-12.345.678 o E-1.234.567.',
+            'tutor_telefono'=> 'El teléfono del representante debe comenzar con 0412, 0414, 0416, 0422 o 0424 y tener 11 dígitos.',
+        ];
+
+        $v = Validator::make($data, $rules, $messages);
         $v->validate();
         return $v;
     }

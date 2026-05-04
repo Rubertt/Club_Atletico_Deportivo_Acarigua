@@ -18,15 +18,15 @@
         <div class="stat-label">Total Registrados</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #10B981;">--</div>
+        <div class="stat-number" style="color: #10B981;"><?= (int) ($stats['activo'] ?? 0) ?></div>
         <div class="stat-label">Atletas Activos</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #F59E0B;">--</div>
+        <div class="stat-number" style="color: #F59E0B;"><?= (int) ($stats['lesionado'] ?? 0) ?></div>
         <div class="stat-label">Lesionados</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #EF4444;">--</div>
+        <div class="stat-number" style="color: #EF4444;"><?= (int) ($stats['suspendido'] ?? 0) ?></div>
         <div class="stat-label">Suspendidos</div>
     </div>
 </div>
@@ -51,9 +51,10 @@
         <label class="form-label" for="estatus"><i class="ph ph-activity"></i> Estatus</label>
         <select id="estatus" name="estatus" class="form-control">
             <option value="">Todos los estatus</option>
-            <?php foreach (['Activo','Inactivo','Lesionado','Suspendido'] as $op): ?>
-                <option value="<?= e($op) ?>" <?= ($filters['estatus'] ?? '') === $op ? 'selected' : '' ?>><?= e($op) ?></option>
-            <?php endforeach; ?>
+            <option value="1" <?= ($filters['estatus'] ?? '') == '1' ? 'selected' : '' ?>>Activo</option>
+            <option value="0" <?= ($filters['estatus'] ?? '') == '0' ? 'selected' : '' ?>>Inactivo</option>
+            <option value="2" <?= ($filters['estatus'] ?? '') == '2' ? 'selected' : '' ?>>Lesionado</option>
+            <option value="3" <?= ($filters['estatus'] ?? '') == '3' ? 'selected' : '' ?>>Suspendido</option>
         </select>
     </div>
     <div style="display: flex; gap: 8px;">
@@ -110,16 +111,18 @@
                 </td>
                 <td>
                     <?php 
-                        $badge = match ($a['estatus']) {
-                            'Activo' => 'success', 
-                            'Lesionado' => 'warning', 
-                            'Suspendido' => 'danger', 
-                            default => 'primary'
+                        $val = (int) $a['estatus'];
+                        [$label, $badge] = match ($val) {
+                            1 => ['Activo', 'success'],
+                            2 => ['Lesionado', 'warning'],
+                            3 => ['Suspendido', 'danger'],
+                            0 => ['Inactivo', 'outline'],
+                            default => ['Desconocido', 'primary']
                         }; 
                     ?>
                     <span class="badge badge-<?= $badge ?>" style="padding: 6px 12px; border-radius: 20px;">
                         <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle;"></span>
-                        <?= e($a['estatus']) ?>
+                        <?= e($label) ?>
                     </span>
                 </td>
                 <td style="text-align: right; padding-right: 24px;">
