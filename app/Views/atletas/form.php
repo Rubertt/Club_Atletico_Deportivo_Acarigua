@@ -87,11 +87,10 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
                                 <option value="0424" <?= $telPref==='0424'?'selected':'' ?>>0424</option>
                                 <option value="0426" <?= $telPref==='0426'?'selected':'' ?>>0426</option>
                             </select>
-                            <span class="phone-sep">-</span>
                             <input type="text" class="phone-number" id="telefono_number"
                                    maxlength="7" placeholder="1234567"
                                    autocomplete="off" inputmode="numeric"
-                                   value="<?= e($telNum) ?>">
+                                   value="<?= e($telNum) ?>">>
                             <input type="hidden" name="telefono" id="telefono">
                         </div>
                         <span class="field-error" id="telefono-error"></span>
@@ -274,7 +273,6 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
                                 <option value="0424" <?= $repTelPref==='0424'?'selected':'' ?>>0424</option>
                                 <option value="0426" <?= $repTelPref==='0426'?'selected':'' ?>>0426</option>
                             </select>
-                            <span class="phone-sep">-</span>
                             <input type="text" class="phone-number" id="tutor_telefono_number" required
                                    maxlength="7" placeholder="1234567"
                                    autocomplete="off" inputmode="numeric"
@@ -358,10 +356,15 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
     box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08), 
                 0 0 1px rgba(0,0,0,0.1);
     overflow: hidden;
-    background: #fff;
+    background: var(--color-bg);
     border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
+}
+
+html.dark .af-card {
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.4), 
+                0 0 1px rgba(0,0,0,0.3);
 }
 
 /* — Tabs Premium — */
@@ -517,8 +520,12 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
 }
 
 .form-control:focus {
-    background: #fff;
+    background: var(--color-bg);
     box-shadow: 0 0 0 4px rgba(190, 18, 60, 0.08);
+}
+
+html.dark .form-control:focus {
+    box-shadow: 0 0 0 4px rgba(190, 18, 60, 0.25);
 }
 
 /* — Upload de Foto — */
@@ -592,11 +599,24 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
     transition: all 0.2s;
     height: 44px;
 }
+
+html.dark .phone-field {
+    border-color: #4B5563;
+    background: #1F2937;
+}
+
 .phone-field:focus-within {
     border-color: var(--color-primary);
-    background: #fff;
+    background: var(--color-bg);
     box-shadow: 0 0 0 4px rgba(190, 18, 60, 0.08);
 }
+
+html.dark .phone-field:focus-within {
+    background: #2D3748;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(190, 18, 60, 0.25);
+}
+
 .phone-field .phone-prefix {
     border: none;
     background: var(--color-surface-2);
@@ -605,7 +625,15 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
     padding: 0 12px;
     cursor: pointer;
     border-right: 1px solid var(--color-border);
+    color: var(--color-text);
 }
+
+html.dark .phone-field .phone-prefix {
+    background: #1F2937;
+    color: #E5E7EB;
+    border-right-color: #4B5563;
+}
+
 .phone-field .phone-number {
     flex: 1;
     border: none;
@@ -613,7 +641,13 @@ $get = fn(string $k, $default = '') => $a[$k] ?? $default;
     padding: 0 12px;
     font-size: 14px;
     outline: none;
+    color: var(--color-text);
 }
+
+html.dark .phone-field .phone-number {
+    color: #E5E7EB;
+}
+
 .phone-field .phone-sep {
     display: flex;
     align-items: center;

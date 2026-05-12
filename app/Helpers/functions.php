@@ -52,9 +52,21 @@ if (!function_exists('url')) {
 }
 
 if (!function_exists('asset')) {
+    /**
+     * URL de un archivo bajo /public/assets.
+     * Por defecto usa ruta absoluta en el mismo host (/assets/...), para que las imágenes y CSS carguen
+     * aunque APP_URL no coincida con la URL desde la que ves el sitio (otro puerto, 127.0.0.1 vs localhost, etc.).
+     * Opcional: define ASSET_URL en .env (CDN o prefijo de subcarpeta).
+     */
     function asset(string $path): string
     {
-        return url('/assets/' . ltrim($path, '/'));
+        $relative = 'assets/' . ltrim($path, '/');
+        $base = (string) (config('app.asset_url') ?? '');
+        if ($base !== '') {
+            return $base . '/' . $relative;
+        }
+
+        return '/' . $relative;
     }
 }
 

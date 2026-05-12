@@ -1,11 +1,12 @@
 <?php /** @var string|null $error */ ?>
 <div class="login-page">
+    <?php $carouselSlidesId = 'login-hero-slides'; include view_path('partials.hero_carousel_background'); ?>
     <a href="<?= e(url('/')) ?>" class="login-back">&larr; Volver al Inicio</a>
 
     <div class="login-card">
         <div class="login-card__brand">
             <a href="<?= e(url('/')) ?>" class="brand">
-                <div class="brand__logo">CADA</div>
+                <img class="brand__logo" src="<?= e(asset('img/brand/logo-club.png')) ?>" alt="<?= e(config('app.name')) ?>" width="200" height="200" decoding="async" loading="eager">
                 <div class="brand__text" style="text-align:left">
                     <div class="title">Club Atlético</div>
                     <div class="subtitle">Deportivo Acarigua</div>

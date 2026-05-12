@@ -80,8 +80,7 @@ unset($_SESSION['_errors']);
                             <option value="<?= $_p ?>" <?= $telPref === $_p ? 'selected' : '' ?>><?= $_p ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <span style="padding: 0 8px; color: var(--color-text-muted);">-</span>
-                    <input type="text" class="phone-number" id="perfil_telefono_number" maxlength="7" placeholder="1234567" inputmode="numeric" value="<?= e($telNum) ?>" style="border: none; background: transparent; padding: 10px; font-size: 14px; outline: none; width: 100%; color: var(--color-text);">
+                    <input type="text" class="phone-number" id="perfil_telefono_number" maxlength="7" placeholder="1234567" inputmode="numeric" value="<?= e($telNum) ?>" style="border: none; background: transparent; padding: 10px; font-size: 14px; outline: none; width: 100%; color: var(--color-text);">>
                     <input type="hidden" name="telefono" id="perfil_telefono" required>
                 </div>
                 <span class="field-error" id="perfil_telefono-error" style="display:none; color: var(--color-danger); font-size: 12px; margin-top: 4px;"></span>

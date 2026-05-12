@@ -16,6 +16,7 @@ final class AtletasApiController extends Controller
             'categoria_id' => $request->query('categoria_id'),
             'estatus'      => $request->query('estatus'),
             'q'            => $request->query('q'),
+            'cedula'       => $request->query('cedula'),
         ], fn($v) => $v !== null && $v !== '');
 
         $data = (new Atleta())->paginate(

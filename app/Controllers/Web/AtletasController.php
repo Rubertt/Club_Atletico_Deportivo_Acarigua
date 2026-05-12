@@ -26,6 +26,7 @@ final class AtletasController extends Controller
             'categoria_id' => $request->query('categoria_id'),
             'estatus'      => $request->query('estatus'),
             'q'            => $request->query('q'),
+            'cedula'       => $request->query('cedula'),
         ];
         $page = max(1, (int) $request->query('page', 1));
         $atletaModel = new Atleta();
