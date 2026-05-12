@@ -3,7 +3,7 @@
     <div class="login-card" style="max-width: 500px;">
         <div class="login-card__brand">
             <div class="brand">
-                <div class="brand__logo">CADA</div>
+                <img class="brand__logo" src="<?= e(asset('img/brand/logo-club.png')) ?>" alt="<?= e(config('app.name')) ?>" width="200" height="200" decoding="async" loading="eager">
                 <div class="brand__text" style="text-align:left">
                     <div class="title">Configuración Inicial</div>
                     <div class="subtitle">Seguridad de la Cuenta</div>

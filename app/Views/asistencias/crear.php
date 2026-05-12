@@ -72,7 +72,8 @@
         </div>
     </div>
 
-    <div id="atletas-container" style="display: none;">
+
+        <div id="atletas-container" style="display: none;">
         <div class="card" style="padding: 0; overflow: hidden;">
             <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-2);">
                 <h3 style="margin:0; font-size: 16px;"><i class="ph ph-users-three"></i> Lista de Atletas</h3>
@@ -206,11 +207,15 @@
                 });
             });
 
+
         } catch (e) {
             console.error(e);
             CadaModal.alert({ title: 'Error', text: 'No se pudo cargar la lista de atletas.', type: 'danger' });
         }
+
     });
+
+
 
     document.getElementById('form-asistencia').addEventListener('submit', function() {
         const btn = document.getElementById('btn-save');

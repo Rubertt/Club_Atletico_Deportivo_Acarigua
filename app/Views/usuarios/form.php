@@ -74,8 +74,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                             <option value="0424" <?= $telPref==='0424'?'selected':'' ?>>0424</option>
                             <option value="0426" <?= $telPref==='0426'?'selected':'' ?>>0426</option>
                         </select>
-                        <span style="padding: 0 8px; color: var(--color-text-muted);">-</span>
-                        <input type="text" class="phone-number" id="telefono_number" maxlength="7" placeholder="1234567" autocomplete="off" inputmode="numeric" value="<?= e($telNum) ?>" style="border: none; background: transparent; padding: 10px; font-size: 14px; outline: none; width: 100%;">
+                        <input type="text" class="phone-number" id="telefono_number" maxlength="7" placeholder="1234567" autocomplete="off" inputmode="numeric" value="<?= e($telNum) ?>" style="border: none; background: transparent; padding: 10px; font-size: 14px; outline: none; width: 100%;">>
                         <input type="hidden" name="telefono" id="telefono" required>
                     </div>
                     <span class="field-error" id="telefono-error" style="display:none; color: var(--color-danger); font-size: 12px; margin-top: 4px;"></span>

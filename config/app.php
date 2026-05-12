@@ -5,8 +5,10 @@ return [
     'name'     => $_ENV['APP_NAME'] ?? 'Club Atlético Deportivo Acarigua',
     'env'      => $_ENV['APP_ENV'] ?? 'production',
     'debug'    => filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN),
-    'url'      => rtrim($_ENV['APP_URL'] ?? 'http://localhost:8000', '/'),
-    'timezone' => $_ENV['APP_TIMEZONE'] ?? 'America/Caracas',
+    'url'       => rtrim($_ENV['APP_URL'] ?? 'http://localhost:8000', '/'),
+    /** Vacío: rutas /assets/... respecto al host actual (evita roturas si APP_URL no coincide). CDN o subcarpeta: p.ej. https://cdn.midominio.com o /mi-app/public */
+    'asset_url' => isset($_ENV['ASSET_URL']) ? rtrim((string) $_ENV['ASSET_URL'], '/') : '',
+    'timezone'  => $_ENV['APP_TIMEZONE'] ?? 'America/Caracas',
 
     'uploads' => [
         'max_size'     => (int) ($_ENV['UPLOAD_MAX_SIZE'] ?? 2097152),

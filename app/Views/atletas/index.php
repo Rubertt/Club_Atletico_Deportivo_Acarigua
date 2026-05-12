@@ -61,6 +61,14 @@
             <option value="3" <?= ($filters['estatus'] ?? '') == '3' ? 'selected' : '' ?>>Suspendido</option>
         </select>
     </div>
+    <div class="form-group" style="flex: 1; min-width: 180px; margin-bottom: 0;">
+        <label class="form-label" for="cedula"><i class="ph ph-identification-card"></i> Cédula</label>
+        <select id="cedula" name="cedula" class="form-control">
+            <option value="">Todos</option>
+            <option value="1" <?= (($filters['cedula'] ?? '') === '1') ? 'selected' : '' ?>>Con cédula</option>
+            <option value="0" <?= (($filters['cedula'] ?? '') === '0') ? 'selected' : '' ?>>Sin cédula</option>
+        </select>
+    </div>
     <div style="display: flex; gap: 8px;">
         <button type="submit" class="btn btn-outline"><i class="ph ph-funnel"></i> Filtrar</button>
         <a href="<?= e(url('/admin/atletas')) ?>" class="btn btn-ghost" title="Limpiar filtros"><i class="ph ph-x"></i></a>

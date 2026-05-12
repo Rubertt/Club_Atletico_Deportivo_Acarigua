@@ -44,18 +44,16 @@ body.admin-body {
     color: #fff;
 }
 .sidebar__brand .brand__logo {
-    width: 40px;
+    width: auto;
     height: 40px;
-    background: var(--color-primary);
-    color: #fff;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 12px;
+    max-width: 148px;
+    border-radius: 8px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
     flex-shrink: 0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    background: #fff;
 }
 .sidebar__brand .title { color: #fff; font-size: 15px; font-weight: 700; }
 .sidebar__brand .subtitle { color: #94A3B8; font-size: 11px; margin-top: -2px; }

@@ -42,6 +42,13 @@ final class Atleta extends Model
             $params[':q2'] = $qVal;
             $params[':q3'] = $qVal;
         }
+        if (isset($filters['cedula']) && $filters['cedula'] !== '') {
+            if ((string) $filters['cedula'] === '1') {
+                $where[] = '(a.cedula IS NOT NULL AND TRIM(a.cedula) <> \'\')';
+            } elseif ((string) $filters['cedula'] === '0') {
+                $where[] = '(a.cedula IS NULL OR TRIM(COALESCE(a.cedula, \'\')) = \'\')';
+            }
+        }
 
         $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 

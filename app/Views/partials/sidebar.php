@@ -1,7 +1,7 @@
 <?php $active = $active ?? ''; ?>
 <aside class="sidebar">
     <a href="<?= e(url('/admin')) ?>" class="sidebar__brand" style="text-decoration:none;">
-        <div class="brand__logo">CADA</div>
+        <img class="brand__logo" src="<?= e(asset('img/brand/logo-club.png')) ?>" alt="<?= e(config('app.name')) ?>" width="200" height="200" decoding="async" loading="eager">
         <div class="brand__text">
             <div class="title">Club Atlético</div>
             <div class="subtitle">Deportivo Acarigua</div>
