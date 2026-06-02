@@ -101,9 +101,9 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
     $r->get('/asistencias/crear', [AsistenciasController::class, 'crear']);
     $r->post('/asistencias/crear', [AsistenciasController::class, 'guardar'], [CsrfMiddleware::class]);
     $r->get('/asistencias/{id}', [AsistenciasController::class, 'show']);
-    $r->get('/asistencias/{id}/editar', [AsistenciasController::class, 'edit'], [[RoleMiddleware::class, ['admin', 'super_user', 'entrenador']]]);
-    $r->post('/asistencias/{id}/editar', [AsistenciasController::class, 'update'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user', 'entrenador']]]);
-    $r->post('/asistencias/{id}/eliminar', [AsistenciasController::class, 'destroy'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user', 'entrenador']]]);
+    $r->get('/asistencias/{id}/editar', [AsistenciasController::class, 'edit'], [[RoleMiddleware::class, ['admin', 'super_user']]]);
+    $r->post('/asistencias/{id}/editar', [AsistenciasController::class, 'update'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user']]]);
+    $r->post('/asistencias/{id}/eliminar', [AsistenciasController::class, 'destroy'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user']]]);
 
     // Medidas Antropometricas
     $r->get('/medidas', [MedidasAntropometricasController::class, 'index']);

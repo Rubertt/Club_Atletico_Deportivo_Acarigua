@@ -105,7 +105,7 @@
                                 <th>Veloc. (30m)</th>
                                 <th>Coord. (Conos)</th>
                                 <th>Reacc. (Cognit.)</th>
-                                <?php if (can('admin')): ?>
+                                <?php if (can('admin') || can('entrenador')): ?>
                                     <th style="width: 110px; text-align: center;">Acciones</th>
                                 <?php endif; ?>
                             </tr>
@@ -113,7 +113,7 @@
                         <tbody>
                             <?php if (empty($pruebas_historial)): ?>
                                 <tr>
-                                    <td colspan="<?= can('admin') ? 7 : 6 ?>"
+                                    <td colspan="<?= (can('admin') || can('entrenador')) ? 7 : 6 ?>"
                                         style="text-align: center; padding: 32px; color: var(--color-text-muted);">No hay
                                         pruebas registradas aún.</td>
                                 </tr>
@@ -163,7 +163,7 @@
                                                 <?= e($p['test_de_reaccion_raw'] !== null ? $p['test_de_reaccion_raw'] . ' ms (' . $p['test_de_reaccion'] . '/100)' : '—') ?>
                                             </div>
                                         </td>
-                                        <?php if (can('admin')): ?>
+                                        <?php if (can('admin') || can('entrenador')): ?>
                                             <td style="text-align: center;">
                                                 <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                                     <button type="button" class="btn-icon-premium btn-editar-prueba" 
@@ -207,12 +207,12 @@
                     <div class="modal-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label"><span class="required">*</span> Fecha de Evaluación</label>
+                                <label class="form-label" data-tooltip="Fecha en la que se realizó la evaluación física. No puede ser futura." data-tooltip-pos="top"><span class="required">*</span> Fecha de Evaluación</label>
                                 <input type="date" name="fecha_evaluacion" class="form-control"
                                     value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label"><span class="required">*</span> Entrenador</label>
+                                <label class="form-label" data-tooltip="Profesional técnico (entrenador o directivo) que supervisó la toma de los resultados." data-tooltip-pos="top"><span class="required">*</span> Entrenador</label>
                                 <select name="entrenador_id" class="form-control" required>
                                     <option value="">Seleccione...</option>
                                     <?php foreach ($entrenadores as $entrenador): ?>
@@ -224,12 +224,12 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Test de Fuerza (Salto CMJ - cm)</label>
+                                <label class="form-label" data-tooltip="Altura alcanzada en el salto vertical de fuerza explosiva (CMJ). Rango válido: 1 a 100 cm." data-tooltip-pos="top">Test de Fuerza (Salto CMJ - cm)</label>
                                 <input type="number" step="0.01" name="test_de_fuerza" class="form-control" min="1" max="100"
                                     placeholder="Rango Élite (100%): 20 - 45 cm">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Test de Resistencia (Yo-Yo Test - m)</label>
+                                <label class="form-label" data-tooltip="Distancia acumulada en el Yo-Yo Test de resistencia aeróbica. Rango válido: 1 a 1000 metros." data-tooltip-pos="top">Test de Resistencia (Yo-Yo Test - m)</label>
                                 <input type="number" step="1" name="test_resistencia" class="form-control" min="1" max="1000"
                                     placeholder="Rango Élite (100%): 600 - 2200 m">
                             </div>
@@ -237,12 +237,12 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Test de Velocidad (Sprint 30m - s)</label>
+                                <label class="form-label" data-tooltip="Tiempo en la prueba de velocidad de 30 metros llanos. Rango válido: 1.00 a 10.00 segundos." data-tooltip-pos="top">Test de Velocidad (Sprint 30m - s)</label>
                                 <input type="number" step="0.01" name="test_velocidad" class="form-control" min="1" max="10"
                                     placeholder="Rango Élite (100%): 5.20 - 4.10 s">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Test de Coordinación (Conos - s)</label>
+                                <label class="form-label" data-tooltip="Tiempo en el circuito de conos para medir agilidad y coordinación. Rango válido: 1.00 a 100.00 segundos." data-tooltip-pos="top">Test de Coordinación (Conos - s)</label>
                                 <input type="number" step="0.01" name="test_coordinacion" class="form-control" min="1" max="100"
                                     placeholder="Rango Élite (100%): 22.50 - 16.50 s">
                             </div>
@@ -250,7 +250,7 @@
 
                         <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
                             <div class="form-group">
-                                <label class="form-label">Test de Reacción (App Cognitiva - ms)</label>
+                                <label class="form-label" data-tooltip="Tiempo de respuesta ante estímulos visuales o auditivos en milisegundos. Rango: 100 a 1000 ms." data-tooltip-pos="top">Test de Reacción (App Cognitiva - ms)</label>
                                 <input type="number" step="1" name="test_de_reaccion" class="form-control" min="100" max="1000"
                                     placeholder="Rango Élite (100%): 450 - 220 ms">
                             </div>
@@ -277,11 +277,11 @@
                     <div class="modal-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label"><span class="required">*</span> Fecha de Evaluación</label>
+                                <label class="form-label" data-tooltip="Fecha en la que se realizó la evaluación física. No puede ser futura." data-tooltip-pos="top"><span class="required">*</span> Fecha de Evaluación</label>
                                 <input type="date" name="fecha_evaluacion" id="edit-prueba-fecha" class="form-control" max="<?= date('Y-m-d') ?>" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label"><span class="required">*</span> Entrenador</label>
+                                <label class="form-label" data-tooltip="Profesional técnico (entrenador o directivo) que supervisó la toma de los resultados." data-tooltip-pos="top"><span class="required">*</span> Entrenador</label>
                                 <select name="entrenador_id" id="edit-prueba-entrenador" class="form-control" required>
                                     <option value="">Seleccione...</option>
                                     <?php foreach ($entrenadores as $entrenador): ?>
@@ -293,29 +293,29 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Test de Fuerza (Salto CMJ - cm)</label>
+                                <label class="form-label" data-tooltip="Altura alcanzada en el salto vertical de fuerza explosiva (CMJ). Rango válido: 1 a 100 cm." data-tooltip-pos="top">Test de Fuerza (Salto CMJ - cm)</label>
                                 <input type="number" step="0.01" name="test_de_fuerza" id="edit-prueba-fuerza" class="form-control" min="1" max="100" placeholder="Rango Élite (100%): 20 - 45 cm">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Test de Resistencia (Yo-Yo Test - m)</label>
+                                <label class="form-label" data-tooltip="Distancia acumulada en el Yo-Yo Test de resistencia aeróbica. Rango válido: 1 a 1000 metros." data-tooltip-pos="top">Test de Resistencia (Yo-Yo Test - m)</label>
                                 <input type="number" step="1" name="test_resistencia" id="edit-prueba-resistencia" class="form-control" min="1" max="1000" placeholder="Rango Élite (100%): 600 - 2200 m">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Test de Velocidad (Sprint 30m - s)</label>
+                                <label class="form-label" data-tooltip="Tiempo en la prueba de velocidad de 30 metros llanos. Rango válido: 1.00 a 10.00 segundos." data-tooltip-pos="top">Test de Velocidad (Sprint 30m - s)</label>
                                 <input type="number" step="0.01" name="test_velocidad" id="edit-prueba-velocidad" class="form-control" min="1" max="10" placeholder="Rango Élite (100%): 5.20 - 4.10 s">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Test de Coordinación (Conos - s)</label>
+                                <label class="form-label" data-tooltip="Tiempo en el circuito de conos para medir agilidad y coordinación. Rango válido: 1.00 a 100.00 segundos." data-tooltip-pos="top">Test de Coordinación (Conos - s)</label>
                                 <input type="number" step="0.01" name="test_coordinacion" id="edit-prueba-coordinacion" class="form-control" min="1" max="100" placeholder="Rango Élite (100%): 22.50 - 16.50 s">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
                             <div class="form-group">
-                                <label class="form-label">Test de Reacción (App Cognitiva - ms)</label>
+                                <label class="form-label" data-tooltip="Tiempo de respuesta ante estímulos visuales o auditivos en milisegundos. Rango: 100 a 1000 ms." data-tooltip-pos="top">Test de Reacción (App Cognitiva - ms)</label>
                                 <input type="number" step="1" name="test_de_reaccion" id="edit-prueba-reaccion" class="form-control" min="100" max="1000" placeholder="Rango Élite (100%): 450 - 220 ms">
                             </div>
                         </div>

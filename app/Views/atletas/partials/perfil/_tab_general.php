@@ -136,7 +136,7 @@
                     <div>
                         <div
                             style="font-size: 12px; color: var(--color-text-muted); font-weight: 600; margin-bottom: 2px;">
-                            Documento de Identidad</div>
+                            Cédula de Identidad</div>
                         <div style="font-weight: 600; font-size: 15px; color: var(--color-text);">
                             <?= e($atleta['tutor_cedula_formateada'] ?? '—') ?></div>
                     </div>

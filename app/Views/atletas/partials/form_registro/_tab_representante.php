@@ -9,18 +9,18 @@
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Nombres</label>
+                        <label class="form-label" data-tooltip="Datos obligatorios del tutor legal requeridos para atletas menores de edad." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                         <input type="text" name="tutor_nombres" class="form-control" id="tutor_nombres" maxlength="100" value="<?= e($get('tutor_nombres', $a['tutor_nombres'] ?? '')) ?>" placeholder="Nombres del representante">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Apellidos</label>
+                        <label class="form-label" data-tooltip="Apellidos completos del representante legal del atleta menor de edad." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
                         <input type="text" name="tutor_apellidos" class="form-control" id="tutor_apellidos" maxlength="100" value="<?= e($get('tutor_apellidos', $a['tutor_apellidos'] ?? '')) ?>" placeholder="Apellidos del representante">
                     </div>
                 </div>
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Cédula</label>
+                        <label class="form-label" data-tooltip="Cédula de identidad del representante (V/E-Número) o Pasaporte. Requerida para atletas menores de 18 años." data-tooltip-pos="top"><span class="required">*</span> Cédula</label>
                         <?php
                             $tcedVal   = $get('tutor_cedula', $a['tutor_cedula'] ?? '');
                             $tcedPref  = 'V';
@@ -55,7 +55,7 @@
                         <span class="field-error" id="tutor_cedula-error"></span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Tel&eacute;fono</label>
+                        <label class="form-label" data-tooltip="Teléfono móvil del representante para contacto de emergencia (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Tel&eacute;fono</label>
                         <?php
                             $repTelVal  = $get('tutor_telefono', $a['tutor_telefono'] ?? '');
                             $repTelPref = '';
@@ -88,7 +88,7 @@
                 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Tipo de Relación</label>
+                        <label class="form-label" data-tooltip="Vínculo familiar o legal entre el representante y el atleta (padre, madre, tutor, etc.)." data-tooltip-pos="top"><span class="required">*</span> Tipo de Relación</label>
                         <select name="tutor_relacion" class="form-control" required>
                             <option value="">— Seleccione —</option>
                             <?php foreach (TIPO_RELACION_REPRESENTANTE as $op):

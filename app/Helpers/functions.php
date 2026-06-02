@@ -45,19 +45,7 @@ if (!function_exists('e')) {
 if (!function_exists('url')) {
     function url(string $path = ''): string
     {
-        if (php_sapi_name() === 'cli') {
-            $base = rtrim((string) config('app.url'), '/');
-        } else {
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
-            
-            // Extraer el subdirectorio (si existe) de la URL configurada
-            $configUrl = (string) config('app.url');
-            $pathParts = parse_url($configUrl, PHP_URL_PATH);
-            $subDir = $pathParts ? rtrim($pathParts, '/') : '';
-            
-            $base = $protocol . '://' . $host . $subDir;
-        }
+        $base = rtrim((string) config('app.url'), '/');
         $path = '/' . ltrim($path, '/');
         return $base . $path;
     }
@@ -115,8 +103,9 @@ if (!function_exists('can')) {
             return false;
         }
 
-        // El super_usuario (ID 1) siempre tiene permiso
-        if ((int) ($user['rol_id'] ?? 0) === 1) {
+        // El super_usuario (ID 1) y el directivo (ID 4) siempre tienen permiso
+        $userRol = (int) ($user['rol_id'] ?? 0);
+        if ($userRol === 1 || $userRol === 4) {
             return true;
         }
 

@@ -27,14 +27,14 @@
             <?= csrf_field() ?>
 
             <div class="form-group">
-                <label class="form-label" for="email"><span class="required">*</span> Usuario o correo</label>
+                <label class="form-label" for="email" data-tooltip="Ingrese su correo electrónico registrado. Campo obligatorio (máx. 100 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Usuario o correo</label>
                 <input type="text" id="email" name="email" class="form-control"
                        value="<?= e(old('email')) ?>" placeholder="Ingresa tu usuario o correo"
                        required autofocus autocomplete="username">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password"><span class="required">*</span> Contraseña</label>
+                <label class="form-label" for="password" data-tooltip="Su contraseña secreta de acceso. Debe contener al menos 4 letras o números." data-tooltip-pos="top"><span class="required">*</span> Contraseña</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" class="form-control"
                            placeholder="Ingresa tu contraseña" required autocomplete="current-password">

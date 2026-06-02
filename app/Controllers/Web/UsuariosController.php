@@ -22,8 +22,8 @@ final class UsuariosController extends Controller
         $loggedUser = Auth::user();
         $items = (new Usuario())->allWithRol();
 
-        // Si es administrador ordinario, ocultar los superusuarios de la lista
-        if ($loggedUser['rol_id'] == ROL_ADMIN) {
+        // Si es administrador ordinario o directivo, ocultar los superusuarios de la lista
+        if ($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) {
             $items = array_filter($items, function ($item) {
                 return (int) $item['rol_id'] !== ROL_SUPERUSER;
             });
@@ -57,8 +57,8 @@ final class UsuariosController extends Controller
         $data = $this->input($request);
         $loggedUser = Auth::user();
 
-        // Validar que un administrador no intente registrar a alguien como Superusuario
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $data['rol_id'] == ROL_SUPERUSER) {
+        // Validar que un administrador o directivo no intente registrar a alguien como Superusuario
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $data['rol_id'] == ROL_SUPERUSER) {
             flash('error', 'No tienes permisos para registrar usuarios con el rol de Soporte Técnico.');
             return $this->redirect('/admin/usuarios/crear');
         }
@@ -115,8 +115,8 @@ final class UsuariosController extends Controller
 
         $loggedUser = Auth::user();
 
-        // Evitar que un administrador edite a un superusuario
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+        // Evitar que un administrador o directivo edite a un superusuario
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
             flash('error', 'No tienes permisos para editar una cuenta de Soporte Técnico.');
             return $this->redirect('/admin/usuarios');
         }
@@ -143,16 +143,16 @@ final class UsuariosController extends Controller
 
         $loggedUser = Auth::user();
 
-        // Evitar que un administrador actualice a un superusuario
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+        // Evitar que un administrador o directivo actualice a un superusuario
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
             flash('error', 'No tienes permisos para modificar una cuenta de Soporte Técnico.');
             return $this->redirect('/admin/usuarios');
         }
 
         $data = $this->input($request);
 
-        // Evitar que un administrador asigne el rol de superusuario a alguien
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $data['rol_id'] == ROL_SUPERUSER) {
+        // Evitar que un administrador o directivo asigne el rol de superusuario a alguien
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $data['rol_id'] == ROL_SUPERUSER) {
             flash('error', 'No tienes permisos para asignar el rol de Soporte Técnico.');
             return $this->redirect("/admin/usuarios/$id/editar");
         }
@@ -184,7 +184,7 @@ final class UsuariosController extends Controller
         }
 
         $loggedUser = Auth::user();
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
             return $this->json(['success' => false, 'message' => 'No tienes permisos para modificar este usuario.']);
         }
 
@@ -198,7 +198,7 @@ final class UsuariosController extends Controller
             'estatus'  => $request->input('estatus'),
         ];
 
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $data['rol_id'] == ROL_SUPERUSER) {
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $data['rol_id'] == ROL_SUPERUSER) {
             return $this->json(['success' => false, 'message' => 'No tienes permisos para asignar ese rol.']);
         }
 
@@ -247,7 +247,7 @@ final class UsuariosController extends Controller
         }
 
         $loggedUser = Auth::user();
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
             return $this->json(['success' => false, 'message' => 'No tienes permisos para modificar este usuario.']);
         }
 
@@ -274,7 +274,7 @@ final class UsuariosController extends Controller
         }
 
         $loggedUser = Auth::user();
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
             return $this->json(['success' => false, 'message' => 'No tienes permisos para modificar este usuario.']);
         }
 
@@ -322,8 +322,8 @@ final class UsuariosController extends Controller
         $item = (new Usuario())->findCompleto($id);
         if ($item) {
             $loggedUser = Auth::user();
-            // Evitar que un administrador elimine a un superusuario
-            if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+            // Evitar que un administrador o directivo elimine a un superusuario
+            if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
                 flash('error', 'No tienes permisos para eliminar una cuenta de Soporte Técnico.');
                 return $this->redirect('/admin/usuarios');
             }
@@ -353,8 +353,8 @@ final class UsuariosController extends Controller
 
         $loggedUser = Auth::user();
 
-        // Evitar que un administrador restablezca a un superusuario
-        if ($loggedUser['rol_id'] == ROL_ADMIN && $item['rol_id'] == ROL_SUPERUSER) {
+        // Evitar que un administrador o directivo restablezca a un superusuario
+        if (($loggedUser['rol_id'] == ROL_ADMIN || $loggedUser['rol_id'] == ROL_DIRECTIVO) && $item['rol_id'] == ROL_SUPERUSER) {
             flash('error', 'No tienes permisos para restablecer una cuenta de Soporte Técnico.');
             return $this->redirect('/admin/usuarios');
         }
@@ -438,8 +438,8 @@ final class UsuariosController extends Controller
         }
 
         $v = Validator::make($data, [
-            'nombre'    => 'required|min:3|max:30',
-            'apellido'  => 'required|min:3|max:30',
+            'nombre'    => 'required|min:3|max:30|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u',
+            'apellido'  => 'required|min:3|max:30|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/u',
             'cedula'    => $cedulaRules,
             'telefono'  => 'required|min:7|max:15|regex:/^[0-9]+$/',
             'correo'    => $correoRule,
@@ -450,6 +450,8 @@ final class UsuariosController extends Controller
             'tipo_vivienda' => 'required',
             'ubicacion_vivienda' => 'required|min:5|max:100',
         ], [
+            'nombre'       => 'El nombre debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
+            'apellido'     => 'El apellido debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
             'cedula'       => 'La cédula o pasaporte debe ser válido (Ej: V-12.345.678, E-12.345.678 o P-Pasaporte) y ser único.',
             'parroquia_id' => 'El campo parroquia es obligatorio.',
             'rol_id'       => 'El campo rol / cargo es obligatorio.',

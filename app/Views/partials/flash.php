@@ -17,6 +17,18 @@ foreach ($flashTypes as $type):
 ?>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            <?php if ($typeMod === 'success'): ?>
+            if (typeof CadaToast !== 'undefined') {
+                CadaToast.success(<?= json_encode($message) ?>);
+            } else if (typeof CadaModal !== 'undefined') {
+                CadaModal.alert({
+                    title: <?= json_encode($title) ?>,
+                    text: <?= json_encode($message) ?>,
+                    type: 'success',
+                    confirmText: 'Aceptar'
+                });
+            }
+            <?php else: ?>
             if (typeof CadaModal !== 'undefined') {
                 CadaModal.alert({
                     title: <?= json_encode($title) ?>,
@@ -25,6 +37,7 @@ foreach ($flashTypes as $type):
                     confirmText: 'Aceptar'
                 });
             }
+            <?php endif; ?>
         });
     </script>
 <?php endforeach; ?>

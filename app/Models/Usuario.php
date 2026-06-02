@@ -50,6 +50,22 @@ final class Usuario extends Model
     }
 
     /**
+     * Lista los usuarios activos con rol de entrenador o directivo para coordinar categorías.
+     */
+    public function coordinadoresCategorias(): array
+    {
+        return $this->query(
+            'SELECT usuario_id, nombre, apellido FROM usuarios
+             WHERE rol_id IN (:r_entrenador, :r_directivo) AND estatus = "Activo"
+             ORDER BY apellido, nombre',
+            [
+                ':r_entrenador' => ROL_ENTRENADOR,
+                ':r_directivo' => ROL_DIRECTIVO
+            ]
+        );
+    }
+
+    /**
      * Trae un usuario con toda su información de dirección (JOINs cascada).
      */
     public function findCompleto(int $id): ?array

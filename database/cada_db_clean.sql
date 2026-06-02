@@ -1901,7 +1901,8 @@ CREATE TABLE `roles_usuarios` (
 INSERT INTO `roles_usuarios` (`rol_id`, `nombre_rol`, `descripcion`, `fecha_creacion`) VALUES
 (1, 'super_usuario', NULL, '2026-05-04 18:02:24'),
 (2, 'administrador', NULL, '2026-05-04 18:02:32'),
-(3, 'entrenador', NULL, '2026-05-04 18:02:38');
+(3, 'entrenador', NULL, '2026-05-04 18:02:38'),
+(4, 'directivo', NULL, '2026-06-02 00:00:00');
 
 -- --------------------------------------------------------
 

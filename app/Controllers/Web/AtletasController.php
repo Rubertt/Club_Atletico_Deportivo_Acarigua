@@ -335,25 +335,13 @@ final class AtletasController extends Controller
         // Regex: teléfono 11 dígitos con prefijo venezolano (prefijo 4 dígitos + 7 dígitos = 11 total)
         $telRegex = '/^0(412|414|416|422|424|426|255|256)\d{7}$/';
 
-        $isCreate = ($ignoreId === null);
-        $rules = [];
-
-        // 1. Datos básicos del atleta (solamente si es creación o se envían en el formulario)
-        if ($isCreate || isset($_POST['nombre'])) {
-            $rules['nombre'] = 'required|min:2|max:100';
-        }
-        if ($isCreate || isset($_POST['apellido'])) {
-            $rules['apellido'] = 'required|min:2|max:100';
-        }
-        if ($isCreate || isset($_POST['fecha_nacimiento'])) {
-            $rules['fecha_nacimiento'] = 'required|date';
-        }
-        if ($isCreate || isset($_POST['estatus'])) {
-            $rules['estatus'] = 'required|in:0,1,2,3';
-        }
-        if ($isCreate || isset($_POST['pierna_dominante'])) {
-            $rules['pierna_dominante'] = 'in:derecha,izquierda,ambidiestro';
-        }
+        $rules = [
+            'nombre' => 'required|min:2|max:100',
+            'apellido' => 'required|min:2|max:100',
+            'fecha_nacimiento' => 'required|date',
+            'estatus' => 'required|in:0,1,2,3',
+            'pierna_dominante' => 'in:derecha,izquierda,ambidiestro',
+        ];
 
         // Calcular edad en años en el backend para validar de manera dinámica
         $age = 0;
@@ -367,72 +355,67 @@ final class AtletasController extends Controller
             }
         }
 
-        // 1.1 Cédula/Folio obligatoria si es mayor de 9 años
-        if ($isCreate || isset($_POST['cedula']) || isset($_POST['fecha_nacimiento'])) {
-            $cedulaRules = [];
-            if ($age > 9) {
-                $cedulaRules[] = 'required';
-                $cedulaRules[] = "regex:$cedRegex";
-            } elseif (!empty($data['cedula'])) {
-                $cedulaRules[] = "regex:$cedRegex";
-            }
+        // 1. Cédula/Folio obligatoria si es mayor de 9 años
+        $cedulaRules = [];
+        if ($age > 9) {
+            $cedulaRules[] = 'required';
+            $cedulaRules[] = "regex:$cedRegex";
+        } elseif (!empty($data['cedula'])) {
+            $cedulaRules[] = "regex:$cedRegex";
+        }
 
-            if (!empty($data['cedula'])) {
-                if ($ignoreId) {
-                    $cedulaRules[] = "unique:atletas,cedula,atleta_id:$ignoreId";
-                } else {
-                    $cedulaRules[] = 'unique:atletas,cedula';
-                }
+        if (!empty($data['cedula'])) {
+            if ($ignoreId) {
+                $cedulaRules[] = "unique:atletas,cedula,atleta_id:$ignoreId";
+            } else {
+                $cedulaRules[] = 'unique:atletas,cedula';
             }
+        }
 
-            if (!empty($cedulaRules)) {
-                $rules['cedula'] = $cedulaRules;
-            }
+        if (!empty($cedulaRules)) {
+            $rules['cedula'] = $cedulaRules;
         }
 
         // 2. Teléfono personal obligatorio si es mayor de edad
-        if ($isCreate || isset($_POST['telefono']) || isset($_POST['fecha_nacimiento'])) {
-            if ($age >= 18) {
-                $rules['telefono'] = ['required', "regex:$telRegex"];
-            } elseif (!empty($data['telefono'])) {
-                $rules['telefono'] = ["regex:$telRegex"];
-            }
+        if ($age >= 18) {
+            $rules['telefono'] = ['required', "regex:$telRegex"];
+        } elseif (!empty($data['telefono'])) {
+            $rules['telefono'] = ["regex:$telRegex"];
         }
 
-        // 3. Datos del representante
-        if ($isCreate || isset($_POST['tutor_nombres'])) {
-            if ($age < 18 || isset($_POST['tutor_nombres'])) {
-                $rules['tutor_nombres'] = 'required|min:2|max:100';
-                $rules['tutor_apellidos'] = 'required|min:2|max:100';
-                $rules['tutor_cedula'] = ['required', "regex:$cedRegex"];
-                $rules['tutor_telefono'] = ['required', "regex:$telRegex"];
-                $rules['tutor_relacion'] = 'required';
-            } else {
-                // Si es mayor de edad y no se envía representante, es opcional pero se valida si existe
-                if (!empty($data['tutor_cedula']) && $data['tutor_cedula'] !== 'S/N') {
-                    $rules['tutor_cedula'] = ["regex:$cedRegex"];
-                }
-                if (!empty($data['tutor_telefono'])) {
-                    $rules['tutor_telefono'] = ["regex:$telRegex"];
-                }
-            }
-        } elseif ($age < 18) {
-            // Si es actualización básica y el atleta es menor, nos aseguramos de que ya tenga representante
-            $esEdicionBasico = isset($_POST['nombre']);
+        // 3. Datos del representante obligatorios si es menor de edad OR si se edita desde el modal de representante
+        $tieneRepresentanteEnPost = ($ignoreId !== null) && isset($_POST['tutor_nombres']);
+        if ($age < 18 || $tieneRepresentanteEnPost) {
+            $esEdicionBasico = ($ignoreId !== null) && isset($_POST['nombre']) && !isset($_POST['tutor_nombres']);
             $tutorVacio = empty($data['tutor_nombres']) 
                 || $data['tutor_nombres'] === 'Sin Nombre' 
                 || empty($data['tutor_cedula']) 
                 || $data['tutor_cedula'] === 'S/N' 
                 || empty($data['tutor_telefono']);
 
-            if ($esEdicionBasico && $tutorVacio) {
+            if ($esEdicionBasico && $tutorVacio && $age < 18) {
                 $rules['tutor_representante'] = 'required';
+            } else {
+                $rules['tutor_nombres'] = 'required|min:2|max:100';
+                $rules['tutor_apellidos'] = 'required|min:2|max:100';
+                $rules['tutor_cedula'] = ['required', "regex:$cedRegex"];
+                $rules['tutor_telefono'] = ['required', "regex:$telRegex"];
+                $rules['tutor_relacion'] = 'required';
+            }
+        } else {
+            // Si es mayor de edad y no se envía el modal de representante, es opcional pero se valida formato si existe
+            if (!empty($data['tutor_cedula'])) {
+                $rules['tutor_cedula'] = ["regex:$cedRegex"];
+            }
+            if (!empty($data['tutor_telefono'])) {
+                $rules['tutor_telefono'] = ["regex:$telRegex"];
             }
         }
 
         // 4. Validar dirección detallada si estamos en registro o si se envían datos de dirección en el request
+        $esRegistro = ($ignoreId === null);
         $tieneDireccionEnRequest = isset($_POST['parroquia_id']) || isset($_POST['localidad']);
-        if ($isCreate || $tieneDireccionEnRequest) {
+        if ($esRegistro || $tieneDireccionEnRequest) {
             $rules['parroquia_id'] = 'required|integer';
             $rules['localidad'] = 'required|min:2|max:200';
             $rules['tipo_vivienda'] = 'required|in:casa,apto,edificio';
@@ -457,39 +440,35 @@ final class AtletasController extends Controller
         $v = Validator::make($data, $rules, $messages);
         $v->validate();
 
-        // Validaciones de edad (entre 6 y 100 años) y fecha futura (solo si se recibe fecha_nacimiento o es creación)
-        if ($isCreate || isset($_POST['fecha_nacimiento'])) {
-            if (!empty($data['fecha_nacimiento'])) {
-                $birthDate = strtotime($data['fecha_nacimiento']);
-                if ($birthDate !== false) {
-                    if ($birthDate > time()) {
-                        $v->addError('fecha_nacimiento', 'La fecha de nacimiento no puede ser en el futuro.');
-                    } else {
-                        $age = (int) date('Y') - (int) date('Y', $birthDate);
-                        if (date('md') < date('md', $birthDate)) {
-                            $age--;
-                        }
-                        if ($age < self::EDAD_MINIMA_ATLETA) {
-                            $v->addError('fecha_nacimiento', 'El atleta debe tener al menos ' . self::EDAD_MINIMA_ATLETA . ' años de edad.');
-                        } elseif ($age > self::EDAD_MAXIMA_ATLETA) {
-                            $v->addError('fecha_nacimiento', 'La edad máxima permitida es de ' . self::EDAD_MAXIMA_ATLETA . ' años.');
-                        }
+        // Validaciones de edad (entre 6 y 100 años) y fecha futura
+        if (!empty($data['fecha_nacimiento'])) {
+            $birthDate = strtotime($data['fecha_nacimiento']);
+            if ($birthDate !== false) {
+                if ($birthDate > time()) {
+                    $v->addError('fecha_nacimiento', 'La fecha de nacimiento no puede ser en el futuro.');
+                } else {
+                    $age = (int) date('Y') - (int) date('Y', $birthDate);
+                    if (date('md') < date('md', $birthDate)) {
+                        $age--;
+                    }
+                    if ($age < self::EDAD_MINIMA_ATLETA) {
+                        $v->addError('fecha_nacimiento', 'El atleta debe tener al menos ' . self::EDAD_MINIMA_ATLETA . ' años de edad.');
+                    } elseif ($age > self::EDAD_MAXIMA_ATLETA) {
+                        $v->addError('fecha_nacimiento', 'La edad máxima permitida es de ' . self::EDAD_MAXIMA_ATLETA . ' años.');
                     }
                 }
             }
         }
 
-        // Validar año de la partida de nacimiento (N-) (solo si se recibe cedula o fecha_nacimiento o es creación)
-        if ($isCreate || isset($_POST['cedula']) || isset($_POST['fecha_nacimiento'])) {
-            if (!empty($data['cedula']) && str_starts_with(strtoupper($data['cedula']), 'N-')) {
-                $parts = explode('-', $data['cedula']);
-                if (count($parts) >= 2) {
-                    $certYear = (int)$parts[1];
-                    if (!empty($data['fecha_nacimiento'])) {
-                        $birthYear = (int)date('Y', strtotime($data['fecha_nacimiento']));
-                        if ($certYear < $birthYear) {
-                            $v->addError('cedula', 'El año del acta de nacimiento no puede ser menor al año de nacimiento del atleta.');
-                        }
+        // Validar año de la partida de nacimiento (N-)
+        if (!empty($data['cedula']) && str_starts_with(strtoupper($data['cedula']), 'N-')) {
+            $parts = explode('-', $data['cedula']);
+            if (count($parts) >= 2) {
+                $certYear = (int)$parts[1];
+                if (!empty($data['fecha_nacimiento'])) {
+                    $birthYear = (int)date('Y', strtotime($data['fecha_nacimiento']));
+                    if ($certYear < $birthYear) {
+                        $v->addError('cedula', 'El año del acta de nacimiento no puede ser menor al año de nacimiento del atleta.');
                     }
                 }
             }

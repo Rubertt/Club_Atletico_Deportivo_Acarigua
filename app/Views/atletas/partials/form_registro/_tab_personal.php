@@ -9,18 +9,18 @@
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Nombres</label>
+                        <label class="form-label" data-tooltip="Nombres completos del atleta. Solo letras y espacios (mín. 2 caracteres, máx. 50)." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                         <input type="text" name="nombre" class="form-control" required maxlength="50" value="<?= e($get('nombre', '')) ?>" placeholder="Ej: Juan Carlos">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Apellidos</label>
+                        <label class="form-label" data-tooltip="Apellidos completos del atleta. Solo letras y espacios (mín. 2 caracteres, máx. 50)." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
                         <input type="text" name="apellido" class="form-control" required maxlength="50" value="<?= e($get('apellido', '')) ?>" placeholder="Ej: Pérez Rodríguez">
                     </div>
                 </div>
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label" id="label-cedula">Documento de Identidad</label>
+                        <label class="form-label" id="label-cedula" data-tooltip="Cédula (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Obligatorio si tiene más de 9 años." data-tooltip-pos="top">Documento de Identidad</label>
                         <?php
                             $cedVal   = $get('cedula', '');
                             $cedPref  = 'V';
@@ -49,7 +49,7 @@
                             <span class="phone-sep">-</span>
                             <!-- Input para Cédula o Pasaporte -->
                             <input type="text" class="phone-number" id="cedula_number"
-                                   maxlength="10" placeholder="12345678"
+                                   maxlength="13" placeholder="12345678"
                                    autocomplete="off"
                                    value="<?= $cedPref !== 'N' ? e($cedNum) : '' ?>"
                                    <?= $cedPref === 'N' ? 'style="display:none;"' : '' ?>>
@@ -77,7 +77,7 @@
                         <span class="field-error" id="cedula-error"></span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" id="label-telefono">Tel&eacute;fono</label>
+                        <label class="form-label" id="label-telefono" data-tooltip="Teléfono móvil de contacto. Obligatorio para mayores de 18 años (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top">Tel&eacute;fono</label>
                         <?php
                             $telVal   = $get('telefono', '');
                             $telPref  = '';
@@ -107,14 +107,14 @@
                         <span class="field-error" id="telefono-error"></span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Fecha de nacimiento</label>
+                        <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de 6 a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha de nacimiento</label>
                         <input type="date" name="fecha_nacimiento" class="form-control" required value="<?= e($get('fecha_nac', $get('fecha_nacimiento', ''))) ?>" max="<?= date('Y-m-d', strtotime('-6 years')) ?>">
                     </div>
                 </div>
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Sexo</label>
+                        <label class="form-label" data-tooltip="Género del atleta. Determina en qué categorías (Masculina, Femenina o Mixta) puede ser enrolado." data-tooltip-pos="top"><span class="required">*</span> Sexo</label>
                         <select name="sexo" class="form-control" required>
                             <option value="">— Seleccione —</option>
                             <option value="M" <?= $get('sexo', '') === 'M' ? 'selected' : '' ?>>Masculino</option>
@@ -122,7 +122,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Pierna dominante</label>
+                        <label class="form-label" data-tooltip="Perfil natural del atleta para el golpeo del balón (derecha, izquierda o ambidiestro)." data-tooltip-pos="top">Pierna dominante</label>
                         <select name="pierna_dominante" class="form-control">
                             <option value="">Sin definir</option>
                             <?php foreach (PIERNA_DOMINANTE as $op): ?>
@@ -134,7 +134,7 @@
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label">Foto de Perfil</label>
+                        <label class="form-label" data-tooltip="Imagen de perfil del atleta. Formatos aceptados: JPG, PNG, WebP. Opcional." data-tooltip-pos="top">Foto de Perfil</label>
                         <div class="af-file-upload">
                             <input type="file" name="foto" id="foto-input" class="af-file-input" accept="image/jpeg,image/png,image/webp">
                             <label for="foto-input" class="af-file-label" id="foto-label">

@@ -37,7 +37,7 @@
                 </button>
             </div>
             <div class="form-group">
-                <label class="form-label" for="tiempo_sesion"><span class="required">*</span> Tiempo de expiración de sesión (en minutos)</label>
+                <label class="form-label" for="tiempo_sesion" data-tooltip="Tiempo máximo de inactividad antes de cerrar la sesión automáticamente. Mínimo 5 minutos, máximo 480 minutos." data-tooltip-pos="top"><span class="required">*</span> Tiempo de expiración de sesión (en minutos)</label>
                 <input type="number" name="tiempo_sesion" id="tiempo_sesion" class="form-control" 
                        value="<?= e($configs['tiempo_sesion'] ?? '120') ?>" required min="5" max="480"
                        data-label="Tiempo de sesión">
@@ -59,19 +59,19 @@
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="mision"><span class="required">*</span> Misión</label>
+                <label class="form-label" for="mision" data-tooltip="Declaración del propósito del club: qué hace y para quién existe." data-tooltip-pos="top"><span class="required">*</span> Misión</label>
                 <textarea name="mision" id="mision" class="form-control" rows="4" required
                           data-label="Misión"><?= e($configs['mision'] ?? '') ?></textarea>
             </div>
 
             <div class="form-group" style="margin-top:16px;">
-                <label class="form-label" for="vision"><span class="required">*</span> Visión</label>
+                <label class="form-label" for="vision" data-tooltip="Meta a largo plazo del club: qué aspira lograr en el futuro." data-tooltip-pos="top"><span class="required">*</span> Visión</label>
                 <textarea name="vision" id="vision" class="form-control" rows="4" required
                           data-label="Visión"><?= e($configs['vision'] ?? '') ?></textarea>
             </div>
 
             <div class="form-group" style="margin-top:16px;">
-                <label class="form-label" for="requisitos_inscripcion"><span class="required">*</span> Requisitos para la Inscripción</label>
+                <label class="form-label" for="requisitos_inscripcion" data-tooltip="Listado de documentos y condiciones necesarios para inscribirse en el club. Se muestra al público." data-tooltip-pos="top"><span class="required">*</span> Requisitos para la Inscripción</label>
                 <textarea name="requisitos_inscripcion" id="requisitos_inscripcion" class="form-control" rows="4" required
                           data-label="Requisitos de inscripción"><?= e($configs['requisitos_inscripcion'] ?? '') ?></textarea>
                 <p class="form-help" style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
@@ -93,13 +93,13 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label" for="correo_contacto"><span class="required">*</span> Correo Electrónico de Contacto</label>
+                    <label class="form-label" for="correo_contacto" data-tooltip="Correo electrónico oficial del club para recibir mensajes del público." data-tooltip-pos="top"><span class="required">*</span> Correo Electrónico de Contacto</label>
                     <input type="email" name="correo_contacto" id="correo_contacto" class="form-control" 
                            value="<?= e($configs['correo_contacto'] ?? '') ?>" required
                            data-label="Correo de contacto">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="telefono_whatsapp"><span class="required">*</span> Teléfono / WhatsApp</label>
+                    <label class="form-label" for="telefono_whatsapp" data-tooltip="Número de WhatsApp del club con prefijo internacional (ej: +584120000000)." data-tooltip-pos="top"><span class="required">*</span> Teléfono / WhatsApp</label>
                     <input type="text" name="telefono_whatsapp" id="telefono_whatsapp" class="form-control" 
                            value="<?= e($configs['telefono_whatsapp'] ?? '') ?>" 
                            placeholder="Ej: +584120000000" required
@@ -110,13 +110,13 @@
 
             <div class="form-row" style="margin-top:16px;">
                 <div class="form-group">
-                    <label class="form-label" for="facebook_url">Enlace de Facebook</label>
+                    <label class="form-label" for="facebook_url" data-tooltip="Enlace completo al perfil o página de Facebook del club (opcional)." data-tooltip-pos="top">Enlace de Facebook</label>
                     <input type="url" name="facebook_url" id="facebook_url" class="form-control" 
                            value="<?= e($configs['facebook_url'] ?? '') ?>"
                            data-label="Enlace de Facebook">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="instagram_url">Enlace de Instagram</label>
+                    <label class="form-label" for="instagram_url" data-tooltip="Enlace completo al perfil de Instagram del club (opcional)." data-tooltip-pos="top">Enlace de Instagram</label>
                     <input type="url" name="instagram_url" id="instagram_url" class="form-control" 
                            value="<?= e($configs['instagram_url'] ?? '') ?>"
                            data-label="Enlace de Instagram">
@@ -124,7 +124,7 @@
             </div>
 
             <div class="form-group" style="margin-top:16px;">
-                <label class="form-label" for="google_maps_url"><span class="required">*</span> Enlace de Google Maps (Ubicación)</label>
+                <label class="form-label" for="google_maps_url" data-tooltip="Enlace de Google Maps apuntando a la ubicación física del club." data-tooltip-pos="top"><span class="required">*</span> Enlace de Google Maps (Ubicación)</label>
                 <input type="url" name="google_maps_url" id="google_maps_url" class="form-control" 
                        value="<?= e($configs['google_maps_url'] ?? '') ?>" required
                        data-label="Enlace de Google Maps">

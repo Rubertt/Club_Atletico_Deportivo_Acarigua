@@ -32,7 +32,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
         <!-- Fila 1: Sexo, Edad Mínima, Edad Máxima -->
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px;">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label"><span class="required">*</span> Género <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
+                <label class="form-label" data-tooltip="Género del grupo: Masculino, Femenino o Mixto. Bloqueado si el grupo ya tiene atletas registrados." data-tooltip-pos="top"><span class="required">*</span> Género <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
                 <div style="position: relative;">
                     <i class="ph ph-gender-intersex" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); z-index: 10;"></i>
                     <select name="sexo_categoria" class="form-control" style="padding-left: 40px;" required <?= $hasAthletes ? 'disabled' : '' ?>>
@@ -44,7 +44,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
                 </div>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label"><span class="required">*</span> Edad Mínima <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
+                <label class="form-label" data-tooltip="Edad mínima del rango para este grupo (entre 6 y 100 años). Debe ser menor que la edad máxima." data-tooltip-pos="top"><span class="required">*</span> Edad Mínima <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
                 <div style="position: relative;">
                     <i class="ph ph-user-circle" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);"></i>
                     <input type="number" name="edad_min" min="6" max="100" class="form-control" style="padding-left: 40px;" 
@@ -52,7 +52,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
                 </div>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label"><span class="required">*</span> Edad Máxima <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
+                <label class="form-label" data-tooltip="Edad máxima del rango para este grupo (entre 6 y 100 años). Determina el nombre automático (ej: Sub-18)." data-tooltip-pos="top"><span class="required">*</span> Edad Máxima <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
                 <div style="position: relative;">
                     <i class="ph ph-user-circle-plus" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);"></i>
                     <input type="number" name="edad_max" min="6" max="100" class="form-control" style="padding-left: 40px;" 
@@ -67,10 +67,10 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
             <input type="hidden" name="edad_max" value="<?= e($get('edad_max')) ?>">
         <?php endif; ?>
 
-        <!-- Fila 2: Nombre de Categoría (Readonly), Entrenador Responsable, Estatus (si es Edición) -->
+        <!-- Fila 2: Nombre de Categoría (Readonly), Enlistador Responsable, Estatus (si es Edición) -->
         <div style="display: grid; grid-template-columns: <?= $isEdit ? '1fr 1fr 1fr' : '1fr 1fr' ?>; gap: 24px; margin-bottom: 24px;">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label">Nombre de la Categoría</label>
+                <label class="form-label" data-tooltip="Nombre generado automáticamente según la edad máxima y el género seleccionados." data-tooltip-pos="top">Nombre de la Categoría</label>
                 <div style="position: relative;">
                     <i class="ph ph-tag" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);"></i>
                     <input type="text" name="nombre_categoria" id="nombre_categoria" class="form-control" style="padding-left: 40px; background-color: var(--color-bg-alt);" 
@@ -79,7 +79,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
                 </div>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label"><span class="required">*</span> Entrenador Responsable</label>
+                <label class="form-label" data-tooltip="Personal técnico a cargo de tomar las asistencias y registrar evaluaciones físicas en esta categoría." data-tooltip-pos="top"><span class="required">*</span> Enlistador</label>
                 <div style="position: relative;">
                     <i class="ph ph-user-gear" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); z-index: 10;"></i>
                     <select name="usuario_id" class="form-control" style="padding-left: 40px;" required>
@@ -94,7 +94,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
             </div>
             <?php if ($isEdit): ?>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label">Estado</label>
+                <label class="form-label" data-tooltip="Estatus del grupo. No se puede desactivar una categoría que tenga atletas asignados." data-tooltip-pos="top">Estado</label>
                 <div style="position: relative;">
                     <i class="ph ph-toggle-left" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); z-index: 10;"></i>
                     <select name="estatus" class="form-control" style="padding-left: 40px;">

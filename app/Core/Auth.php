@@ -180,7 +180,7 @@ final class Auth
 
     public static function isAdmin(): bool
     {
-        return self::hasRole(ROL_ADMIN) || self::hasRole(ROL_SUPERUSER);
+        return self::hasRole(ROL_ADMIN) || self::hasRole(ROL_SUPERUSER) || self::hasRole(ROL_DIRECTIVO);
     }
 
     public static function isEntrenador(): bool

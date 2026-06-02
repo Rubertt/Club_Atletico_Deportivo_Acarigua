@@ -97,7 +97,7 @@
             </div>
             <h2 style="margin:0 0 4px; font-family: var(--font-display);">
                 <?= e($atleta['nombre'] . ' ' . $atleta['apellido']) ?></h2>
-            <div style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 16px;">Documento: <?= !empty($atleta['cedula_formateada']) ? e($atleta['cedula_formateada']) : 'Sin Documento' ?></div>
+            <div style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 16px;">C.I: <?= !empty($atleta['cedula_formateada']) ? e($atleta['cedula_formateada']) : 'Sin Cédula' ?></div>
 
             <?php
             $estatusVal = (int) ($atleta['estatus'] ?? 1);

@@ -23,7 +23,7 @@
             <?= csrf_field() ?>
 
             <div class="form-group">
-                <label class="form-label" for="password"><span class="required">*</span> Nueva Contraseña</label>
+                <label class="form-label" for="password" data-tooltip="Nueva clave segura: mínimo 8 caracteres, incluyendo letras, números y un símbolo. No puede usar su número de cédula." data-tooltip-pos="top"><span class="required">*</span> Nueva Contraseña</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" class="form-control" required minlength="8"
                            pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
@@ -44,7 +44,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password_confirm"><span class="required">*</span> Confirmar Contraseña</label>
+                <label class="form-label" for="password_confirm" data-tooltip="Escriba exactamente la misma contraseña para confirmar que no haya errores." data-tooltip-pos="top"><span class="required">*</span> Confirmar Contraseña</label>
                 <input type="password" id="password_confirm" name="password_confirm" class="form-control" required minlength="8">
                 <span class="field-error" id="password_confirm-error" style="display:none; color: var(--color-danger, #e53e3e); font-size: 12px; margin-top: 4px;"></span>
             </div>

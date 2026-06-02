@@ -15,8 +15,8 @@
             <tr>
                 <th style="padding-left: 24px;">Fecha</th>
                 <th>Categoría</th>
-                <th>Tipo de Evento</th>
-                <th>Entrenador Responsable</th>
+                <th>Tipo de Actividad</th>
+                <th>Enlistador</th>
                 <th>Asistencia</th>
                 <th style="text-align: right; padding-right: 24px;">Acciones</th>
             </tr>
@@ -62,35 +62,19 @@
                                 title="Ver Detalles">
                                 <i class="ph ph-eye"></i>
                             </a>
-                            <?php
-                            $user = \App\Core\Auth::user();
-                            $isEntrenador = $user && $user['rol_id'] == ROL_ENTRENADOR;
-                            $isAdminOrSuper = $user && in_array($user['rol_id'], [ROL_SUPERUSER, ROL_ADMIN]);
-                            
-                            $canEdit = $isAdminOrSuper;
-                            if ($isEntrenador) {
-                                $fechaActividad = strtotime($ev['fecha_evento']);
-                                $limite = strtotime('+30 days', $fechaActividad);
-                                if (time() <= $limite) {
-                                    $canEdit = true;
-                                }
-                            }
-                            ?>
-                            <?php if ($canEdit): ?>
-                                <a href="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/editar')) ?>"
-                                    class="btn btn-sm btn-outline" title="Editar">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                                <form action="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/eliminar')) ?>"
-                                    method="POST" style="display:inline;">
-                                    <?= csrf_field() ?>
-                                    <button type="button" class="btn btn-sm btn-outline btn-delete-asistencia"
-                                        title="Eliminar Registro"
-                                        data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
-                                        <i class="ph ph-trash" style="color: var(--color-danger);"></i>
-                                    </button>
-                                </form>
-                            <?php endif; ?>
+                            <a href="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/editar')) ?>"
+                                class="btn btn-sm btn-outline" title="Editar">
+                                <i class="ph ph-pencil-simple"></i>
+                            </a>
+                            <form action="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/eliminar')) ?>"
+                                method="POST" style="display:inline;">
+                                <?= csrf_field() ?>
+                                <button type="button" class="btn btn-sm btn-outline btn-delete-asistencia"
+                                    title="Eliminar Registro"
+                                    data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
+                                    <i class="ph ph-trash" style="color: var(--color-danger);"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>

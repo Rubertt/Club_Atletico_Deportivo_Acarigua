@@ -49,18 +49,18 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Nombres</label>
+                        <label class="form-label" data-tooltip="Nombres completos del usuario. Solo letras y espacios (mín. 3, máx. 30 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                         <input type="text" id="nombre" name="nombre" class="form-control" required minlength="3" maxlength="30" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo letras y espacios" value="<?= e($get('nombre', '')) ?>" placeholder="Ej: Juan Carlos">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Apellidos</label>
+                        <label class="form-label" data-tooltip="Apellidos completos del usuario. Solo letras y espacios (mín. 3, máx. 30 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
                         <input type="text" id="apellido" name="apellido" class="form-control" required minlength="3" maxlength="30" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo letras y espacios" value="<?= e($get('apellido', '')) ?>" placeholder="Ej: Pérez Rodríguez">
                     </div>
                 </div>
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Número de documento de identidad</label>
+                        <label class="form-label" data-tooltip="Cédula de identidad del usuario (V/E-Número) o Pasaporte. Debe ser única en el sistema." data-tooltip-pos="top"><span class="required">*</span> Número de documento de identidad</label>
                         <?php
                             $cedVal   = $get('cedula', '');
                             $cedPref  = 'V';
@@ -91,7 +91,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Teléfono</label>
+                        <label class="form-label" data-tooltip="Teléfono móvil de contacto del usuario (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono</label>
                         <?php
                             $telVal   = $get('telefono', '');
                             $telPref  = '';
@@ -117,18 +117,18 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Fecha de nacimiento</label>
+                        <label class="form-label" data-tooltip="Fecha de nacimiento del usuario. Debe ser mayor de edad (18 años mínimo)." data-tooltip-pos="top"><span class="required">*</span> Fecha de nacimiento</label>
                         <input type="date" id="fecha_nac" name="fecha_nac" class="form-control" required max="<?= $maxDate ?>" value="<?= e($get('fecha_nac', '')) ?>">
                     </div>
                 </div>
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Correo Electrónico</label>
+                        <label class="form-label" data-tooltip="Dirección de correo electrónico que será el nombre de usuario para iniciar sesión. Debe ser única." data-tooltip-pos="top"><span class="required">*</span> Correo Electrónico</label>
                         <input type="email" id="correo" name="correo" class="form-control" required maxlength="50" value="<?= e($get('correo', '')) ?>" placeholder="ejemplo@correo.com">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Rol / Cargo</label>
+                        <label class="form-label" data-tooltip="Rol que determina los permisos del usuario: Super Usuario, Administrador, Entrenador o Directivo." data-tooltip-pos="top"><span class="required">*</span> Rol / Cargo</label>
                         <select id="rol_id" name="rol_id" class="form-control" required>
                             <option value="">— Seleccione —</option>
                             <?php foreach ($roles as $r): ?>
@@ -140,7 +140,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                     </div>
                     <?php if ($isEdit): ?>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Estatus</label>
+                        <label class="form-label" data-tooltip="Estado actual de la cuenta del usuario en el sistema (Activo o Inactivo)." data-tooltip-pos="top"><span class="required">*</span> Estatus</label>
                         <select id="estatus" name="estatus" class="form-control" required>
                             <option value="Activo" <?= $get('estatus', 'Activo') === 'Activo' ? 'selected' : '' ?>>Activo</option>
                             <option value="Inactivo" <?= $get('estatus', '') === 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
@@ -148,7 +148,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                     </div>
                     <?php else: ?>
                     <div class="form-group">
-                        <label class="form-label">Foto de Perfil</label>
+                        <label class="form-label" data-tooltip="Foto de perfil (al crear). Formatos aceptados: JPG, PNG, WebP. Opcional." data-tooltip-pos="top">Foto de Perfil</label>
                         <div class="af-file-upload">
                             <input type="file" name="foto" id="foto-input" class="af-file-input" accept="image/jpeg,image/png,image/webp">
                             <label for="foto-input" class="af-file-label" id="foto-label">
@@ -168,7 +168,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                 <?php if ($isEdit): ?>
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label">Foto de Perfil</label>
+                        <label class="form-label" data-tooltip="Foto de perfil (al editar). Formatos aceptados: JPG, PNG, WebP. Opcional." data-tooltip-pos="top">Foto de Perfil</label>
                         <div class="af-file-upload">
                             <input type="file" name="foto" id="foto-input" class="af-file-input" accept="image/jpeg,image/png,image/webp">
                             <label for="foto-input" class="af-file-label" id="foto-label">
@@ -194,13 +194,13 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Estado</label>
+                        <label class="form-label" data-tooltip="Estado venezolano correspondiente a la residencia actual del usuario." data-tooltip-pos="top"><span class="required">*</span> Estado</label>
                         <select id="sel-estado" name="estado_id" class="form-control" data-current="<?= (int) $get('estado_id', '') ?>" required>
                             <option value="">— Seleccione Estado —</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Municipio</label>
+                        <label class="form-label" data-tooltip="Municipio dentro del estado seleccionado donde reside el usuario." data-tooltip-pos="top"><span class="required">*</span> Municipio</label>
                         <select id="sel-municipio" name="municipio_id" class="form-control" data-current="<?= (int) $get('municipio_id', '') ?>" required disabled>
                             <option value="">— Seleccione Municipio —</option>
                         </select>
@@ -209,13 +209,13 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Parroquia</label>
+                        <label class="form-label" data-tooltip="Parroquia dentro del municipio donde reside el usuario." data-tooltip-pos="top"><span class="required">*</span> Parroquia</label>
                         <select id="sel-parroquia" name="parroquia_id" class="form-control" data-current="<?= (int) $get('parroquia_id', '') ?>" required disabled>
                             <option value="">— Seleccione Parroquia —</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Tipo de Vivienda</label>
+                        <label class="form-label" data-tooltip="Estructura habitacional en la que reside el usuario (casa, apartamento o edificio)." data-tooltip-pos="top"><span class="required">*</span> Tipo de Vivienda</label>
                         <select id="tipo_vivienda" name="tipo_vivienda" class="form-control" required>
                             <option value="">— Seleccione —</option>
                             <option value="casa" <?= $get('tipo_vivienda', '') === 'casa' ? 'selected' : '' ?>>Casa</option>
@@ -227,11 +227,11 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Localidad (Barrio / Urbanización)</label>
+                        <label class="form-label" data-tooltip="Urbanización, barrio, sector o comunidad donde vive el usuario (mín. 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Localidad (Barrio / Urbanización)</label>
                         <input type="text" id="localidad" name="localidad" class="form-control" required maxlength="100" value="<?= e($get('localidad', '')) ?>" placeholder="Ej: Urb. Villas del Pilar, Barrio San Jose">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Dirección Exacta</label>
+                        <label class="form-label" data-tooltip="Dirección detallada: número de casa, calle, vereda, punto de referencia (mín. 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Dirección Exacta</label>
                         <input type="text" id="ubicacion_vivienda" name="ubicacion_vivienda" class="form-control" required maxlength="100" value="<?= e($get('ubicacion_vivienda', '')) ?>" placeholder="Ej: Calle 15A, Casa 412">
                     </div>
                 </div>
@@ -263,6 +263,24 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // —— Filtrado de caracteres no alfabéticos en tiempo real —————————————————————
+    const nombreInp = document.getElementById('nombre');
+    const apellidoInp = document.getElementById('apellido');
+    
+    const filterAlphabetic = (e) => {
+        const invalidCharRegex = /[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g;
+        if (invalidCharRegex.test(e.target.value)) {
+            e.target.value = e.target.value.replace(invalidCharRegex, '');
+        }
+    };
+
+    if (nombreInp) {
+        nombreInp.addEventListener('input', filterAlphabetic);
+    }
+    if (apellidoInp) {
+        apellidoInp.addEventListener('input', filterAlphabetic);
+    }
+
     // —— Botón de ayuda [?] ——————————————————————————————————————————————————————
     const btnHelp = document.querySelector('.js-btn-help-usuario');
     if (btnHelp) {
@@ -390,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.maxLength = 15;
             } else {
                 numberEl.placeholder = '12.345.678';
-                numberEl.maxLength = 10;
+                numberEl.maxLength = 13;
             }
             sync();
             clearError(errorKey);

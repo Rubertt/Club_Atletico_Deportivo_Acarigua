@@ -131,7 +131,7 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
             <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 20px;">
                 <!-- Entrenador -->
                 <div style="background: var(--color-surface); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
-                    <div style="font-size: 11px; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">Entrenador Responsable</div>
+                    <div style="font-size: 11px; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">Enlistador</div>
                     <?php if (!empty($c['entrenador'])): ?>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <?php if (!empty($c['entrenador_foto'])): ?>

@@ -845,15 +845,15 @@
                     if (result.success) {
                         modal.style.display = 'none';
 
-                        CadaModal.alert({
-                            title: '¡Éxito!',
-                            text: result.message || 'Cambios guardados correctamente.',
-                            type: 'success',
-                            confirmText: 'Aceptar'
-                        }).then(() => {
+                        if (typeof CadaToast !== 'undefined') {
+                            CadaToast.success(result.message || 'Cambios guardados correctamente.', () => {
+                                const currentTab = new URLSearchParams(window.location.search).get('tab') || 'tab-general';
+                                window.location.href = window.location.pathname + '?tab=' + currentTab;
+                            });
+                        } else {
                             const currentTab = new URLSearchParams(window.location.search).get('tab') || 'tab-general';
                             window.location.href = window.location.pathname + '?tab=' + currentTab;
-                        });
+                        }
                     } else {
                         // Si hay errores de validación específicos del backend, marcamos los inputs
                         if (result.errors) {
@@ -1228,11 +1228,15 @@
             let countPresente = 0;
             let countAusente = 0;
             let countJustificado = 0;
+            let countPartido = 0;
             
             historialAsistenciasData.forEach(a => {
+                const tipo = parseInt(a.tipo_actividad);
                 const estatus = parseInt(a.estatus);
                 
-                if (estatus === 1) {
+                if (tipo === 0 && estatus === 1) { // Partido y presente
+                    countPartido++;
+                } else if (estatus === 1) {
                     countPresente++;
                 } else if (estatus === 2) {
                     countJustificado++;
@@ -1264,6 +1268,7 @@
                         labelLine: { show: false },
                         data: total === 0 ? [{ value: 1, name: 'Sin registros', itemStyle: { color: chartBorderColor }, label: { show: true, position: 'center', fontSize: 14, color: chartTextMuted, fontWeight: 'bold' }, emphasis: { label: { color: chartTextMuted } } }] : [
                             { value: countPresente, name: 'Presente', itemStyle: { color: '#10B981' } },
+                            { value: countPartido, name: 'Partido', itemStyle: { color: '#2563EB' } },
                             { value: countJustificado, name: 'Justificado', itemStyle: { color: '#F59E0B' } },
                             { value: countAusente, name: 'Ausente', itemStyle: { color: '#EF4444' } }
                         ].filter(d => d.value > 0)
@@ -1339,7 +1344,8 @@
                         const estatus = parseInt(r.estatus);
                         const tipo = parseInt(r.tipo_actividad);
                         
-                        if (estatus === 1) dot.classList.add('presente');
+                        if (tipo === 0 && estatus === 1) dot.classList.add('partido');
+                        else if (estatus === 1) dot.classList.add('presente');
                         else if (estatus === 2) dot.classList.add('justificado');
                         else if (estatus === 0) dot.classList.add('ausente');
                         

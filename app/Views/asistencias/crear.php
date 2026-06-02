@@ -14,9 +14,10 @@
 <form method="POST" action="<?= e(url('/admin/asistencias/crear')) ?>" id="form-asistencia" novalidate>
     <?= csrf_field() ?>
 
-    <div class="card" style="margin-bottom: 24px;">
-        <div class="af-grid af-grid--3">
-            <div class="form-group">
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <!-- Fila 1: Campos requeridos -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 24px; align-items: end;">
+            <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Selecciona la categoría de atletas a evaluar" data-tooltip-pos="top"><span class="required">*</span> Categoría Deportiva</label>
                 <select id="sel-cat" name="categoria_id" class="form-control" required>
                     <option value="">— Seleccione —</option>
@@ -25,11 +26,11 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Fecha en la que se realizó la actividad" data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
-                <input type="date" name="fecha_evento" class="form-control" required value="<?= e(old('fecha_evento', date('Y-m-d'))) ?>" min="2026-01-01" max="<?= date('Y-m-d') ?>">
+                <input type="date" name="fecha_evento" class="form-control" required value="<?= e(old('fecha_evento', date('Y-m-d'))) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Tipo de actividad: Entrenamiento, Partido, etc." data-tooltip-pos="top"><span class="required">*</span> Tipo de Actividad</label>
                 <select name="tipo_evento" class="form-control" required>
                     <option value="">— Seleccione —</option>
@@ -38,14 +39,20 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+            <div class="form-group" style="margin: 0;">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                    <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
+                </button>
+            </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
-            <div class="form-group">
+        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
+        <div id="row-opciones-extra" style="display: none; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+            <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Lugar donde se lleva a cabo el evento" data-tooltip-pos="top">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e(old('ubicacion', 'Cancha UPTP')) ?>">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Estado del clima observado" data-tooltip-pos="top">Clima</label>
                 <select name="clima" class="form-control">
                     <option value="">— Seleccione —</option>
@@ -54,24 +61,14 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="form-label" data-tooltip="Hora de inicio de la sesión" data-tooltip-pos="top"><span class="required">*</span> Hora Inicio</label>
-                <input type="time" name="hora_inicio" class="form-control" required value="<?= e(old('hora_inicio')) ?>">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Hora de inicio de la sesión" data-tooltip-pos="top">Hora Inicio</label>
+                <input type="time" name="hora_inicio" class="form-control" value="<?= e(old('hora_inicio')) ?>">
             </div>
-            <div class="form-group">
-                <label class="form-label" data-tooltip="Hora de finalización de la sesión" data-tooltip-pos="top"><span class="required">*</span> Hora Fin</label>
-                <input type="time" name="hora_fin" class="form-control" required value="<?= e(old('hora_fin')) ?>">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Hora de finalización de la sesión" data-tooltip-pos="top">Hora Fin</label>
+                <input type="time" name="hora_fin" class="form-control" value="<?= e(old('hora_fin')) ?>">
             </div>
-        </div>
-
-        <div class="form-group" style="margin-top: 16px;">
-            <label class="form-label" data-tooltip="Entrenador principal de esta sesión de categoría" data-tooltip-pos="top"><span class="required">*</span> Entrenador a Cargo</label>
-            <select name="entrenador_id" class="form-control" required>
-                <option value="">— Seleccione —</option>
-                <?php foreach ($entrenadores as $e): ?>
-                    <option value="<?= (int) $e['usuario_id'] ?>" <?= (int)old('entrenador_id') === (int)$e['usuario_id'] ? 'selected' : '' ?>><?= e($e['nombre'] . ' ' . $e['apellido']) ?></option>
-                <?php endforeach; ?>
-            </select>
         </div>
     </div>
 
@@ -226,6 +223,19 @@
 (function () {
     const $cat = document.getElementById('sel-cat');
     const $container = document.getElementById('atletas-container');
+
+    // Toggle para opciones extra
+    const $btnToggle = document.getElementById('btn-toggle-options');
+    const $rowExtra = document.getElementById('row-opciones-extra');
+    if ($btnToggle && $rowExtra) {
+        $btnToggle.addEventListener('click', () => {
+            const isHidden = $rowExtra.style.display === 'none';
+            $rowExtra.style.display = isHidden ? 'grid' : 'none';
+            $btnToggle.classList.toggle('active', isHidden);
+            $btnToggle.setAttribute('data-tooltip', isHidden ? 'ocultar opciones extra' : 'ver opciones extra');
+        });
+    }
+
     const $noAtletas = document.getElementById('no-atletas');
     const $listWrap = document.getElementById('atletas-list-wrap');
     const $stats = document.getElementById('stats-asistencia');

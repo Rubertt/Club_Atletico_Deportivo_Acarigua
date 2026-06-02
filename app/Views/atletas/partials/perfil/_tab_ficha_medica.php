@@ -174,7 +174,7 @@
                     <div class="modal-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Grupo Sanguíneo</label>
+                                <label class="form-label" data-tooltip="Grupo sanguíneo y factor RH del atleta. Crucial en caso de emergencias." data-tooltip-pos="top">Grupo Sanguíneo</label>
                                 <select name="grupo_sanguineo" class="form-control">
                                     <option value="">— Seleccionar —</option>
                                     <?php foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $gs): ?>
@@ -183,33 +183,33 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Alergias</label>
+                                <label class="form-label" data-tooltip="Sustancias, medicamentos o alimentos a los que el atleta sea alérgico. Deje en blanco si no tiene." data-tooltip-pos="top">Alergias</label>
                                 <input type="text" name="alergias" class="form-control"
                                     value="<?= e($atleta['alergias'] ?? '') ?>" placeholder="Ej: Penicilina, Maní...">
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label">Antecedentes Familiares</label>
+                            <label class="form-label" data-tooltip="Enfermedades hereditarias o condiciones de salud relevantes en la familia del atleta." data-tooltip-pos="top">Antecedentes Familiares</label>
                             <textarea name="antecedentes_familiares" class="form-control" rows="2"
                                 placeholder="Enfermedades hereditarias relevantes..."><?= e($atleta['antecedentes_familiares'] ?? '') ?></textarea>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label">Antecedentes Quirúrgicos / Lesiones Previas</label>
+                            <label class="form-label" data-tooltip="Cirujías, fracturas o lesiones previas importantes que haya sufrido el atleta." data-tooltip-pos="top">Antecedentes Quirúrgicos / Lesiones Previas</label>
                             <textarea name="antecedentes_quirurgicos" class="form-control" rows="2"
                                 placeholder="Operaciones o fracturas importantes..."><?= e($atleta['antecedentes_quirurgicos'] ?? '') ?></textarea>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Condición Crónica</label>
+                                <label class="form-label" data-tooltip="Diagnósticos médicos activos (ej: asma, diabetes) que el atleta tenga actualmente." data-tooltip-pos="top">Condición Crónica</label>
                                 <input type="text" name="condicion_cronica" class="form-control"
                                     value="<?= e($atleta['condicion_cronica'] ?? '') ?>"
                                     placeholder="Ej: Asma, Diabetes...">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Medicación Actual</label>
+                                <label class="form-label" data-tooltip="Medicamentos que el atleta toma regularmente. Deje en blanco si no toma ninguno." data-tooltip-pos="top">Medicación Actual</label>
                                 <input type="text" name="medicacion_actual" class="form-control"
                                     value="<?= e($atleta['medicacion_actual'] ?? '') ?>"
                                     placeholder="Medicamentos regulares...">
@@ -239,7 +239,7 @@
                     <?= csrf_field() ?>
                     <div class="modal-body">
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label"><span class="required">*</span> Tipo de Discapacidad</label>
+                            <label class="form-label" data-tooltip="Clasificación de la discapacidad según el carnet nacional oficial." data-tooltip-pos="top"><span class="required">*</span> Tipo de Discapacidad</label>
                             <select name="tipo_discapacidad_id" id="input-tipo-disc" class="form-control" required>
                                 <option value="">— Seleccionar —</option>
                                 <?php foreach ($tipos_discapacidades ?? [] as $tipo): ?>
@@ -249,12 +249,12 @@
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label"><span class="required">*</span> Nro. de Carnet</label>
+                            <label class="form-label" data-tooltip="Código único de carnet de discapacidad. No puede repetirse en el sistema." data-tooltip-pos="top"><span class="required">*</span> Nro. de Carnet</label>
                             <input type="text" name="nro_carnet" id="input-carnet-disc" class="form-control"
                                 placeholder="Ej: V-12345678-D" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label"><span class="required">*</span> Porcentaje de Discapacidad</label>
+                            <label class="form-label" data-tooltip="Grado o porcentaje de discapacidad diagnosticado (número entero entre 1 y 100)." data-tooltip-pos="top"><span class="required">*</span> Porcentaje de Discapacidad</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <input type="number" name="porcentaje_discapacidad" id="input-porcentaje-disc"
                                     class="form-control" min="1" max="100" placeholder="Ej: 50" required>

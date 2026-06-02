@@ -24,7 +24,7 @@
         <form method="POST" action="<?= e(url('/recuperar')) ?>" novalidate>
             <?= csrf_field() ?>
             <div class="form-group">
-                <label class="form-label" for="correo"><span class="required">*</span> Correo electrónico</label>
+                <label class="form-label" for="correo" data-tooltip="Correo de su cuenta activa para verificar su identidad y recuperar la clave." data-tooltip-pos="top"><span class="required">*</span> Correo electrónico</label>
                 <input type="email" id="correo" name="correo" class="form-control" required autofocus placeholder="ejemplo@correo.com">
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%;">Continuar</button>

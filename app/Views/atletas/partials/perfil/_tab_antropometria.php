@@ -27,7 +27,7 @@
                                 <th>Pierna (cm)</th>
                                 <th>Torso (cm)</th>
                                 <th>IMC</th>
-                                <?php if (can('admin')): ?>
+                                <?php if (can('admin') || can('entrenador')): ?>
                                     <th style="width: 110px; text-align: center;">Acciones</th>
                                 <?php endif; ?>
                             </tr>
@@ -35,7 +35,7 @@
                         <tbody id="tabla-medidas-body">
                             <?php if (empty($medidas_historial)): ?>
                                 <tr>
-                                    <td colspan="<?= can('admin') ? 10 : 9 ?>"
+                                    <td colspan="<?= (can('admin') || can('entrenador')) ? 10 : 9 ?>"
                                         style="text-align: center; padding: 32px; color: var(--color-text-muted);">No hay
                                         mediciones registradas.</td>
                                 </tr>
@@ -77,7 +77,7 @@
                                                 —
                                             <?php endif; ?>
                                         </td>
-                                        <?php if (can('admin')): ?>
+                                        <?php if (can('admin') || can('entrenador')): ?>
                                             <td style="text-align: center;">
                                                 <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                                                     <button type="button" class="btn-icon-premium btn-editar-medicion" 
@@ -122,7 +122,7 @@
                     <div class="modal-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label"><span class="required">*</span> Fecha de Medición</label>
+                                <label class="form-label" data-tooltip="Fecha en la que se tomaron las medidas corporales del atleta. No puede ser futura." data-tooltip-pos="top"><span class="required">*</span> Fecha de Medición</label>
                                 <input type="date" name="fecha_medicion" class="form-control"
                                     value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>" required>
                             </div>
@@ -130,11 +130,11 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Peso (kg)</label>
+                                <label class="form-label" data-tooltip="Peso corporal en kilogramos. Se usará junto con la estatura para calcular el IMC." data-tooltip-pos="top">Peso (kg)</label>
                                 <input type="number" step="0.1" name="peso" class="form-control" placeholder="Ej: 70.5">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Altura (cm)</label>
+                                <label class="form-label" data-tooltip="Estatura de pie en centímetros. Junto al peso calcula el IMC (ej: 175.5 cm)." data-tooltip-pos="top">Altura (cm)</label>
                                 <input type="number" step="0.1" name="altura" class="form-control"
                                     placeholder="Ej: 175">
                             </div>
@@ -142,12 +142,12 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">% Grasa</label>
+                                <label class="form-label" data-tooltip="Porcentaje estimado de tejido graso. Obtenido mediante bioimpedancia o pliegues cutáneos." data-tooltip-pos="top">% Grasa</label>
                                 <input type="number" step="0.1" name="porcentaje_grasa" class="form-control"
                                     placeholder="Ej: 12.5">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">% Musculatura</label>
+                                <label class="form-label" data-tooltip="Porcentaje estimado de masa muscular magra del atleta." data-tooltip-pos="top">% Musculatura</label>
                                 <input type="number" step="0.1" name="porcentaje_musculatura" class="form-control"
                                     placeholder="Ej: 40.2">
                             </div>
@@ -155,17 +155,17 @@
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Envergadura (cm)</label>
+                                <label class="form-label" data-tooltip="Largo de brazos totalmente extendidos (punta a punta) en centímetros." data-tooltip-pos="top">Envergadura (cm)</label>
                                 <input type="number" step="0.1" name="envergadura" class="form-control"
                                     placeholder="Ej: 180">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Pierna (cm)</label>
+                                <label class="form-label" data-tooltip="Longitud de la extremidad inferior desde la cadera hasta el pie en centímetros." data-tooltip-pos="top">Pierna (cm)</label>
                                 <input type="number" step="0.1" name="largo_de_pierna" class="form-control"
                                     placeholder="Ej: 90">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Torso (cm)</label>
+                                <label class="form-label" data-tooltip="Longitud del torso desde los hombros hasta las caderas en centímetros." data-tooltip-pos="top">Torso (cm)</label>
                                 <input type="number" step="0.1" name="largo_de_torso" class="form-control"
                                     placeholder="Ej: 50">
                             </div>
@@ -192,44 +192,44 @@
                     <div class="modal-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label"><span class="required">*</span> Fecha de Medición</label>
+                                <label class="form-label" data-tooltip="Fecha en la que se tomaron las medidas corporales del atleta. No puede ser futura." data-tooltip-pos="top"><span class="required">*</span> Fecha de Medición</label>
                                 <input type="date" name="fecha_medicion" id="edit-fecha_medicion" class="form-control" max="<?= date('Y-m-d') ?>" required>
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Peso (kg)</label>
+                                <label class="form-label" data-tooltip="Peso corporal en kilogramos. Se usará junto con la estatura para calcular el IMC." data-tooltip-pos="top">Peso (kg)</label>
                                 <input type="number" step="0.1" name="peso" id="edit-peso" class="form-control" placeholder="Ej: 70.5">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Altura (cm)</label>
+                                <label class="form-label" data-tooltip="Estatura de pie en centímetros. Junto al peso calcula el IMC (ej: 175.5 cm)." data-tooltip-pos="top">Altura (cm)</label>
                                 <input type="number" step="0.1" name="altura" id="edit-altura" class="form-control" placeholder="Ej: 175">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label">% Grasa</label>
+                                <label class="form-label" data-tooltip="Porcentaje estimado de tejido graso. Obtenido mediante bioimpedancia o pliegues cutáneos." data-tooltip-pos="top">% Grasa</label>
                                 <input type="number" step="0.1" name="porcentaje_grasa" id="edit-porcentaje_grasa" class="form-control" placeholder="Ej: 12.5">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">% Musculatura</label>
+                                <label class="form-label" data-tooltip="Porcentaje estimado de masa muscular magra del atleta." data-tooltip-pos="top">% Musculatura</label>
                                 <input type="number" step="0.1" name="porcentaje_musculatura" id="edit-porcentaje_musculatura" class="form-control" placeholder="Ej: 40.2">
                             </div>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label class="form-label">Envergadura (cm)</label>
+                                <label class="form-label" data-tooltip="Largo de brazos totalmente extendidos (punta a punta) en centímetros." data-tooltip-pos="top">Envergadura (cm)</label>
                                 <input type="number" step="0.1" name="envergadura" id="edit-envergadura" class="form-control" placeholder="Ej: 180">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Pierna (cm)</label>
+                                <label class="form-label" data-tooltip="Longitud de la extremidad inferior desde la cadera hasta el pie en centímetros." data-tooltip-pos="top">Pierna (cm)</label>
                                 <input type="number" step="0.1" name="largo_de_pierna" id="edit-largo_de_pierna" class="form-control" placeholder="Ej: 90">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Torso (cm)</label>
+                                <label class="form-label" data-tooltip="Longitud del torso desde los hombros hasta las caderas en centímetros." data-tooltip-pos="top">Torso (cm)</label>
                                 <input type="number" step="0.1" name="largo_de_torso" id="edit-largo_de_torso" class="form-control" placeholder="Ej: 50">
                             </div>
                         </div>

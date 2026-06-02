@@ -35,7 +35,55 @@
         current
     };
 
+    // Inyectar icono de ayuda (?) en labels con data-tooltip de forma limpia
+    function injectTooltipIcons() {
+        document.querySelectorAll('label[data-tooltip]').forEach(label => {
+            // Evitar duplicados si ya tiene el icono inyectado
+            if (label.querySelector('.label-tooltip-icon')) return;
+
+            // Envolver el contenido existente en un span seguro para el maquetado flexbox
+            const wrapper = document.createElement('span');
+            wrapper.className = 'label-text-wrapper';
+            while (label.firstChild) {
+                wrapper.appendChild(label.firstChild);
+            }
+            label.appendChild(wrapper);
+
+            // Crear y añadir el icono de ayuda (?) con Phosphor Icons
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'label-tooltip-icon';
+            iconSpan.innerHTML = '<i class="ph ph-question"></i>';
+            label.appendChild(iconSpan);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+        // Ejecución inicial al cargar la página
+        injectTooltipIcons();
+
+        // Observador de mutaciones para inyectar iconos dinámicamente en modales, pestañas o formularios AJAX
+        if (typeof MutationObserver !== 'undefined') {
+            const observer = new MutationObserver((mutations) => {
+                let hasNewLabels = false;
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            if (node.tagName === 'LABEL' && node.hasAttribute('data-tooltip')) {
+                                hasNewLabels = true;
+                            } else if (node.querySelector && node.querySelector('label[data-tooltip]')) {
+                                hasNewLabels = true;
+                            }
+                        }
+                    });
+                });
+                if (hasNewLabels) {
+                    injectTooltipIcons();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        // Toggle de tema claro/oscuro
         document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();

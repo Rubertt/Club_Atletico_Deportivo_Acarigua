@@ -12,19 +12,19 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Nombres</label>
+                    <label class="form-label" data-tooltip="Nombres completos del atleta. Solo letras y espacios (mín. 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                     <input type="text" name="nombre" class="form-control" value="<?= e($atleta['nombre']) ?>"
                         placeholder="Ej: Juan Carlos" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Apellidos</label>
+                    <label class="form-label" data-tooltip="Apellidos completos del atleta. Solo letras y espacios (mín. 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
                     <input type="text" name="apellido" class="form-control"
                         value="<?= e($atleta['apellido']) ?>" placeholder="Ej: Pérez Rodríguez" required>
                 </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label" id="label-cedula"><span class="required">*</span>Documento de Identidad</label>
+                <label class="form-label" id="label-cedula" data-tooltip="Cédula (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Requerido." data-tooltip-pos="top"><span class="required">*</span>Documento de Identidad</label>
                 <?php
                     $cedVal   = $atleta['cedula'];
                     $cedPref  = 'V';
@@ -53,7 +53,7 @@
                     <span class="phone-sep">-</span>
                     
                     <!-- Input para Cédula o Pasaporte -->
-                    <input type="text" class="phone-number" id="cedula_number" style="display: <?= $cedPref !== 'N' ? 'block' : 'none' ?>;" maxlength="10" placeholder="12345678" value="<?= $cedPref !== 'N' ? e($cedNum) : '' ?>">
+                    <input type="text" class="phone-number" id="cedula_number" style="display: <?= $cedPref !== 'N' ? 'block' : 'none' ?>;" maxlength="13" placeholder="12345678" value="<?= $cedPref !== 'N' ? e($cedNum) : '' ?>">
                     
                     <!-- Inputs para Partida -->
                     <div id="folio_inputs" style="display: <?= $cedPref === 'N' ? 'flex' : 'none' ?>; flex: 1; align-items: center;">
@@ -79,7 +79,7 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label" id="label-telefono"><span class="required">*</span> Teléfono Personal</label>
+                    <label class="form-label" id="label-telefono" data-tooltip="Teléfono móvil de contacto. Obligatorio para mayores de 18 años (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono Personal</label>
                     <?php
                         $telVal   = $atleta['telefono'];
                         $telPref  = '';
@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Estatus</label>
+                    <label class="form-label" data-tooltip="Estado actual del atleta en el club (activo, suspendido o inactivo)." data-tooltip-pos="top">Estatus</label>
                     <select name="estatus" class="form-control">
                         <?php foreach (ESTATUS_ATLETA as $val => $lbl): ?>
                             <option value="<?= $val ?>" <?= (int) $atleta['estatus'] === $val ? 'selected' : '' ?>>
@@ -119,13 +119,13 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Fecha Nacimiento</label>
+                    <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de 6 a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha Nacimiento</label>
                     <input type="date" name="fecha_nacimiento" class="form-control"
                         value="<?= e($atleta['fecha_nac']) ?>" required
                         max="<?= date('Y-m-d', strtotime('-6 years')) ?>">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Pierna Dominante</label>
+                    <label class="form-label" data-tooltip="Perfil natural del atleta para el golpeo del balón (derecha, izquierda o ambidiestro)." data-tooltip-pos="top">Pierna Dominante</label>
                     <select name="pierna_dominante" class="form-control">
                         <option value="">— Seleccionar —</option>
                         <?php foreach (PIERNA_DOMINANTE as $p): ?>
@@ -138,7 +138,7 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Género</label>
+                    <label class="form-label" data-tooltip="Género del atleta. Determina en qué categorías puede ser enrolado." data-tooltip-pos="top"><span class="required">*</span> Género</label>
                     <select name="sexo" class="form-control" required>
                         <option value="M" <?= $atleta['sexo'] === 'M' ? 'selected' : '' ?>>Masculino</option>
                         <option value="F" <?= $atleta['sexo'] === 'F' ? 'selected' : '' ?>>Femenino</option>
@@ -225,12 +225,12 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Nombres</label>
+                    <label class="form-label" data-tooltip="Nombres completos del tutor legal. Requerido para atletas menores de 18 años." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                     <input type="text" name="tutor_nombres" class="form-control"
                         value="<?= e($atleta['tutor_nombres']) ?>" placeholder="Ej: Juan Carlos" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Apellidos</label>
+                    <label class="form-label" data-tooltip="Apellidos del representante legal del atleta." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
                     <input type="text" name="tutor_apellidos" class="form-control"
                         value="<?= e($atleta['tutor_apellidos']) ?>" placeholder="Ej: Pérez Rodríguez" required>
                 </div>
@@ -238,7 +238,7 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Parentesco</label>
+                    <label class="form-label" data-tooltip="Vínculo familiar o legal entre el representante y el atleta (padre, madre, tutor, etc.)." data-tooltip-pos="top"><span class="required">*</span> Parentesco</label>
                     <select name="tutor_relacion" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                         <?php foreach (TIPO_RELACION_REPRESENTANTE as $rel): ?>
@@ -248,7 +248,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Cédula</label>
+                    <label class="form-label" data-tooltip="Cédula de identidad del representante (V/E-Número) o Pasaporte." data-tooltip-pos="top"><span class="required">*</span> Cédula</label>
                     <?php
                         $tcedVal   = $atleta['tutor_cedula'];
                         $tcedPref  = 'V';
@@ -274,14 +274,14 @@
                             <option value="P" <?= $tcedPref==='P'?'selected':'' ?>>P</option>
                         </select>
                         <span class="phone-sep">-</span>
-                        <input type="text" class="phone-number" id="tutor_cedula_number" maxlength="10" placeholder="12345678" value="<?= e($tcedNum) ?>">
+                        <input type="text" class="phone-number" id="tutor_cedula_number" maxlength="13" placeholder="12345678" value="<?= e($tcedNum) ?>">
                         <input type="hidden" name="tutor_cedula" id="tutor_cedula" value="<?= e($tcedVal) ?>" required>
                     </div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Teléfono de Contacto</label>
+                <label class="form-label" data-tooltip="Teléfono móvil del representante para contacto de emergencia (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono de Contacto</label>
                 <?php
                     $ttelVal   = $atleta['tutor_telefono'];
                     $ttelPref  = '';
@@ -333,7 +333,7 @@
             <input type="hidden" id="select-pais" value="<?= $paises[0]['id'] ?? 1 ?>">
             <div style="margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Estado</label>
+                    <label class="form-label" data-tooltip="Seleccione el estado venezolano correspondiente a la residencia actual del atleta." data-tooltip-pos="top"><span class="required">*</span> Estado</label>
                     <select id="select-estado" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                     </select>
@@ -342,13 +342,13 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Municipio</label>
+                    <label class="form-label" data-tooltip="Municipio dentro del estado seleccionado donde reside el atleta." data-tooltip-pos="top"><span class="required">*</span> Municipio</label>
                     <select id="select-municipio" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Parroquia</label>
+                    <label class="form-label" data-tooltip="Parroquia dentro del municipio donde reside el atleta." data-tooltip-pos="top"><span class="required">*</span> Parroquia</label>
                     <select name="parroquia_id" id="select-parroquia" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                     </select>
@@ -357,12 +357,12 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Localidad / Sector</label>
+                    <label class="form-label" data-tooltip="Urbanización, barrio, sector o comunidad donde vive el atleta (mínimo 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Localidad / Sector</label>
                     <input type="text" name="localidad" class="form-control"
                         value="<?= e($atleta['localidad']) ?>" required placeholder="Ej: Urb. La Goajira">
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Tipo de Vivienda</label>
+                    <label class="form-label" data-tooltip="Estructura habitacional en la que reside el atleta (casa, apartamento o edificio)." data-tooltip-pos="top"><span class="required">*</span> Tipo de Vivienda</label>
                     <select name="tipo_vivienda" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                         <option value="casa" <?= ($atleta['tipo_vivienda'] ?? '') === 'casa' ? 'selected' : '' ?>>Casa</option>
@@ -373,7 +373,7 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Ubicación Específica (Calle, Nro...)</label>
+                <label class="form-label" data-tooltip="Dirección detallada: número de casa, calle, vereda, punto de referencia (mínimo 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Ubicación Específica (Calle, Nro...)</label>
                 <textarea name="ubicacion_vivienda" class="form-control"
                     rows="2" required placeholder="Ej: Calle 3, Vereda 5, Casa 12"><?= e($atleta['ubicacion_vivienda']) ?></textarea>
             </div>

@@ -41,7 +41,7 @@ $get = fn(string $k, $d = '') => old($k, $item[$k] ?? $d);
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label">Posición de Juego Principal</label>
+                <label class="form-label" data-tooltip="Posición principal en la cancha en la que se desempeña el atleta." data-tooltip-pos="top">Posición de Juego Principal</label>
                 <div style="position: relative;">
                     <i class="ph ph-t-shirt" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); z-index: 10;"></i>
                     <select name="posicion_principal_id" class="form-control select-posicion-principal" style="padding-left: 40px;">
@@ -55,7 +55,7 @@ $get = fn(string $k, $d = '') => old($k, $item[$k] ?? $d);
                 </div>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label">Posición de Juego Secundaria</label>
+                <label class="form-label" data-tooltip="Posición táctica alternativa. Debe ser distinta a la posición principal seleccionada." data-tooltip-pos="top">Posición de Juego Secundaria</label>
                 <div style="position: relative;">
                     <i class="ph ph-t-shirt" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); z-index: 10;"></i>
                     <select name="posicion_secundaria_id" class="form-control select-posicion-secundaria" style="padding-left: 40px;">
@@ -71,7 +71,7 @@ $get = fn(string $k, $d = '') => old($k, $item[$k] ?? $d);
         </div>
 
         <div class="form-group" style="margin-bottom: 24px;">
-            <label class="form-label">Dorsal / Jersey Nº</label>
+            <label class="form-label" data-tooltip="Número de camiseta del atleta. Debe ser un número del 1 al 999 y no puede repetirse dentro de esta categoría." data-tooltip-pos="top">Dorsal / Jersey Nº</label>
             <div style="position: relative;">
                 <i class="ph ph-hash" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted);"></i>
                 <input type="number" name="nun_dorsal" class="form-control" style="padding-left: 40px;" min="1" max="999" placeholder="Ej: 10" value="<?= e($get('nun_dorsal', '')) ?>">
@@ -171,13 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                CadaModal.alert({
-                    title: '¡Cambios Guardados!',
-                    text: result.message,
-                    type: 'success'
-                }).then(() => {
+                if (typeof CadaToast !== 'undefined') {
+                    CadaToast.success(result.message, () => {
+                        window.location.href = result.redirect;
+                    });
+                } else {
                     window.location.href = result.redirect;
-                });
+                }
             } else {
                 CadaModal.alert({
                     title: 'Error de validación',

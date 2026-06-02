@@ -131,10 +131,10 @@ final class ResultadosPruebasController extends Controller
 
         $v = \App\Core\Validator::make($data, [
             'test_de_fuerza'    => 'numeric|min:1|max:100',
-            'test_resistencia'  => 'numeric|min:1|max:1000',
+            'test_resistencia'  => 'numeric|min:1|max:2000',
             'test_velocidad'    => 'numeric|min:1|max:10',
-            'test_coordinacion' => 'numeric|min:1|max:100',
-            'test_de_reaccion'  => 'numeric|min:100|max:1000',
+            'test_coordinacion' => 'numeric|min:1|max:200',
+            'test_de_reaccion'  => 'numeric|min:10|max:1000',
         ], [
             'test_de_fuerza'    => 'El salto CMJ (Fuerza) debe ser un número entre 1 y 100 cm.',
             'test_resistencia'  => 'El Yo-Yo Test (Resistencia) debe ser un número entre 1 y 10000 metros.',

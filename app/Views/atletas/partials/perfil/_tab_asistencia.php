@@ -75,6 +75,7 @@
                                 <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #10B981;"></div> Presente</div>
                                 <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #EF4444;"></div> Ausente</div>
                                 <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #F59E0B;"></div> Justificado</div>
+                                <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: var(--color-primary);"></div> Partido</div>
                             </div>
                         </div>
 

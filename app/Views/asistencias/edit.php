@@ -9,23 +9,29 @@
     </a>
 </div>
 
-<form method="POST" action="<?= e(url('/admin/asistencias/' . $actividad['actividad_id'] . '/editar')) ?>" id="form-edit-asistencia" novalidate>
+<form method="POST" action="<?= e(url('/admin/asistencias/' . $actividad['actividad_id'] . '/editar')) ?>" id="form-edit-asistencia">
     <?= csrf_field() ?>
 
-    <div class="card" style="margin-bottom: 24px;">
-        <div class="af-grid af-grid--2">
-            <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Fecha del Evento</label>
-                <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" min="2026-01-01" max="<?= date('Y-m-d') ?>">
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <!-- Fila 1: Campos requeridos y lectura -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 24px; align-items: end;">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Categoría a la que pertenece esta actividad. No es modificable." data-tooltip-pos="top">Categoría Deportiva</label>
+                <input type="text" class="form-control" value="<?= e($actividad['nombre_categoria'] ?? 'Sin categoría') ?>" disabled>
             </div>
-            <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Tipo de Actividad</label>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Fecha en la que se realizó la actividad o entrenamiento." data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
+                <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Tipo de actividad realizada: Entrenamiento, Partido, Pruebas Físicas, etc." data-tooltip-pos="top"><span class="required">*</span> Tipo de Actividad</label>
                 <select name="tipo_evento" class="form-control" required>
                     <?php 
                         $currentTipo = match ((int)$actividad['tipo_actividad']) {
                             0 => 'Partido',
                             1 => 'Entrenamiento',
-                            3 => 'Evento especial',
+                            2 => 'Pruebas Físicas',
+                            3 => 'Evento Especial',
                             default => 'Entrenamiento'
                         };
                     ?>
@@ -34,15 +40,21 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+            <div class="form-group" style="margin: 0;">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                    <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
+                </button>
+            </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
-            <div class="form-group">
-                <label class="form-label">Ubicación</label>
+        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
+        <div id="row-opciones-extra" style="display: none; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Lugar donde se llevó a cabo el evento o entrenamiento." data-tooltip-pos="top">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e($actividad['ubicacion'] ?? 'Cancha UPTP') ?>">
             </div>
-            <div class="form-group">
-                <label class="form-label">Clima</label>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Estado del clima observado durante la actividad." data-tooltip-pos="top">Clima</label>
                 <select name="clima" class="form-control">
                     <option value="">Selecciona...</option>
                     <?php foreach (CLIMA_TIPO as $k => $v): ?>
@@ -50,25 +62,14 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Hora Inicio</label>
-                <input type="time" name="hora_inicio" class="form-control" required value="<?= e($actividad['hora_inicio'] ?? '') ?>">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Hora en que comenzó la sesión o actividad (campo opcional)." data-tooltip-pos="top">Hora Inicio</label>
+                <input type="time" name="hora_inicio" class="form-control" value="<?= e($actividad['hora_inicio'] ?? '') ?>">
             </div>
-            <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Hora Fin</label>
-                <input type="time" name="hora_fin" class="form-control" required value="<?= e($actividad['hora_fin'] ?? '') ?>">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Hora en que finalizó la sesión o actividad (campo opcional)." data-tooltip-pos="top">Hora Fin</label>
+                <input type="time" name="hora_fin" class="form-control" value="<?= e($actividad['hora_fin'] ?? '') ?>">
             </div>
-        </div>
-
-        <div class="form-group" style="margin-top: 16px;">
-            <label class="form-label"><span class="required">*</span> Entrenador Responsable</label>
-            <select name="entrenador_id" class="form-control" required>
-                <?php foreach ($entrenadores as $e): ?>
-                    <option value="<?= (int) $e['usuario_id'] ?>" <?= (int)$e['usuario_id'] === (int)$actividad['usuario_id'] ? 'selected' : '' ?>>
-                        <?= e($e['nombre'] . ' ' . $e['apellido']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
         </div>
     </div>
 
@@ -92,13 +93,13 @@
                     <div class="status-options" data-atleta="<?= (int)$d['atleta_id'] ?>">
                         <?php $currentStatus = match ((int)$d['estatus']) { 1 => 'Presente', 2 => 'Justificado', default => 'Ausente' }; ?>
                         <input type="hidden" name="estatus[<?= (int)$d['atleta_id'] ?>]" value="<?= $currentStatus ?>" class="status-val">
-                        <button type="button" class="status-btn <?= $currentStatus === 'Presente' ? 'active' : '' ?>" data-val="Presente">Presente</button>
-                        <button type="button" class="status-btn <?= $currentStatus === 'Ausente' ? 'active' : '' ?>" data-val="Ausente">Ausente</button>
-                        <button type="button" class="status-btn <?= $currentStatus === 'Justificado' ? 'active' : '' ?>" data-val="Justificado">Justificado</button>
+                        <button type="button" class="status-btn <?= $currentStatus === 'Presente' ? 'active' : '' ?>" data-val="Presente" data-tooltip="Asistió a la actividad" data-tooltip-pos="top">Presente</button>
+                        <button type="button" class="status-btn <?= $currentStatus === 'Ausente' ? 'active' : '' ?>" data-val="Ausente" data-tooltip="No asistió a la actividad" data-tooltip-pos="top">Ausente</button>
+                        <button type="button" class="status-btn <?= $currentStatus === 'Justificado' ? 'active' : '' ?>" data-val="Justificado" data-tooltip="Inasistencia justificada (ej. lesión, permiso)" data-tooltip-pos="top">Justificado</button>
                     </div>
 
                     <div>
-                        <input type="text" name="observaciones[<?= (int)$d['atleta_id'] ?>]" class="form-control obs-input" placeholder="Observación..." value="<?= e($d['observaciones'] ?? '') ?>">
+                        <input type="text" name="observaciones[<?= (int)$d['atleta_id'] ?>]" class="form-control obs-input" placeholder="Observación..." value="<?= e($d['observaciones'] ?? '') ?>" data-tooltip="Indique cualquier observación relevante sobre la asistencia del atleta" data-tooltip-pos="top">
                     </div>
                     
                     <input type="hidden" name="atletas[]" value="<?= (int)$d['atleta_id'] ?>">
@@ -164,6 +165,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Toggle para opciones extra
+    const $btnToggle = document.getElementById('btn-toggle-options');
+    const $rowExtra = document.getElementById('row-opciones-extra');
+    if ($btnToggle && $rowExtra) {
+        $btnToggle.addEventListener('click', () => {
+            const isHidden = $rowExtra.style.display === 'none';
+            $rowExtra.style.display = isHidden ? 'grid' : 'none';
+            $btnToggle.classList.toggle('active', isHidden);
+            $btnToggle.setAttribute('data-tooltip', isHidden ? 'ocultar opciones extra' : 'ver opciones extra');
+        });
+    }
+
     document.querySelectorAll('.status-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const wrap = this.parentElement;

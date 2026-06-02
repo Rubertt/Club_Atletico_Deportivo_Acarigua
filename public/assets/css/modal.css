@@ -185,3 +185,141 @@
     background: var(--color-surface);
     flex-shrink: 0;
 }
+
+/* ============================================================
+   CadaToast — Notificación flotante en línea
+   Aparece en la parte superior de .admin-content
+   ============================================================ */
+
+/* Animación de entrada */
+@keyframes cadaToastSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación de barra de progreso: va de 100% a 0% en 5 s */
+@keyframes cadaToastProgressShrink {
+    from { width: 100%; }
+    to   { width: 0%;   }
+}
+
+/* Contenedor del toast */
+.cada-toast {
+    position: relative;
+    width: 100%;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(-12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Clase añadida por JS para disparar la entrada */
+.cada-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Clase añadida por JS al cerrar */
+.cada-toast--leaving {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ── Variante success ── */
+.cada-toast--success {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-left: 4px solid var(--color-success);
+}
+.cada-toast--success .cada-toast__progress {
+    background: var(--color-success);
+}
+.cada-toast--success .cada-toast__icon {
+    color: var(--color-success);
+}
+
+/* ── Barra de progreso ── */
+.cada-toast__progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    border-radius: 0;
+    animation: cadaToastProgressShrink 5s linear forwards;
+}
+
+/* ── Cuerpo del toast ── */
+.cada-toast__body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+}
+
+.cada-toast__icon {
+    flex-shrink: 0;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+}
+
+.cada-toast__message {
+    flex: 1;
+    font-size: 14px;
+    font-family: var(--font-base);
+    font-weight: 500;
+    color: #14532D;
+    line-height: 1.5;
+}
+
+.cada-toast__close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #16A34A;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.cada-toast__close:hover {
+    opacity: 1;
+    background: rgba(22, 163, 74, 0.1);
+}
+
+/* ── Dark Mode ── */
+html.dark .cada-toast--success {
+    background: rgba(22, 163, 74, 0.1);
+    border-color: rgba(22, 163, 74, 0.3);
+    border-left-color: var(--color-success);
+}
+
+html.dark .cada-toast__message {
+    color: #86EFAC;
+}
+
+html.dark .cada-toast__close {
+    color: #86EFAC;
+}
+
+html.dark .cada-toast__close:hover {
+    background: rgba(22, 163, 74, 0.15);
+}
+

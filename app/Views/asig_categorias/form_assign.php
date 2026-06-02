@@ -49,9 +49,9 @@
                         <th style="width: 52px;"></th>
                         <th>Atleta</th>
                         <th>Fecha Nac. (Edad)</th>
-                        <th>Posición Principal</th>
-                        <th>Posición Secundaria</th>
-                        <th style="width: 120px; padding-right: 24px;">Dorsal</th>
+                        <th data-tooltip="Posición principal en la cancha en la que se desempeña el atleta." data-tooltip-pos="top">Posición Principal</th>
+                        <th data-tooltip="Posición táctica alternativa. Debe ser distinta a la posición principal seleccionada." data-tooltip-pos="top">Posición Secundaria</th>
+                        <th style="width: 120px; padding-right: 24px;" data-tooltip="Número de camiseta del atleta. Debe ser un número del 1 al 999 y no puede repetirse dentro de esta categoría." data-tooltip-pos="top">Dorsal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -270,13 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                CadaModal.alert({
-                    title: '¡Asignación Exitosa!',
-                    text: result.message,
-                    type: 'success'
-                }).then(() => {
+                if (typeof CadaToast !== 'undefined') {
+                    CadaToast.success(result.message, () => {
+                        window.location.href = result.redirect;
+                    });
+                } else {
                     window.location.href = result.redirect;
-                });
+                }
             } else {
                 CadaModal.alert({
                     title: 'Error de validación',

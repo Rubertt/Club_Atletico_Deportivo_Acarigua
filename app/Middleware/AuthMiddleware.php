@@ -41,11 +41,6 @@ final class AuthMiddleware
         // Actualizar marca de última actividad
         $_SESSION['_last_activity'] = time();
 
-        // Refrescar la cookie JWT en peticiones de página normales para mantener viva la sesión dinámicamente
-        if (!$request->isJson() && !$request->isAjax()) {
-            Auth::setCookie($user);
-        }
-
         // Check if user needs to set up account (first login)
         if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true) {
             $allowedPaths = ['/admin/setup', '/admin/setup/save', '/logout'];

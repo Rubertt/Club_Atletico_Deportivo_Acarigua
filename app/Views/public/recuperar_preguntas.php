@@ -27,7 +27,7 @@
 
             <?php foreach ($preguntas as $i => $pregunta): ?>
                 <div class="form-group">
-                    <label class="form-label" for="respuesta_<?= $i + 1 ?>">
+                    <label class="form-label" for="respuesta_<?= $i + 1 ?>" data-tooltip="Respuesta a la pregunta. Debe ser idéntica a la que configuró originalmente (no distingue mayúsculas)." data-tooltip-pos="top">
                         <span class="required">*</span> <?= e($pregunta['preguntas']) ?>
                     </label>
                     <input type="text" id="respuesta_<?= $i + 1 ?>" name="respuesta_<?= $i + 1 ?>" 

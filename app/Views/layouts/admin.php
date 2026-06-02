@@ -31,7 +31,7 @@ $breadcrumb = $breadcrumb ?? [$title];
 
 
     <!-- Scripts Base -->
-    <script src="<?= e(asset('js/core/theme.js')) ?>"></script>
+    <script src="<?= e(asset('js/core/theme.js')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/js/core/theme.js') ?>"></script>
     <script src="<?= e(asset('js/core/modal.js')) ?>"></script>
     <script src="<?= e(asset('js/core/form-validator.js')) ?>"></script>
 </head>
@@ -171,5 +171,120 @@ $breadcrumb = $breadcrumb ?? [$title];
         <script><?= $inlineScript ?></script>
     <?php endif; ?>
 
+    <!-- Modal de Advertencia de Expiración de Sesión -->
+    <div class="modal-overlay" id="modal-session-timeout" style="display: none; z-index: 9999;">
+        <div class="modal-container" style="max-width: 400px; width: 90%; padding: 24px; text-align: center;">
+            <div style="font-size: 48px; color: var(--color-warning); margin-bottom: 16px;">
+                <i class="ph ph-clock-countdown"></i>
+            </div>
+            <h3 style="margin-top: 0; font-size: 18px; color: var(--color-text);">Tu sesión está por vencer</h3>
+            <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 24px;">
+                Por motivos de seguridad, tu sesión se cerrará automáticamente en <strong id="session-countdown" style="color: var(--color-primary); font-size: 16px;">120</strong> segundos debido a inactividad. ¿Deseas extender la sesión?
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button type="button" id="btn-logout-session" class="btn btn-ghost">Cerrar Sesión</button>
+                <button type="button" id="btn-extend-session" class="btn btn-primary">Extender Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <?php
+    $tiempoSesionMin = (int) config_db('tiempo_sesion', 120);
+    $sessionLifetimeMs = $tiempoSesionMin * 60 * 1000;
+    // Mostrar advertencia 2 minutos (120 segundos) antes de que venza
+    $warningTimeMs = max(0, $sessionLifetimeMs - (120 * 1000));
+    ?>
+    <script>
+    (function () {
+        const SESSION_LIFETIME = <?= $sessionLifetimeMs ?>;
+        const WARNING_TIME = <?= $warningTimeMs ?>;
+        const EXTEND_INTERVAL = Math.min(5 * 60 * 1000, SESSION_LIFETIME / 4);
+        
+        let lastExtension = Date.now();
+        let warningTimer = null;
+        let countdownInterval = null;
+        let countdownSeconds = 120;
+        
+        function extendSession() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            fetch('<?= e(url("/api/keep-alive")) ?>', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken || ''
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    lastExtension = Date.now();
+                    resetTimers();
+                    closeWarningModal();
+                } else {
+                    logout();
+                }
+            })
+            .catch(() => {
+                closeWarningModal();
+            });
+        }
+
+        function logout() {
+            window.location.href = '<?= e(url("/logout")) ?>';
+        }
+
+        function resetTimers() {
+            clearTimeout(warningTimer);
+            clearInterval(countdownInterval);
+            warningTimer = setTimeout(showWarningModal, WARNING_TIME);
+        }
+        
+        function showWarningModal() {
+            const modal = document.getElementById('modal-session-timeout');
+            if (!modal) return;
+            
+            modal.style.display = 'flex';
+            countdownSeconds = 120;
+            document.getElementById('session-countdown').textContent = countdownSeconds;
+            
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                countdownSeconds--;
+                document.getElementById('session-countdown').textContent = countdownSeconds;
+                if (countdownSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                    logout();
+                }
+            }, 1000);
+        }
+        
+        function closeWarningModal() {
+            const modal = document.getElementById('modal-session-timeout');
+            if (modal) modal.style.display = 'none';
+            clearInterval(countdownInterval);
+        }
+
+        const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+        
+        activityEvents.forEach(eventName => {
+            document.addEventListener(eventName, () => {
+                const modal = document.getElementById('modal-session-timeout');
+                if (modal && modal.style.display === 'flex') return;
+                
+                resetTimers();
+                
+                const now = Date.now();
+                if (now - lastExtension > EXTEND_INTERVAL) {
+                    extendSession();
+                }
+            });
+        });
+        
+        document.getElementById('btn-extend-session')?.addEventListener('click', extendSession);
+        document.getElementById('btn-logout-session')?.addEventListener('click', logout);
+        
+        resetTimers();
+    })();
+    </script>
 </body>
 </html>

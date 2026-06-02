@@ -213,11 +213,11 @@ if (!function_exists('formatDocumento')) {
         <div class="modal-body">
             <div class="af-grid af-grid--2" style="margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Nombres</label>
+                    <label class="form-label" data-tooltip="Nombres del usuario. Solo letras (mínimo 3, máximo 30 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                     <input type="text" name="nombre" class="form-control" value="<?= e($item['nombre']) ?>" required minlength="3" maxlength="30">
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Apellidos</label>
+                    <label class="form-label" data-tooltip="Apellidos del usuario. Solo letras (mínimo 3, máximo 30 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
                     <input type="text" name="apellido" class="form-control" value="<?= e($item['apellido']) ?>" required minlength="3" maxlength="30">
                 </div>
             </div>
@@ -235,7 +235,7 @@ if (!function_exists('formatDocumento')) {
                     }
                 ?>
                 <div class="form-group">
-                    <label class="form-label" id="label-telefono"><span class="required">*</span> Teléfono</label>
+                    <label class="form-label" id="label-telefono" data-tooltip="Número telefónico móvil de contacto (7 dígitos sin incluir el prefijo)." data-tooltip-pos="top"><span class="required">*</span> Teléfono</label>
                     <div class="phone-field" id="phone-wrap-telefono">
                         <select class="phone-prefix" id="telefono_prefix" aria-label="Prefijo">
                             <option value="0412" <?= $telPref==='0412'?'selected':'' ?>>0412</option>
@@ -253,13 +253,13 @@ if (!function_exists('formatDocumento')) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Correo Electrónico</label>
+                    <label class="form-label" data-tooltip="Dirección de correo electrónico válida que servirá para acceder al sistema." data-tooltip-pos="top"><span class="required">*</span> Correo Electrónico</label>
                     <input type="email" name="correo" class="form-control" value="<?= e($item['correo']) ?>" required maxlength="50">
                 </div>
             </div>
             <div class="af-grid af-grid--2" style="margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Rol / Cargo</label>
+                    <label class="form-label" data-tooltip="Rol institucional asignado para definir los permisos del usuario." data-tooltip-pos="top"><span class="required">*</span> Rol / Cargo</label>
                     <select name="rol_id" class="form-control" required>
                         <?php foreach ($roles as $r): ?>
                             <option value="<?= $r['rol_id'] ?>" <?= $item['rol_id'] == $r['rol_id'] ? 'selected' : '' ?>><?= e($r['nombre_rol']) ?></option>
@@ -267,7 +267,7 @@ if (!function_exists('formatDocumento')) {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Estatus</label>
+                    <label class="form-label" data-tooltip="Estado de la cuenta. Inactivo suspende el acceso al sistema." data-tooltip-pos="top"><span class="required">*</span> Estatus</label>
                     <select name="estatus" class="form-control" required>
                         <option value="Activo" <?= $item['estatus'] == 'Activo' ? 'selected' : '' ?>>Activo</option>
                         <option value="Inactivo" <?= $item['estatus'] == 'Inactivo' ? 'selected' : '' ?>>Inactivo</option>
@@ -343,7 +343,7 @@ if (!function_exists('formatDocumento')) {
             <input type="hidden" id="select-pais" value="1">
             <div style="margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Estado</label>
+                    <label class="form-label" data-tooltip="Estado de residencia en el territorio nacional." data-tooltip-pos="top"><span class="required">*</span> Estado</label>
                     <select id="select-estado" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                     </select>
@@ -352,13 +352,13 @@ if (!function_exists('formatDocumento')) {
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Municipio</label>
+                    <label class="form-label" data-tooltip="Municipio correspondiente al estado de residencia." data-tooltip-pos="top"><span class="required">*</span> Municipio</label>
                     <select id="select-municipio" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Parroquia</label>
+                    <label class="form-label" data-tooltip="Parroquia correspondiente al municipio de residencia." data-tooltip-pos="top"><span class="required">*</span> Parroquia</label>
                     <select name="parroquia_id" id="select-parroquia" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                     </select>
@@ -367,11 +367,11 @@ if (!function_exists('formatDocumento')) {
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Localidad / Sector</label>
+                    <label class="form-label" data-tooltip="Urbanización, barrio, caserío o sector de residencia." data-tooltip-pos="top"><span class="required">*</span> Localidad / Sector</label>
                     <input type="text" name="localidad" class="form-control" value="<?= e($item['localidad'] ?? '') ?>" required placeholder="Ej: Urb. La Goajira">
                 </div>
                 <div class="form-group">
-                    <label class="form-label"><span class="required">*</span> Tipo de Vivienda</label>
+                    <label class="form-label" data-tooltip="Clasificación del tipo de inmueble donde reside el usuario." data-tooltip-pos="top"><span class="required">*</span> Tipo de Vivienda</label>
                     <select name="tipo_vivienda" class="form-control" required>
                         <option value="">— Seleccionar —</option>
                         <option value="casa" <?= ($item['tipo_vivienda'] ?? '') === 'casa' ? 'selected' : '' ?>>Casa</option>
@@ -382,7 +382,7 @@ if (!function_exists('formatDocumento')) {
             </div>
 
             <div class="form-group">
-                <label class="form-label"><span class="required">*</span> Ubicación Específica (Calle, Nro...)</label>
+                <label class="form-label" data-tooltip="Dirección exacta detallada, incluyendo número de casa/apartamento, calle y puntos de referencia." data-tooltip-pos="top"><span class="required">*</span> Ubicación Específica (Calle, Nro...)</label>
                 <textarea name="ubicacion_vivienda" class="form-control" rows="2" required placeholder="Ej: Calle 3, Vereda 5, Casa 12"><?= e($item['ubicacion_vivienda'] ?? '') ?></textarea>
             </div>
         </div>
@@ -617,14 +617,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     modal.style.display = 'none';
                     document.body.style.overflow = '';
 
-                    CadaModal.alert({
-                        title: '¡Éxito!',
-                        text: result.message || 'Cambios guardados correctamente.',
-                        type: 'success',
-                        confirmText: 'Aceptar'
-                    }).then(() => {
+                    if (typeof CadaToast !== 'undefined') {
+                        CadaToast.success(result.message || 'Cambios guardados correctamente.', () => {
+                            window.location.reload();
+                        });
+                    } else {
                         window.location.reload();
-                    });
+                    }
                 } else {
                     if (result.errors) {
                         const errorsList = [];

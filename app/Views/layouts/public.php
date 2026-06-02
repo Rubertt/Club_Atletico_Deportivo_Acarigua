@@ -19,7 +19,7 @@
 
     <link rel="stylesheet" href="<?= e(asset('css/modal.css')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/css/modal.css') ?>">
 
-    <script src="<?= e(asset('js/core/theme.js')) ?>"></script>
+    <script src="<?= e(asset('js/core/theme.js')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/js/core/theme.js') ?>"></script>
     <script src="<?= e(asset('js/core/modal.js')) ?>"></script>
     <script src="<?= e(asset('js/core/form-validator.js')) ?>"></script>
 </head>

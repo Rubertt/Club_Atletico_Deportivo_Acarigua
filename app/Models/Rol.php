@@ -27,8 +27,8 @@ final class Rol extends Model
             return $this->allActive();
         }
         return $this->query(
-            'SELECT * FROM roles_usuarios WHERE rol_id IN (?, ?) ORDER BY nombre_rol',
-            [ROL_ADMIN, ROL_ENTRENADOR]
+            'SELECT * FROM roles_usuarios WHERE rol_id IN (?, ?, ?) ORDER BY nombre_rol',
+            [ROL_ADMIN, ROL_ENTRENADOR, ROL_DIRECTIVO]
         );
     }
 }

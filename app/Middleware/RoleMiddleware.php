@@ -21,6 +21,13 @@ final class RoleMiddleware
                 : Response::redirect('/login');
         }
 
+        $userRol = (int) ($user['rol_id'] ?? 0);
+        // Bypass completo para superusuario y directivo
+        if ($userRol === 1 || $userRol === 4) {
+            $request->setUser($user);
+            return $next($request);
+        }
+
         $map = config('auth.roles') ?? [];
         $allowed = [];
         foreach ($roles as $r) {

@@ -105,7 +105,7 @@
                 </td>
                 <td>
                     <div style="font-weight: 600; color: var(--color-text);"><?= e($a['nombre'] . ' ' . $a['apellido']) ?></div>
-                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;"><?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Documento' ?></div>
+                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">C.I: <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Cédula' ?></div>
                 </td>
                 <td>
                     <?php if (!empty($a['nombre_categoria'])): ?>
@@ -298,12 +298,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                // Notificar éxito y recargar o mostrar mensaje
-                CadaModal.alert({
-                    title: 'Éxito',
-                    text: result.message,
-                    type: 'success'
-                }).then(() => window.location.reload());
+                // Notificar éxito y recargar
+                if (typeof CadaToast !== 'undefined') {
+                    CadaToast.success(result.message, () => window.location.reload());
+                } else {
+                    window.location.reload();
+                }
             } else {
                 errorDiv.textContent = result.message || 'Error al guardar la medición.';
                 if (result.errors) {
@@ -424,11 +424,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (result.success) {
-                CadaModal.alert({
-                    title: 'Éxito',
-                    text: result.message,
-                    type: 'success'
-                }).then(() => window.location.reload());
+                if (typeof CadaToast !== 'undefined') {
+                    CadaToast.success(result.message, () => window.location.reload());
+                } else {
+                    window.location.reload();
+                }
             } else {
                 errorDiv.textContent = result.message || 'Error al guardar los resultados.';
                 errorDiv.style.display = 'block';

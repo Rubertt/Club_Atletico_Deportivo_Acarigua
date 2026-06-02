@@ -8,21 +8,7 @@
         <a href="<?= e(url('/admin/asistencias')) ?>" class="btn btn-ghost">
             <i class="ph ph-caret-left"></i> Volver al Listado
         </a>
-        <?php 
-        $user = \App\Core\Auth::user();
-        $isEntrenador = $user && $user['rol_id'] == ROL_ENTRENADOR;
-        $isAdminOrSuper = $user && in_array($user['rol_id'], [ROL_SUPERUSER, ROL_ADMIN]);
-        
-        $canEdit = $isAdminOrSuper;
-        if ($isEntrenador) {
-            $fechaActividad = strtotime($actividad['fecha']);
-            $limite = strtotime('+30 days', $fechaActividad);
-            if (time() <= $limite) {
-                $canEdit = true;
-            }
-        }
-        ?>
-        <?php if ($canEdit): ?>
+        <?php if (can('admin')): ?>
             <a href="<?= e(url('/admin/asistencias/' . $actividad['actividad_id'] . '/editar')) ?>" class="btn btn-outline">
                 <i class="ph ph-pencil-simple"></i> Editar Registro
             </a>
@@ -91,7 +77,7 @@
                     <div style="font-weight: 600; color: var(--color-primary);"><?= e($tipoLabel) ?></div>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); margin-bottom: 4px;">Entrenador Responsable</label>
+                    <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); margin-bottom: 4px;">Enlistador</label>
                     <div style="font-weight: 500;"><?= e($actividad['entrenador'] ?? 'No definido') ?></div>
                 </div>
                 <div>

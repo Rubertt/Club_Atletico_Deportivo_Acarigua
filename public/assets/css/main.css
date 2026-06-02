@@ -638,3 +638,132 @@ body.error-page {
 .btn-help:active {
     transform: scale(0.95);
 }
+
+/* ============================================================
+   SISTEMA DE TOOLTIPS GLOBALES [data-tooltip]
+   ============================================================ */
+[data-tooltip] {
+    position: relative;
+    cursor: pointer;
+}
+[data-tooltip]::before,
+[data-tooltip]::after {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999999;
+}
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+    background: #1e293b; /* Fondo oscuro elegante en cualquier tema */
+    color: #f8fafc; /* Texto claro de alta legibilidad */
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: max-content;
+    max-width: 280px;
+    white-space: normal;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    text-align: left;
+    font-family: var(--font-base);
+}
+[data-tooltip]::after {
+    content: '';
+    border: 5px solid transparent;
+}
+
+/* Tooltip Posición Superior (Predeterminado) */
+[data-tooltip]:not([data-tooltip-pos])::before,
+[data-tooltip][data-tooltip-pos="top"]::before {
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 8px);
+}
+[data-tooltip]:not([data-tooltip-pos])::after,
+[data-tooltip][data-tooltip-pos="top"]::after {
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 8px);
+    border-top-color: #1e293b;
+    margin-bottom: -10px;
+}
+[data-tooltip]:not([data-tooltip-pos]):hover::before,
+[data-tooltip]:not([data-tooltip-pos]):hover::after,
+[data-tooltip][data-tooltip-pos="top"]:hover::before,
+[data-tooltip][data-tooltip-pos="top"]:hover::after {
+    opacity: 1;
+    transform: translate(-50%, -6px);
+}
+
+/* Tooltip Posición Inferior */
+[data-tooltip][data-tooltip-pos="bottom"]::before {
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -8px);
+}
+[data-tooltip][data-tooltip-pos="bottom"]::after {
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -8px);
+    border-bottom-color: #1e293b;
+    margin-top: -10px;
+}
+[data-tooltip][data-tooltip-pos="bottom"]:hover::before,
+[data-tooltip][data-tooltip-pos="bottom"]:hover::after {
+    opacity: 1;
+    transform: translate(-50%, 6px);
+}
+
+/* ============================================================
+   INTEGRACIÓN DE ICONO DE AYUDA (?) EN LABELS CON TOOLTIP
+   ============================================================ */
+label[data-tooltip] {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.label-text-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.label-tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--color-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+label[data-tooltip]:hover .label-tooltip-icon {
+    background: var(--color-primary);
+    color: #ffffff !important;
+    transform: scale(1.1);
+}
+
+/* Soporte de Tema Oscuro para el Icono de Ayuda */
+html.dark .label-tooltip-icon {
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+html.dark label[data-tooltip]:hover .label-tooltip-icon {
+    background: var(--color-primary);
+    color: #ffffff !important;
+}
