@@ -49,6 +49,15 @@ final class AtletasController extends Controller
                 $stats['inactivo'] = (int) $c['total'];
         }
 
+        if ($request->query('ajax') || $request->input('ajax')) {
+            return Response::html($this->renderView('atletas.index', [
+                'pag' => $data,
+                'filters' => $filters,
+                'stats' => $stats,
+                'categorias' => (new Categoria())->all('nombre_categoria'),
+            ]));
+        }
+
         return $this->view('atletas.index', [
             'title' => 'Atletas',
             'active' => 'atletas',
@@ -82,6 +91,9 @@ final class AtletasController extends Controller
 
         $asignaciones = (new \App\Models\AsigCategoria())->athleteAssignments($id);
 
+        $consultasModel = new \App\Models\ConsultaMedica();
+        $consultas_historial = $consultasModel->byAtleta($id);
+
         return $this->view('atletas.show', [
             'title' => $atleta['nombre'] . ' ' . $atleta['apellido'],
             'active' => 'atletas',
@@ -91,6 +103,7 @@ final class AtletasController extends Controller
             'medidas_historial' => $medidas_historial,
             'pruebas_historial' => $pruebas_historial,
             'asistencias_historial' => $asistencias_historial,
+            'consultas_historial' => $consultas_historial,
             'asignaciones' => $asignaciones,
             'paises'     => (new Direccion())->paises(),
             'entrenadores' => (new \App\Models\Usuario())->entrenadores(),
@@ -99,12 +112,24 @@ final class AtletasController extends Controller
 
     public function create(Request $request): Response
     {
+        $representantes = (new \App\Models\Representante())->all('nombre, apellido');
+        $direcciones = (new \App\Models\Direccion())->query(
+            'SELECT d.*, p.parroquia, m.municipio, e.estado, p.municipio_id, m.estado_id
+             FROM direcciones d
+             JOIN parroquias p ON d.parroquias_id = p.parroquia_id
+             JOIN municipios m ON p.municipio_id = m.municipio_id
+             JOIN estados e ON m.estado_id = e.estado_id
+             ORDER BY e.estado, m.municipio, p.parroquia, d.localidad'
+        );
+
         return $this->view('atletas.form', [
             'title' => 'Nuevo atleta',
             'active' => 'atletas',
             'breadcrumb' => ['Inicio', 'Atletas', 'Nuevo'],
             'atleta' => null,
             'paises' => (new Direccion())->paises(),
+            'representantes' => $representantes,
+            'direcciones' => $direcciones,
             'action' => url('/admin/atletas'),
         ], 'admin');
     }
@@ -142,12 +167,24 @@ final class AtletasController extends Controller
             flash('error', 'Atleta no encontrado.');
             return $this->redirect('/admin/atletas');
         }
+        $representantes = (new \App\Models\Representante())->all('nombre, apellido');
+        $direcciones = (new \App\Models\Direccion())->query(
+            'SELECT d.*, p.parroquia, m.municipio, e.estado, p.municipio_id, m.estado_id
+             FROM direcciones d
+             JOIN parroquias p ON d.parroquias_id = p.parroquia_id
+             JOIN municipios m ON p.municipio_id = m.municipio_id
+             JOIN estados e ON m.estado_id = e.estado_id
+             ORDER BY e.estado, m.municipio, p.parroquia, d.localidad'
+        );
+
         return $this->view('atletas.form', [
             'title' => 'Editar atleta',
             'active' => 'atletas',
             'breadcrumb' => ['Inicio', 'Atletas', 'Editar'],
             'atleta' => $atleta,
             'paises' => (new Direccion())->paises(),
+            'representantes' => $representantes,
+            'direcciones' => $direcciones,
             'action' => url("/admin/atletas/{$atleta['atleta_id']}"),
         ], 'admin');
     }
@@ -211,29 +248,7 @@ final class AtletasController extends Controller
      */
     private function cleanCedulaDots(?string $cedula): ?string
     {
-        if (empty($cedula)) return $cedula;
-        
-        // Si contiene guión
-        if (str_contains($cedula, '-')) {
-            [$prefix, $num] = explode('-', $cedula, 2);
-            $prefixUpper = strtoupper($prefix);
-            if ($prefixUpper === 'V' || $prefixUpper === 'E' || $prefixUpper === 'P') {
-                return $prefixUpper . '-' . str_replace('.', '', $num);
-            }
-            return $prefixUpper . '-' . $num;
-        }
-        
-        // Si no contiene guión, pero empieza con una letra de prefijo (ej: V12345678 o V12.345.678)
-        $firstChar = strtoupper($cedula[0]);
-        if (in_array($firstChar, ['V', 'E', 'P', 'N'])) {
-            $num = substr($cedula, 1);
-            if ($firstChar === 'V' || $firstChar === 'E' || $firstChar === 'P') {
-                return $firstChar . '-' . str_replace('.', '', $num);
-            }
-            return $firstChar . '-' . $num;
-        }
-        
-        return str_replace('.', '', $cedula);
+        return clean_cedula_dots($cedula);
     }
 
     private function mergeData(array $actual, Request $request): array
@@ -241,12 +256,14 @@ final class AtletasController extends Controller
         $input = [
             'nombre'            => $request->input('nombre', $actual['nombre']),
             'apellido'          => $request->input('apellido', $actual['apellido']),
-            'cedula'            => $request->input('cedula') !== null ? ($request->input('cedula') ? $this->cleanCedulaDots($request->input('cedula')) : null) : $actual['cedula'],
+            'cedula'            => $request->input('cedula') !== null ? ($request->input('cedula') ? $this->cleanCedulaDots($request->input('cedula')) : null) : $this->cleanCedulaDots($actual['cedula']),
             'sexo'              => $request->input('sexo', $actual['sexo']),
             'telefono'          => $request->input('telefono') !== null ? ($request->input('telefono') ?: null) : $actual['telefono'],
             'fecha_nacimiento'  => $request->input('fecha_nacimiento', $actual['fecha_nac']),
             'pierna_dominante'  => $request->input('pierna_dominante') !== null ? ($request->input('pierna_dominante') ?: null) : $actual['pierna_dominante'],
             'estatus'           => $request->input('estatus') !== null ? (int) $request->input('estatus') : $actual['estatus'],
+            'representante_id'  => $request->input('representante_id', $actual['representante_id'] ?? null),
+            'direccion_id'      => $request->input('direccion_id', $actual['direccion_id'] ?? null),
             
             'estado_id'         => $request->input('estado_id', $actual['estado_id'] ?? null),
             'municipio_id'      => $request->input('municipio_id', $actual['municipio_id'] ?? null),
@@ -272,6 +289,7 @@ final class AtletasController extends Controller
 
         return $input;
     }
+
 
     public function destroy(Request $request): Response
     {
@@ -301,6 +319,8 @@ final class AtletasController extends Controller
             'fecha_nacimiento' => trim((string) $request->input('fecha_nacimiento', '')),
             'pierna_dominante' => $request->input('pierna_dominante') ?: null,
             'estatus' => $request->input('estatus') !== null ? (int) $request->input('estatus') : 1,
+            'representante_id' => $request->input('representante_id') ? (int) $request->input('representante_id') : null,
+            'direccion_id' => $request->input('direccion_id') ? (int) $request->input('direccion_id') : null,
 
             // Dirección (Adaptado a tabla direcciones)
             'estado_id' => $request->input('estado_id') ?: null,
@@ -385,41 +405,61 @@ final class AtletasController extends Controller
 
         // 3. Datos del representante obligatorios si es menor de edad OR si se edita desde el modal de representante
         $tieneRepresentanteEnPost = ($ignoreId !== null) && isset($_POST['tutor_nombres']);
-        if ($age < 18 || $tieneRepresentanteEnPost) {
-            $esEdicionBasico = ($ignoreId !== null) && isset($_POST['nombre']) && !isset($_POST['tutor_nombres']);
-            $tutorVacio = empty($data['tutor_nombres']) 
-                || $data['tutor_nombres'] === 'Sin Nombre' 
-                || empty($data['tutor_cedula']) 
-                || $data['tutor_cedula'] === 'S/N' 
-                || empty($data['tutor_telefono']);
+        $isRepresentanteModal = $tieneRepresentanteEnPost && !isset($_POST['representante_id']);
 
-            if ($esEdicionBasico && $tutorVacio && $age < 18) {
-                $rules['tutor_representante'] = 'required';
+        if ($age < 18 || $tieneRepresentanteEnPost) {
+            $seSeleccionoExistente = !empty($_POST['representante_id']);
+
+            if ($seSeleccionoExistente && !$isRepresentanteModal) {
+                $rules['representante_id'] = 'integer';
             } else {
-                $rules['tutor_nombres'] = 'required|min:2|max:100';
-                $rules['tutor_apellidos'] = 'required|min:2|max:100';
-                $rules['tutor_cedula'] = ['required', "regex:$cedRegex"];
-                $rules['tutor_telefono'] = ['required', "regex:$telRegex"];
-                $rules['tutor_relacion'] = 'required';
+                $esEdicionBasico = ($ignoreId !== null) && isset($_POST['nombre']) && !isset($_POST['tutor_nombres']);
+                $tutorVacio = empty($data['tutor_nombres']) 
+                    || $data['tutor_nombres'] === 'Sin Nombre' 
+                    || empty($data['tutor_cedula']) 
+                    || $data['tutor_cedula'] === 'S/N' 
+                    || empty($data['tutor_telefono']);
+
+                if ($esEdicionBasico && $tutorVacio && $age < 18) {
+                    $rules['tutor_representante'] = 'required';
+                } else {
+                    $rules['tutor_nombres'] = 'required|min:2|max:100';
+                    $rules['tutor_apellidos'] = 'required|min:2|max:100';
+                    $rules['tutor_cedula'] = ['required', "regex:$cedRegex"];
+                    $rules['tutor_telefono'] = ['required', "regex:$telRegex"];
+                    $rules['tutor_relacion'] = 'required';
+                }
             }
         } else {
             // Si es mayor de edad y no se envía el modal de representante, es opcional pero se valida formato si existe
-            if (!empty($data['tutor_cedula'])) {
-                $rules['tutor_cedula'] = ["regex:$cedRegex"];
-            }
-            if (!empty($data['tutor_telefono'])) {
-                $rules['tutor_telefono'] = ["regex:$telRegex"];
+            if (!empty($data['representante_id'])) {
+                $rules['representante_id'] = 'integer';
+            } else {
+                if (!empty($data['tutor_cedula'])) {
+                    $rules['tutor_cedula'] = ["regex:$cedRegex"];
+                }
+                if (!empty($data['tutor_telefono'])) {
+                    $rules['tutor_telefono'] = ["regex:$telRegex"];
+                }
             }
         }
 
         // 4. Validar dirección detallada si estamos en registro o si se envían datos de dirección en el request
         $esRegistro = ($ignoreId === null);
         $tieneDireccionEnRequest = isset($_POST['parroquia_id']) || isset($_POST['localidad']);
+        $isDireccionModal = $tieneDireccionEnRequest && !isset($_POST['direccion_id']);
+
         if ($esRegistro || $tieneDireccionEnRequest) {
-            $rules['parroquia_id'] = 'required|integer';
-            $rules['localidad'] = 'required|min:2|max:200';
-            $rules['tipo_vivienda'] = 'required|in:casa,apto,edificio';
-            $rules['ubicacion_vivienda'] = 'required|min:2|max:500';
+            $seSeleccionoDireccionExistente = !empty($_POST['direccion_id']);
+
+            if ($seSeleccionoDireccionExistente && !$isDireccionModal) {
+                $rules['direccion_id'] = 'integer';
+            } else {
+                $rules['parroquia_id'] = 'required|integer';
+                $rules['localidad'] = 'required|min:2|max:200';
+                $rules['tipo_vivienda'] = 'required|in:casa,apto,edificio';
+                $rules['ubicacion_vivienda'] = 'required|min:2|max:500';
+            }
         }
 
         $messages = [
@@ -474,6 +514,44 @@ final class AtletasController extends Controller
             }
         }
 
+        // Validar duplicados globales (cédula del atleta) en representantes y usuarios
+        if (!empty($data['cedula'])) {
+            $existsInUsuarios = (new \App\Models\Usuario())->queryOne(
+                'SELECT 1 FROM usuarios WHERE cedula = :c LIMIT 1',
+                [':c' => $data['cedula']]
+            );
+            if ($existsInUsuarios) {
+                $v->addError('cedula', 'Error: El número de documento de identidad ingresado ya existe en la tabla de usuarios.');
+            }
+
+            $existsInRepresentantes = (new \App\Models\Representante())->queryOne(
+                'SELECT 1 FROM representantes WHERE cedula = :c LIMIT 1',
+                [':c' => $data['cedula']]
+            );
+            if ($existsInRepresentantes) {
+                $v->addError('cedula', 'Error: El número de documento de identidad ingresado ya existe en la tabla de representantes.');
+            }
+        }
+
+        // Validar duplicados globales (cédula del representante) en atletas y usuarios
+        if (!empty($data['tutor_cedula'])) {
+            $existsInAtletas = (new \App\Models\Atleta())->queryOne(
+                'SELECT 1 FROM atletas WHERE cedula = :c' . ($ignoreId ? ' AND atleta_id <> :ignore' : '') . ' LIMIT 1',
+                $ignoreId ? [':c' => $data['tutor_cedula'], ':ignore' => $ignoreId] : [':c' => $data['tutor_cedula']]
+            );
+            if ($existsInAtletas) {
+                $v->addError('tutor_cedula', 'Error: El número de documento de identidad del representante ya existe en la tabla de atletas.');
+            }
+
+            $existsInUsuarios = (new \App\Models\Usuario())->queryOne(
+                'SELECT 1 FROM usuarios WHERE cedula = :c LIMIT 1',
+                [':c' => $data['tutor_cedula']]
+            );
+            if ($existsInUsuarios) {
+                $v->addError('tutor_cedula', 'Error: El número de documento de identidad del representante ya existe en la tabla de usuarios.');
+            }
+        }
+
         return $v;
     }
 
@@ -490,8 +568,8 @@ final class AtletasController extends Controller
         // Define fields for each step
         $stepFields = [
             0 => ['nombre', 'apellido', 'cedula', 'telefono', 'fecha_nacimiento', 'sexo', 'pierna_dominante', 'estatus'],
-            1 => ['estado_id', 'municipio_id', 'parroquia_id', 'localidad', 'tipo_vivienda', 'ubicacion_vivienda'],
-            2 => ['tutor_nombres', 'tutor_apellidos', 'tutor_cedula', 'tutor_telefono', 'tutor_relacion']
+            1 => ['estado_id', 'municipio_id', 'parroquia_id', 'localidad', 'tipo_vivienda', 'ubicacion_vivienda', 'direccion_id'],
+            2 => ['tutor_nombres', 'tutor_apellidos', 'tutor_cedula', 'tutor_telefono', 'tutor_relacion', 'representante_id']
         ];
         
         $fieldsToValidate = $stepFields[$step] ?? [];

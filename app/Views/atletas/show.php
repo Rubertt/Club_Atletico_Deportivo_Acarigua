@@ -69,8 +69,8 @@
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             <?php endif; ?>
-            <div style="position: relative; width: 180px; height: 180px; margin: 0 auto 20px; cursor: pointer; group"
-                id="btn-abrir-editar-foto" title="Cambiar Foto">
+            <div style="position: relative; width: 180px; height: 180px; margin: 0 auto 20px; <?= can('admin') ? 'cursor: pointer;' : '' ?> group"
+                <?= can('admin') ? 'id="btn-abrir-editar-foto" title="Cambiar Foto"' : '' ?>>
                 <div
                     style="position: absolute; inset: -5px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary) 0%, #ff4d4d 100%); opacity: 0.15; filter: blur(8px);">
                 </div>
@@ -79,19 +79,23 @@
                         class="hover-scale">
                         <img src="<?= e(url($atleta['foto'])) ?>"
                             style="width:100%; height:100%; border-radius:50%; object-fit:cover; display: block;">
-                        <div style="position: absolute; inset: 4px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.2s;"
-                            class="photo-overlay">
-                            <i class="ph ph-camera" style="font-size: 32px;"></i>
-                        </div>
+                        <?php if (can('admin')): ?>
+                            <div style="position: absolute; inset: 4px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.2s;"
+                                class="photo-overlay">
+                                <i class="ph ph-camera" style="font-size: 32px;"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="avatar-placeholder"
                         style="width:100%; height:100%; font-size:48px; background: var(--color-primary-light); color: var(--color-primary); border: 4px solid var(--color-bg); box-shadow: var(--shadow-md); position: relative;">
                         <?= e(mb_substr($atleta['nombre'], 0, 1) . mb_substr($atleta['apellido'], 0, 1)) ?>
-                        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: var(--color-primary); opacity: 0; transition: opacity 0.2s;"
-                            class="photo-overlay">
-                            <i class="ph ph-camera" style="font-size: 32px;"></i>
-                        </div>
+                        <?php if (can('admin')): ?>
+                            <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: var(--color-primary); opacity: 0; transition: opacity 0.2s;"
+                                class="photo-overlay">
+                                <i class="ph ph-camera" style="font-size: 32px;"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -255,6 +259,7 @@
             <button class="tab-btn active" data-target="tab-general"><i class="ph ph-user-list"></i> Datos
                 Generales</button>
             <button class="tab-btn" data-target="tab-ficha"><i class="ph ph-heartbeat"></i> Ficha Médica</button>
+            <button class="tab-btn" data-target="tab-consulta"><i class="ph ph-first-aid"></i> Consulta Médica</button>
             <button class="tab-btn" data-target="tab-antropometria"><i class="ph ph-ruler"></i> Antropometría</button>
             <button class="tab-btn" data-target="tab-pruebas"><i class="ph ph-chart-line-up"></i> Pruebas
                 Físicas</button>
@@ -268,6 +273,9 @@
 
             <!-- Tab: Ficha Médica -->
             <?php include __DIR__ . '/partials/perfil/_tab_ficha_medica.php'; ?>
+
+            <!-- Tab: Consulta Médica -->
+            <?php include __DIR__ . '/partials/perfil/_tab_consulta_medica.php'; ?>
 
             <!-- Tab: Antropometría -->
             <?php include __DIR__ . '/partials/perfil/_tab_antropometria.php'; ?>

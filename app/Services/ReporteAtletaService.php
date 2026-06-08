@@ -7,6 +7,7 @@ use App\Models\Atleta;
 use App\Models\MedidaAntropometrica;
 use App\Models\ResultadoPrueba;
 use App\Models\Asistencia;
+use App\Models\ConsultaMedica;
 use App\Core\Database;
 use DateTime;
 
@@ -70,8 +71,9 @@ final class ReporteAtletaService
         $pruebas          = (new ResultadoPrueba())->historial($atletaId);
         $asistencia       = (new Asistencia())->resumenAtleta($atletaId);
         $historialAsist   = (new Asistencia())->historialAtleta($atletaId);
+        $consultas        = (new ConsultaMedica())->byAtleta($atletaId);
 
-        $html = $this->construirHtml($atleta, $antropometria, $pruebas, $asistencia, $historialAsist);
+        $html = $this->construirHtml($atleta, $antropometria, $pruebas, $asistencia, $historialAsist, $consultas);
 
         $filename = 'ficha_' . preg_replace('/[^a-z0-9]+/i', '_', $atleta['nombre'] . '_' . $atleta['apellido']) . '_' . date('Ymd');
         
@@ -455,7 +457,7 @@ final class ReporteAtletaService
     /**
      * Genera un gráfico de radar SVG pentagonal (5 ejes) para los tests físicos.
      */
-    private function generarSvgRadar(array $pruebas): string
+    private function generarSvgRadar(array $pruebas, string $tipo = 'internacional', int $size = 240): string
     {
         if (empty($pruebas)) {
             return '<p style="font-size: 10px; color: #888; text-align: center; margin-top: 10px;">Sin pruebas físicas registradas para generar el gráfico de radar.</p>';
@@ -464,7 +466,19 @@ final class ReporteAtletaService
         // Tomar la prueba más reciente (índice 0)
         $ultima = $pruebas[0];
         $labels = ['Fuerza', 'Resistencia', 'Velocidad', 'Coordinación', 'Reacción'];
-        $keys = ['test_de_fuerza', 'test_resistencia', 'test_velocidad', 'test_coordinacion', 'test_de_reaccion'];
+        
+        if ($tipo === 'nacional') {
+            $keys = ['test_de_fuerza_nac', 'test_resistencia_nac', 'test_velocidad_nac', 'test_coordinacion_nac', 'test_de_reaccion_nac'];
+            $fillColor = 'rgba(14, 165, 233, 0.15)'; // color azul cielo (nacional)
+            $strokeColor = '#0EA5E9';
+            $titleLabel = 'Última Nac: ';
+        } else {
+            $keys = ['test_de_fuerza', 'test_resistencia', 'test_velocidad', 'test_coordinacion', 'test_de_reaccion'];
+            $fillColor = 'rgba(128,0,32,0.15)'; // color vinotinto (internacional)
+            $strokeColor = '#800020';
+            $titleLabel = 'Última Int: ';
+        }
+
         $valores = [];
         foreach ($keys as $k) {
             $valores[] = min(100, max(0, (float)($ultima[$k] ?? 0)));
@@ -479,10 +493,9 @@ final class ReporteAtletaService
             }
         }
 
-        $size = 320; // Increased size to prevent cutoffs
         $cx = $size / 2;
         $cy = $size / 2;
-        $maxR = 90; // Reduced relative radius to leave room for text
+        $maxR = round($size * 0.28, 1); // Reduced relative radius to leave room for text
         $n = 5;
         // Sentido ANTI-HORARIO desde arriba para coincidir con ECharts
         $angulos = [];
@@ -525,7 +538,7 @@ final class ReporteAtletaService
                 $py = $cy + $r * sin($angulos[$i]);
                 $puntosPenultima[] = round($px, 1) . ',' . round($py, 1);
             }
-            $svg .= '<polygon points="' . implode(' ', $puntosPenultima) . '" fill="rgba(16,185,129,0.1)" stroke="#10B981" stroke-width="1.5" stroke-dasharray="4,4" />';
+            $svg .= '<polygon points="' . implode(' ', $puntosPenultima) . '" fill="rgba(16,185,129,0.08)" stroke="#10B981" stroke-width="1.2" stroke-dasharray="3,3" />';
         }
 
         // 2. Polígono de datos de la última prueba
@@ -536,7 +549,7 @@ final class ReporteAtletaService
             $py = $cy + $r * sin($angulos[$i]);
             $puntosDatos[] = round($px, 1) . ',' . round($py, 1);
         }
-        $svg .= '<polygon points="' . implode(' ', $puntosDatos) . '" fill="rgba(128,0,32,0.15)" stroke="#800020" stroke-width="2" />';
+        $svg .= '<polygon points="' . implode(' ', $puntosDatos) . '" fill="' . $fillColor . '" stroke="' . $strokeColor . '" stroke-width="1.8" />';
 
         // 3. Puntos pequeños de la penúltima prueba
         if (!empty($valoresPenultima)) {
@@ -544,7 +557,7 @@ final class ReporteAtletaService
                 $r = $maxR * ($valoresPenultima[$i] / 100);
                 $px = $cx + $r * cos($angulos[$i]);
                 $py = $cy + $r * sin($angulos[$i]);
-                $svg .= '<circle cx="' . round($px, 1) . '" cy="' . round($py, 1) . '" r="2.5" fill="#10B981" stroke="#fff" stroke-width="1" />';
+                $svg .= '<circle cx="' . round($px, 1) . '" cy="' . round($py, 1) . '" r="2" fill="#10B981" stroke="#fff" stroke-width="0.8" />';
             }
         }
 
@@ -553,27 +566,27 @@ final class ReporteAtletaService
             $r = $maxR * ($valores[$i] / 100);
             $px = $cx + $r * cos($angulos[$i]);
             $py = $cy + $r * sin($angulos[$i]);
-            $svg .= '<circle cx="' . round($px, 1) . '" cy="' . round($py, 1) . '" r="3.5" fill="#800020" stroke="#fff" stroke-width="1.5" />';
+            $svg .= '<circle cx="' . round($px, 1) . '" cy="' . round($py, 1) . '" r="2.8" fill="' . $strokeColor . '" stroke="#fff" stroke-width="1.2" />';
 
             // Etiquetas de los ejes (alejadas)
-            $lr = $maxR + 25;
+            $lr = $maxR + 18;
             $lx = $cx + $lr * cos($angulos[$i]);
             $ly = $cy + $lr * sin($angulos[$i]);
             $anchor = 'middle';
             if ($lx < $cx - 15) $anchor = 'end';
             elseif ($lx > $cx + 15) $anchor = 'start';
-            $svg .= '<text x="' . round($lx, 1) . '" y="' . round($ly, 1) . '" text-anchor="' . $anchor . '" font-size="9" font-weight="bold" fill="#333">' . $labels[$i] . '</text>';
+            $svg .= '<text x="' . round($lx, 1) . '" y="' . round($ly, 1) . '" text-anchor="' . $anchor . '" font-size="7.5" font-weight="bold" fill="#333">' . $labels[$i] . '</text>';
             
             // Valor numérico debajo de la etiqueta (con formato de color sin usar tspan para evitar bugs de TCPDF)
             if (!empty($valoresPenultima)) {
                 // Barra en el centro
-                $svg .= '<text x="' . round($lx, 1) . '" y="' . round($ly + 10, 1) . '" text-anchor="middle" font-size="8" fill="#666">/</text>';
-                // Última (Rojo) a la izquierda
-                $svg .= '<text x="' . round($lx - 5, 1) . '" y="' . round($ly + 10, 1) . '" text-anchor="end" font-size="8" font-weight="bold" fill="#800020">' . round($valores[$i]) . '</text>';
+                $svg .= '<text x="' . round($lx, 1) . '" y="' . round($ly + 8, 1) . '" text-anchor="middle" font-size="7" fill="#666">/</text>';
+                // Última a la izquierda
+                $svg .= '<text x="' . round($lx - 4, 1) . '" y="' . round($ly + 8, 1) . '" text-anchor="end" font-size="7" font-weight="bold" fill="' . $strokeColor . '">' . round($valores[$i]) . '</text>';
                 // Penúltima (Verde) a la derecha
-                $svg .= '<text x="' . round($lx + 5, 1) . '" y="' . round($ly + 10, 1) . '" text-anchor="start" font-size="8" fill="#10B981">' . round($valoresPenultima[$i]) . '</text>';
+                $svg .= '<text x="' . round($lx + 4, 1) . '" y="' . round($ly + 8, 1) . '" text-anchor="start" font-size="7" fill="#10B981">' . round($valoresPenultima[$i]) . '</text>';
             } else {
-                $svg .= '<text x="' . round($lx, 1) . '" y="' . round($ly + 10, 1) . '" text-anchor="' . $anchor . '" font-size="8" fill="#800020">' . round($valores[$i]) . '/100</text>';
+                $svg .= '<text x="' . round($lx, 1) . '" y="' . round($ly + 8, 1) . '" text-anchor="' . $anchor . '" font-size="7" fill="' . $strokeColor . '">' . round($valores[$i]) . '/100</text>';
             }
         }
 
@@ -582,19 +595,19 @@ final class ReporteAtletaService
         if (!empty($valoresPenultima)) {
             $fechaAnt = !empty($pruebas[1]['fecha_evento']) ? date('d/m/Y', strtotime($pruebas[1]['fecha_evento'])) : '—';
             // Última a la izquierda
-            $svg .= '<text x="' . ($cx - 15) . '" y="' . ($size + 5) . '" text-anchor="end" font-size="8" font-weight="bold" fill="#800020">Última: ' . $fechaTest . '</text>';
+            $svg .= '<text x="' . ($cx - 12) . '" y="' . ($size + 5) . '" text-anchor="end" font-size="7" font-weight="bold" fill="' . $strokeColor . '">' . $titleLabel . $fechaTest . '</text>';
             // Separador en el centro
-            $svg .= '<text x="' . $cx . '" y="' . ($size + 5) . '" text-anchor="middle" font-size="8" fill="#666">|</text>';
+            $svg .= '<text x="' . $cx . '" y="' . ($size + 5) . '" text-anchor="middle" font-size="7" fill="#666">|</text>';
             // Anterior a la derecha
-            $svg .= '<text x="' . ($cx + 15) . '" y="' . ($size + 5) . '" text-anchor="start" font-size="8" font-weight="bold" fill="#10B981">Anterior: ' . $fechaAnt . '</text>';
+            $svg .= '<text x="' . ($cx + 12) . '" y="' . ($size + 5) . '" text-anchor="start" font-size="7" font-weight="bold" fill="#10B981">Ant: ' . $fechaAnt . '</text>';
         } else {
-            $svg .= '<text x="' . $cx . '" y="' . ($size + 5) . '" text-anchor="middle" font-size="8" fill="#800020" font-weight="bold">Última evaluación: ' . $fechaTest . '</text>';
+            $svg .= '<text x="' . $cx . '" y="' . ($size + 5) . '" text-anchor="middle" font-size="7" fill="' . $strokeColor . '" font-weight="bold">' . $titleLabel . $fechaTest . '</text>';
         }
 
         $svg .= '</svg>';
 
         // Guardar SVG en archivo temporal
-        $tmpPath = dirname(__DIR__, 2) . '/public/assets/uploads/tmp_radar_' . uniqid() . '.svg';
+        $tmpPath = dirname(__DIR__, 2) . '/public/assets/uploads/tmp_radar_' . $tipo . '_' . uniqid() . '.svg';
         file_put_contents($tmpPath, $svg);
 
         return '<div style="text-align: center; margin-top: 5px;"><img src="' . $tmpPath . '" width="' . $size . '" height="' . ($size + 15) . '" /></div>';
@@ -604,7 +617,7 @@ final class ReporteAtletaService
      *  HTML DE LA FICHA TÉCNICA - 4 PÁGINAS
      * ====================================================================== */
 
-    private function construirHtml(array $a, array $antropo, array $pruebas, array $asistencia, array $historialAsist): string
+    private function construirHtml(array $a, array $antropo, array $pruebas, array $asistencia, array $historialAsist, array $consultas): string
     {
         $esc = fn($v) => htmlspecialchars((string) ($v ?? '—'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
@@ -799,32 +812,236 @@ final class ReporteAtletaService
         // ============ PRUEBAS FÍSICAS ============
         $pruebasRows = '';
         foreach ($pruebas as $p) {
-            $fuerzaStr = $p['test_de_fuerza_raw'] !== null ? $p['test_de_fuerza_raw'] . ' cm (' . $p['test_de_fuerza'] . '/100)' : '—';
-            $resistenciaStr = $p['test_resistencia_raw'] !== null ? $p['test_resistencia_raw'] . ' m (' . $p['test_resistencia'] . '/100)' : '—';
-            $velocidadStr = $p['test_velocidad_raw'] !== null ? $p['test_velocidad_raw'] . ' s (' . $p['test_velocidad'] . '/100)' : '—';
-            $coordinacionStr = $p['test_coordinacion_raw'] !== null ? $p['test_coordinacion_raw'] . ' s (' . $p['test_coordinacion'] . '/100)' : '—';
-            $reaccionStr = $p['test_de_reaccion_raw'] !== null ? $p['test_de_reaccion_raw'] . ' ms (' . $p['test_de_reaccion'] . '/100)' : '—';
+            $fuerzaStr = $p['test_de_fuerza_raw'] !== null ? $esc($p['test_de_fuerza_raw']) . ' cm<br><font size="7" color="#64748b">I: ' . (int)$p['test_de_fuerza'] . ' | N: ' . (int)$p['test_de_fuerza_nac'] . '</font>' : '—';
+            $resistenciaStr = $p['test_resistencia_raw'] !== null ? $esc($p['test_resistencia_raw']) . ' m<br><font size="7" color="#64748b">I: ' . (int)$p['test_resistencia'] . ' | N: ' . (int)$p['test_resistencia_nac'] . '</font>' : '—';
+            $velocidadStr = $p['test_velocidad_raw'] !== null ? $esc($p['test_velocidad_raw']) . ' s<br><font size="7" color="#64748b">I: ' . (int)$p['test_velocidad'] . ' | N: ' . (int)$p['test_velocidad_nac'] . '</font>' : '—';
+            $coordinacionStr = $p['test_coordinacion_raw'] !== null ? $esc($p['test_coordinacion_raw']) . ' s<br><font size="7" color="#64748b">I: ' . (int)$p['test_coordinacion'] . ' | N: ' . (int)$p['test_coordinacion_nac'] . '</font>' : '—';
+            $reaccionStr = $p['test_de_reaccion_raw'] !== null ? $esc($p['test_de_reaccion_raw']) . ' ms<br><font size="7" color="#64748b">I: ' . (int)$p['test_de_reaccion'] . ' | N: ' . (int)$p['test_de_reaccion_nac'] . '</font>' : '—';
 
             $pruebasRows .= sprintf(
                 '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
                 $esc(date('d/m/Y', strtotime($p['fecha_evento']))),
-                $esc($fuerzaStr),
-                $esc($resistenciaStr),
-                $esc($velocidadStr),
-                $esc($coordinacionStr),
-                $esc($reaccionStr)
+                $fuerzaStr,
+                $resistenciaStr,
+                $velocidadStr,
+                $coordinacionStr,
+                $reaccionStr
             );
         }
         $pruebasTable = $pruebasRows ? 
             "<table class=\"data-table\" cellpadding=\"4\"><thead><tr><th>Fecha Evaluación</th><th>Fuerza (CMJ)</th><th>Resistencia (Yo-Yo)</th><th>Velocidad (30m)</th><th>Coordinación (Conos)</th><th>Reacción (Cognitiva)</th></tr></thead><tbody>$pruebasRows</tbody></table>" : 
             '<p style="font-size: 10px; color: #666; margin-top: 5px;">Sin pruebas físicas registradas.</p>';
 
-        // SVG Radar
-        $svgRadar = $this->generarSvgRadar($pruebas);
+        // SVG Radars (Internacional y Nacional)
+        $svgRadarInternacional = $this->generarSvgRadar($pruebas, 'internacional', 240);
+        $svgRadarNacional      = $this->generarSvgRadar($pruebas, 'nacional', 240);
+
+        // Última Evaluación con barras de puntaje
+        $ultimaPrueba = !empty($pruebas) ? $pruebas[0] : null;
+        $ultimaPruebaHtml = '';
+        if ($ultimaPrueba) {
+            $f_int = min(100, max(0, (int)($ultimaPrueba['test_de_fuerza'] ?? 0)));
+            $f_nac = min(100, max(0, (int)($ultimaPrueba['test_de_fuerza_nac'] ?? 0)));
+            $r_int = min(100, max(0, (int)($ultimaPrueba['test_resistencia'] ?? 0)));
+            $r_nac = min(100, max(0, (int)($ultimaPrueba['test_resistencia_nac'] ?? 0)));
+            $v_int = min(100, max(0, (int)($ultimaPrueba['test_velocidad'] ?? 0)));
+            $v_nac = min(100, max(0, (int)($ultimaPrueba['test_velocidad_nac'] ?? 0)));
+            $c_int = min(100, max(0, (int)($ultimaPrueba['test_coordinacion'] ?? 0)));
+            $c_nac = min(100, max(0, (int)($ultimaPrueba['test_coordinacion_nac'] ?? 0)));
+            $re_int = min(100, max(0, (int)($ultimaPrueba['test_de_reaccion'] ?? 0)));
+            $re_nac = min(100, max(0, (int)($ultimaPrueba['test_de_reaccion_nac'] ?? 0)));
+
+            $f_int_rem = 100 - $f_int;
+            $f_nac_rem = 100 - $f_nac;
+            $r_int_rem = 100 - $r_int;
+            $r_nac_rem = 100 - $r_nac;
+            $v_int_rem = 100 - $v_int;
+            $v_nac_rem = 100 - $v_nac;
+            $c_int_rem = 100 - $c_int;
+            $c_nac_rem = 100 - $c_nac;
+            $re_int_rem = 100 - $re_int;
+            $re_nac_rem = 100 - $re_nac;
+
+            $f_raw = $ultimaPrueba['test_de_fuerza_raw'] !== null ? $ultimaPrueba['test_de_fuerza_raw'] : '—';
+            $r_raw = $ultimaPrueba['test_resistencia_raw'] !== null ? $ultimaPrueba['test_resistencia_raw'] : '—';
+            $v_raw = $ultimaPrueba['test_velocidad_raw'] !== null ? $ultimaPrueba['test_velocidad_raw'] : '—';
+            $c_raw = $ultimaPrueba['test_coordinacion_raw'] !== null ? $ultimaPrueba['test_coordinacion_raw'] : '—';
+            $re_raw = $ultimaPrueba['test_de_reaccion_raw'] !== null ? $ultimaPrueba['test_de_reaccion_raw'] : '—';
+
+            $fechaUltima = date('d/m/Y', strtotime($ultimaPrueba['fecha_evento']));
+
+            $ultimaPruebaHtml = "
+            <table width=\"100%\" cellpadding=\"4\" style=\"border: 1px solid #cbd5e1; background-color: #f8fafc; margin-bottom: 20px; font-family: helvetica, sans-serif;\">
+                <tr style=\"background-color: #800020; color: #ffffff;\">
+                    <td colspan=\"2\" style=\"font-weight: bold; font-size: 11px; padding: 6px 10px;\">
+                        ÚLTIMA EVALUACIÓN FÍSICA ({$fechaUltima})
+                    </td>
+                </tr>
+                <tr>
+                    <td width=\"50%\" style=\"border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1;\">
+                        <font size=\"9\"><strong>Fuerza (CMJ):</strong> {$f_raw} cm</font><br>
+                        <font size=\"7\" color=\"#64748b\">Int: {$f_int}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$f_int}%\" style=\"background-color: #BE123C; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$f_int_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                        <font size=\"7\" color=\"#64748b\">Nac: {$f_nac}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$f_nac}%\" style=\"background-color: #BE123C; opacity: 0.7; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$f_nac_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                    </td>
+                    <td width=\"50%\" style=\"border-bottom: 1px solid #cbd5e1;\">
+                        <font size=\"9\"><strong>Resistencia (Yo-Yo):</strong> {$r_raw} m</font><br>
+                        <font size=\"7\" color=\"#64748b\">Int: {$r_int}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$r_int}%\" style=\"background-color: #10B981; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$r_int_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                        <font size=\"7\" color=\"#64748b\">Nac: {$r_nac}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$r_nac}%\" style=\"background-color: #10B981; opacity: 0.7; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$r_nac_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td width=\"50%\" style=\"border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1;\">
+                        <font size=\"9\"><strong>Velocidad (30m):</strong> {$v_raw} s</font><br>
+                        <font size=\"7\" color=\"#64748b\">Int: {$v_int}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$v_int}%\" style=\"background-color: #F59E0B; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$v_int_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                        <font size=\"7\" color=\"#64748b\">Nac: {$v_nac}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$v_nac}%\" style=\"background-color: #F59E0B; opacity: 0.7; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$v_nac_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                    </td>
+                    <td width=\"50%\" style=\"border-bottom: 1px solid #cbd5e1;\">
+                        <font size=\"9\"><strong>Coordinación (Conos):</strong> {$c_raw} s</font><br>
+                        <font size=\"7\" color=\"#64748b\">Int: {$c_int}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$c_int}%\" style=\"background-color: #8B5CF6; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$c_int_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                        <font size=\"7\" color=\"#64748b\">Nac: {$c_nac}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$c_nac}%\" style=\"background-color: #8B5CF6; opacity: 0.7; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$c_nac_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td width=\"50%\" style=\"border-right: 1px solid #cbd5e1;\">
+                        <font size=\"9\"><strong>Reacción (Cognitiva):</strong> {$re_raw} ms</font><br>
+                        <font size=\"7\" color=\"#64748b\">Int: {$re_int}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$re_int}%\" style=\"background-color: #EC4899; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$re_int_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                        <font size=\"7\" color=\"#64748b\">Nac: {$re_nac}/100</font>
+                        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #e2e8f0;\">
+                            <tr><td width=\"{$re_nac}%\" style=\"background-color: #EC4899; opacity: 0.7; font-size: 3px; line-height: 3px; height: 3px;\"></td><td width=\"{$re_nac_rem}%\" style=\"font-size: 3px; line-height: 3px; height: 3px;\"></td></tr>
+                        </table>
+                    </td>
+                    <td width=\"50%\"></td>
+                </tr>
+            </table>";
+        } else {
+            $ultimaPruebaHtml = '<p style="font-size: 10px; color: #666; text-align: center; margin-top: 10px; margin-bottom: 20px;">No hay evaluaciones registradas aún.</p>';
+        }
+
+        // ============ CONSULTAS MÉDICAS ============
+        $tiposMedicos = [
+            1 => 'Enfermedad',
+            2 => 'Lesión',
+            3 => 'Control',
+            4 => 'Evaluación',
+            5 => 'Asesoría',
+            6 => 'Terapia o Rehabilitación',
+            7 => 'Intervención o Emergencia'
+        ];
+
+        $estatusesMedicos = [
+            1 => ['label' => 'No Apto', 'color' => '#cf222e'],
+            2 => ['label' => 'Apto', 'color' => '#2ea44f'],
+            3 => ['label' => 'Diferenciado', 'color' => '#dbab09']
+        ];
+
+        $consultasBlocks = '';
+        if (empty($consultas)) {
+            $consultasBlocks = '<p style="font-size: 11px; color: #666; margin-top: 10px;">Sin consultas médicas registradas para este atleta.</p>';
+        } else {
+            foreach ($consultas as $index => $c) {
+                $tipoStr = $tiposMedicos[(int)($c['tipo_consulta'] ?? 0)] ?? 'Otro';
+                $diagnosticoStr = !empty($c['diagnostico']) ? $c['diagnostico'] : '—';
+                $fechaSucesoStr = !empty($c['fecha_suceso']) ? date('d/m/Y', strtotime($c['fecha_suceso'])) : '—';
+                
+                $fechaAltaStr = '';
+                if (!empty($c['fecha_alta_estimada'])) {
+                    $fechaAltaStr = ' · Alta: ' . date('d/m/Y', strtotime($c['fecha_alta_estimada']));
+                }
+                
+                $estInfo = $estatusesMedicos[(int)($c['estatus_disponibilidad'] ?? 0)] ?? ['label' => 'Desconocido', 'color' => '#888'];
+                $estLabel = $estInfo['label'];
+                $estColor = $estInfo['color'];
+
+                $registradoPor = !empty($c['usuario_nombre']) ? ($c['usuario_nombre'] . ' ' . ($c['usuario_apellido'] ?? '')) : 'Sistema';
+
+                $descVal = trim($c['descripcion'] ?? '');
+                $descripcionStr = ($descVal !== '' && $descVal !== '—') ? nl2br($descVal) : '<span style="color: #94a3b8; font-style: italic;">Sin observaciones ni síntomas registrados.</span>';
+                
+                $tratVal = trim($c['tratamiento_indicado'] ?? '');
+                $tratamientoStr = ($tratVal !== '' && $tratVal !== '—') ? nl2br($tratVal) : '<span style="color: #94a3b8; font-style: italic;">Sin tratamiento específico indicado.</span>';
+
+                $consultasBlocks .= sprintf('
+                    <table style="width: 100%%; border: 1px solid #cbd5e1; margin-bottom: 15px; font-family: helvetica, sans-serif;" cellpadding="6">
+                        <tr style="background-color: #800020; color: #ffffff;">
+                            <td style="width: 50%%; font-weight: bold; font-size: 11px;">
+                                REGISTRO #%d: %s
+                            </td>
+                            <td style="width: 50%%; text-align: right; font-size: 10px; font-weight: bold;">
+                                Suceso: %s%s
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%%; font-size: 10px; border-bottom: 1px solid #f0f0f0;">
+                                <strong>Disponibilidad:</strong> <span style="color: %s; font-weight: bold;">%s</span>
+                            </td>
+                            <td style="width: 50%%; text-align: right; font-size: 10px; color: #64748b; border-bottom: 1px solid #f0f0f0;">
+                                <strong>Registrado por:</strong> %s
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="font-size: 11px; border-bottom: 1px solid #f0f0f0;">
+                                <strong>Diagnóstico:</strong> <strong style="color: #800020;">%s</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="font-size: 10px; background-color: #fafafa; border-bottom: 1px solid #f0f0f0;">
+                                <strong>Descripción / Síntomas:</strong><br/>
+                                %s
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="font-size: 10px; background-color: #f8fafc;">
+                                <strong>Tratamiento Indicado:</strong><br/>
+                                %s
+                            </td>
+                        </tr>
+                    </table>
+                    <br/>
+                ',
+                count($consultas) - $index,
+                $esc($tipoStr),
+                $esc($fechaSucesoStr),
+                $esc($fechaAltaStr),
+                $estColor,
+                $esc($estLabel),
+                $esc($registradoPor),
+                $esc($diagnosticoStr),
+                $descripcionStr,
+                $tratamientoStr
+                );
+            }
+        }
 
         $fechaGeneracion = $esc(date('d/m/Y h:i A'));
 
-        // ============ HTML FINAL - 4 PÁGINAS ============
+        // ============ HTML FINAL - 5 PÁGINAS ============
         return <<<HTML
 <style>
     body { font-family: helvetica, sans-serif; color: #333; line-height: 1.8; }
@@ -946,7 +1163,17 @@ final class ReporteAtletaService
 <!-- ===================== SALTO DE PÁGINA ===================== -->
 <br pagebreak="true" />
 
-<!-- ===================== PÁGINA 2: CONTROL DE ASISTENCIAS ===================== -->
+<!-- ===================== PÁGINA 2: HISTORIAL DE CONSULTAS MÉDICAS ===================== -->
+<div class="section">
+    <div class="section-header">Historial de Consultas Médicas</div>
+    <div style="font-weight: bold; font-size: 12px; color: #800020; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #800020; display: inline-block; padding-bottom: 3px;">Consultas Registradas</div>
+    {$consultasBlocks}
+</div>
+
+<!-- ===================== SALTO DE PÁGINA ===================== -->
+<br pagebreak="true" />
+
+<!-- ===================== PÁGINA 3: CONTROL DE ASISTENCIAS ===================== -->
 
 <div class="section">
     <div class="section-header">Control de Asistencias</div>
@@ -987,7 +1214,7 @@ final class ReporteAtletaService
 <!-- ===================== SALTO DE PÁGINA ===================== -->
 <br pagebreak="true" />
 
-<!-- ===================== PÁGINA 3: HISTORIAL ANTROPOMÉTRICO Y GRÁFICA ===================== -->
+<!-- ===================== PÁGINA 4: HISTORIAL ANTROPOMÉTRICO Y GRÁFICA ===================== -->
 
 <div class="section">
     <div class="section-header">Evolución de Peso y Altura</div>
@@ -1000,11 +1227,25 @@ final class ReporteAtletaService
 <!-- ===================== SALTO DE PÁGINA ===================== -->
 <br pagebreak="true" />
 
-<!-- ===================== PÁGINA 4: EVALUACIONES FÍSICAS Y RADAR ===================== -->
+<!-- ===================== PÁGINA 5: EVALUACIONES FÍSICAS Y RADAR ===================== -->
 
 <div class="section">
     <div class="section-header">Perfil de Rendimiento Físico</div>
-    {$svgRadar}
+    
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 10px;">
+        <tr>
+            <td width="50%" align="center">
+                <div style="text-align: center; font-size: 8px; font-weight: bold; margin-bottom: 4px; color: #800020;">COMPARACIÓN INTERNACIONAL (ÉLITE)</div>
+                {$svgRadarInternacional}
+            </td>
+            <td width="50%" align="center">
+                <div style="text-align: center; font-size: 8px; font-weight: bold; margin-bottom: 4px; color: #0EA5E9;">COMPARACIÓN NACIONAL (FUTVE)</div>
+                {$svgRadarNacional}
+            </td>
+        </tr>
+    </table>
+
+    {$ultimaPruebaHtml}
 
     <div style="font-weight: bold; font-size: 12px; color: #800020; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; border-bottom: 1px solid #800020; display: inline-block; padding-bottom: 3px;">Historial de Evaluaciones Físicas</div>
     {$pruebasTable}

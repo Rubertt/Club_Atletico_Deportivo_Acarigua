@@ -736,11 +736,185 @@ if (dobEl) {
     updateDynamicRequirements();
 }
 
-// —— Botón de Ayuda [?] ——————————————————————————————————————————————————————
-document.getElementById('btn-help-atleta')?.addEventListener('click', () => {
-    FormValidator.showHelp(
-        'Guía: Registro de Atleta',
-        '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-    );
-});
+// —— Lógica de Representante Existente ————————————————————————————————————————
+const selRepresentante = document.getElementById('sel-representante');
+if (selRepresentante) {
+    selRepresentante.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const isSelected = this.value !== '';
+
+        const tutorNombres = document.getElementById('tutor_nombres');
+        const tutorApellidos = document.getElementById('tutor_apellidos');
+        const tutorCedulaPref = document.getElementById('tutor_cedula_prefix');
+        const tutorCedulaNum = document.getElementById('tutor_cedula_number');
+        const tutorCedula = document.getElementById('tutor_cedula');
+        const tutorTelPref = document.getElementById('tutor_telefono_prefix');
+        const tutorTelNum = document.getElementById('tutor_telefono_number');
+        const tutorTel = document.getElementById('tutor_telefono');
+        const tutorRelacion = document.querySelector('select[name="tutor_relacion"]');
+
+        const fieldsToToggle = [tutorNombres, tutorApellidos, tutorCedulaPref, tutorCedulaNum, tutorTelPref, tutorTelNum, tutorRelacion];
+
+        if (isSelected) {
+            // Llenar campos
+            tutorNombres.value = opt.getAttribute('data-nombre') || '';
+            tutorApellidos.value = opt.getAttribute('data-apellido') || '';
+            
+            tutorCedulaPref.value = opt.getAttribute('data-cedula-prefix') || 'V';
+            tutorCedulaNum.value = formatCedulaNumber(opt.getAttribute('data-cedula-numero') || '');
+            tutorCedula.value = opt.getAttribute('data-cedula-completa') || '';
+            
+            const tel = opt.getAttribute('data-telefono') || '';
+            let repTelPref = '';
+            let repTelNum = '';
+            const prefixes = ['0412','0414','0416','0422','0424','0426','0255','0256'];
+            for (let i = 0; i < prefixes.length; i++) {
+                if (tel.startsWith(prefixes[i])) {
+                    repTelPref = prefixes[i];
+                    repTelNum = tel.substring(4);
+                    break;
+                }
+            }
+            tutorTelPref.value = repTelPref || '0412';
+            tutorTelNum.value = repTelNum;
+            tutorTel.value = tel;
+
+            tutorRelacion.value = opt.getAttribute('data-relacion') || '';
+
+            // Deshabilitar campos
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = true;
+                    el.style.backgroundColor = 'var(--color-bg-alt)';
+                    el.style.cursor = 'not-allowed';
+                    el.removeAttribute('required');
+                }
+            });
+        } else {
+            // Habilitar campos
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = false;
+                    el.value = '';
+                    el.style.backgroundColor = '';
+                    el.style.cursor = '';
+                }
+            });
+            tutorCedula.value = '';
+            tutorTel.value = '';
+            
+            // Re-aplicar requeridos dinámicos si es menor de edad
+            updateDynamicRequirements();
+        }
+    });
+
+    // Ejecutar después de un breve delay al cargar la página para mantener estado si ya está seleccionado
+    setTimeout(() => {
+        if (selRepresentante.value !== '') {
+            selRepresentante.dispatchEvent(new Event('change'));
+        }
+    }, 150);
+}
+
+// Helper para cascada asíncrona de dirección al elegir dirección existente
+function setCascadingDireccion(estadoId, municipioId, parroquiaId) {
+    const selEstado = document.getElementById('sel-estado');
+    const selMunicipio = document.getElementById('sel-municipio');
+    const selParroquia = document.getElementById('sel-parroquia');
+
+    selEstado.value = estadoId;
+    selMunicipio.dataset.current = municipioId;
+    selParroquia.dataset.current = parroquiaId;
+    
+    selMunicipio.disabled = false;
+    fetch('<?= e(url('/api/direcciones/municipios')) ?>/' + estadoId)
+        .then(res => res.json())
+        .then(data => {
+            selMunicipio.innerHTML = '<option value="">— Seleccione Municipio —</option>';
+            data.forEach(mun => {
+                let selected = (parseInt(selMunicipio.dataset.current) === parseInt(mun.municipio_id)) ? 'selected' : '';
+                selMunicipio.innerHTML += `<option value="${mun.municipio_id}" ${selected}>${mun.municipio}</option>`;
+            });
+            if (selMunicipio.value) {
+                selParroquia.disabled = false;
+                fetch('<?= e(url('/api/direcciones/parroquias')) ?>/' + selMunicipio.value)
+                    .then(res => res.json())
+                    .then(data2 => {
+                        selParroquia.innerHTML = '<option value="">— Seleccione Parroquia —</option>';
+                        data2.forEach(par => {
+                            let selected = (parseInt(selParroquia.dataset.current) === parseInt(par.parroquia_id)) ? 'selected' : '';
+                            selParroquia.innerHTML += `<option value="${par.parroquia_id}" ${selected}>${par.parroquia}</option>`;
+                        });
+                    });
+            }
+        })
+        .catch(console.error);
+}
+
+// —— Lógica de Dirección Existente ———————————————————————————————————————————
+const selDireccion = document.getElementById('sel-direccion');
+if (selDireccion) {
+    selDireccion.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const isSelected = this.value !== '';
+
+        const selEstado = document.getElementById('sel-estado');
+        const selMunicipio = document.getElementById('sel-municipio');
+        const selParroquia = document.getElementById('sel-parroquia');
+        const tipoVivienda = document.querySelector('select[name="tipo_vivienda"]');
+        const localidad = document.querySelector('input[name="localidad"]');
+        const ubicacionVivienda = document.querySelector('input[name="ubicacion_vivienda"]');
+
+        const fieldsToToggle = [selEstado, selMunicipio, selParroquia, tipoVivienda, localidad, ubicacionVivienda];
+
+        if (isSelected) {
+            // Llenar campos
+            const estadoId = opt.getAttribute('data-estado-id');
+            const municipioId = opt.getAttribute('data-municipio-id');
+            const parroquiaId = opt.getAttribute('data-parroquia-id');
+            
+            setCascadingDireccion(estadoId, municipioId, parroquiaId);
+
+            tipoVivienda.value = opt.getAttribute('data-tipo-vivienda') || '';
+            localidad.value = opt.getAttribute('data-localidad') || '';
+            ubicacionVivienda.value = opt.getAttribute('data-ubicacion-vivienda') || '';
+
+            // Deshabilitar campos y quitar required
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = true;
+                    el.style.backgroundColor = 'var(--color-bg-alt)';
+                    el.style.cursor = 'not-allowed';
+                    el.removeAttribute('required');
+                }
+            });
+        } else {
+            // Habilitar campos
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = false;
+                    el.style.backgroundColor = '';
+                    el.style.cursor = '';
+                    el.setAttribute('required', 'true');
+                }
+            });
+            // Limpiar campos
+            selEstado.value = '';
+            selMunicipio.innerHTML = '<option value="">— Seleccione Municipio —</option>';
+            selMunicipio.disabled = true;
+            selParroquia.innerHTML = '<option value="">— Seleccione Parroquia —</option>';
+            selParroquia.disabled = true;
+            tipoVivienda.value = '';
+            localidad.value = '';
+            ubicacionVivienda.value = '';
+        }
+    });
+
+    // Ejecutar después de un breve delay al cargar la página para mantener estado si ya está seleccionado
+    setTimeout(() => {
+        if (selDireccion.value !== '') {
+            selDireccion.dispatchEvent(new Event('change'));
+        }
+    }, 150);
+}
 </script>

@@ -1,22 +1,4 @@
-<?php /** @var array $item @var array $roles */ 
-if (!function_exists('formatDocumento')) {
-    function formatDocumento($cedula) {
-        if (empty($cedula)) {
-            return '—';
-        }
-        $cedula = trim($cedula);
-        if (preg_match('/^[VEPvep]-?\d+/', $cedula)) {
-            $prefix = strtoupper($cedula[0]);
-            $number = ltrim(substr($cedula, 1), '-');
-            return $prefix . '-' . $number;
-        }
-        if (ctype_digit($cedula)) {
-            return 'V-' . $cedula;
-        }
-        return $cedula;
-    }
-}
-?>
+<?php /** @var array $item @var array $roles */ ?>
 <div class="page-header">
     <div>
         <h1>Perfil de Usuario</h1>
@@ -30,7 +12,7 @@ if (!function_exists('formatDocumento')) {
     </div>
 </div>
 
-<div style="display:grid; grid-template-columns:300px 1fr; gap:24px;" class="show-layout">
+<div class="perfil-usuario-grid show-layout">
     <!-- Panel Izquierdo (Resumen) -->
     <div style="display:flex; flex-direction:column; gap:24px;">
         <div class="card" style="text-align:center; padding-top: 32px; position: relative;">
@@ -60,7 +42,7 @@ if (!function_exists('formatDocumento')) {
             <h2 style="margin:0 0 4px; font-family: var(--font-display);">
                 <?= e($item['nombre'] . ' ' . $item['apellido']) ?></h2>
             <div style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 16px;">
-                <?= !empty($item['cedula']) ? e(formatDocumento($item['cedula'])) : 'Sin Documento' ?></div>
+                <?= !empty($item['cedula_formateada']) ? e($item['cedula_formateada']) : 'Sin Documento' ?></div>
 
             <?php
             $estatusVal = $item['estatus'] ?? 'Activo';
@@ -278,9 +260,6 @@ if (!function_exists('formatDocumento')) {
         <div class="modal-footer" style="padding: 16px 24px; background: var(--color-bg-alt); display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid var(--color-border);">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
             <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Guardar Cambios</button>
-            <button type="button" class="btn-icon-premium js-btn-help-usuario" title="¿Cómo llenar este formulario?" style="width: 38px; height: 38px;">
-                <i class="ph ph-question"></i>
-            </button>
         </div>
     </form>
 </div>
@@ -389,9 +368,6 @@ if (!function_exists('formatDocumento')) {
         <div class="modal-footer" style="padding: 16px 24px; background: var(--color-bg-alt); display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid var(--color-border);">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
             <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar</button>
-            <button type="button" class="btn-icon-premium js-btn-help-usuario" title="¿Cómo llenar este formulario?" style="width: 38px; height: 38px;">
-                <i class="ph ph-question"></i>
-            </button>
         </div>
     </form>
 </div>
@@ -514,19 +490,7 @@ if (!function_exists('formatDocumento')) {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Botones de ayuda
-    document.querySelectorAll('.js-btn-help-usuario').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof FormValidator !== 'undefined' && FormValidator.showHelp) {
-                FormValidator.showHelp(
-                    'Guía: Perfil de Usuario',
-                    '<?= e(asset("img/ayuda/formulario_usuario.png")) ?>'
-                );
-            }
-        });
-    });
-
+    
     // (Las validaciones y envíos de estos formularios se gestionan directamente abajo en formsEdit)
 
     // Inicializar widget de teléfono

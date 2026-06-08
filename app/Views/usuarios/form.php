@@ -66,8 +66,9 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                             $cedPref  = 'V';
                             $cedNum   = '';
                             if (!empty($cedVal)) {
-                                if (str_contains($cedVal, '-')) {
-                                    [$cedPref, $cedNum] = explode('-', $cedVal, 2);
+                                $cleanVal = clean_cedula_dots($cedVal);
+                                if ($cleanVal && str_contains($cleanVal, '-')) {
+                                    [$cedPref, $cedNum] = explode('-', $cleanVal, 2);
                                 } else {
                                     $firstChar = strtoupper($cedVal[0]);
                                     if (in_array($firstChar, ['V', 'E', 'P'])) {
@@ -75,6 +76,14 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                                         $cedNum = substr($cedVal, 1);
                                     } else {
                                         $cedNum = $cedVal;
+                                    }
+                                }
+                                
+                                // Formatear el número con puntos si es V o E
+                                if ($cedPref === 'V' || $cedPref === 'E') {
+                                    $cedNumDigits = str_replace('.', '', $cedNum);
+                                    if (ctype_digit($cedNumDigits)) {
+                                        $cedNum = number_format((float)$cedNumDigits, 0, '', '.');
                                     }
                                 }
                             }
@@ -251,9 +260,6 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                     <span><?= $isEdit ? 'Guardar Cambios' : 'Registrar Usuario' ?></span>
                     <i class="ph ph-check-circle"></i>
                 </button>
-                <button type="button" class="btn-help js-btn-help-usuario" title="¿Cómo llenar este formulario?" style="width: 38px; height: 38px;">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
         </div>
     </form>
@@ -279,18 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (apellidoInp) {
         apellidoInp.addEventListener('input', filterAlphabetic);
-    }
-
-    // —— Botón de ayuda [?] ——————————————————————————————————————————————————————
-    const btnHelp = document.querySelector('.js-btn-help-usuario');
-    if (btnHelp) {
-        btnHelp.addEventListener('click', (e) => {
-            e.preventDefault();
-            FormValidator.showHelp(
-                'Guía: Registro de Usuario',
-                '<?= e(asset("img/ayuda/formulario_usuario.png")) ?>'
-            );
-        });
     }
 
     // —— Configuración del Wizard (Paso a Paso) ————————————————————————————————
@@ -323,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // —— Validaciones de Cédula y Teléfono ———————————————————————————————————————
-    const CEDULA_REGEX = /^[VE]-\d{1,3}(\.\d{3})*$/;
+    const CEDULA_REGEX = /^[VE]-\d{6,10}$/i;
     const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
 
     function formatCedulaNumber(digits) {
@@ -331,10 +325,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function validarCedula(val) {
+        if (!val) return true;
         if (PASAPORTE_REGEX.test(val)) return true;
-        if (!CEDULA_REGEX.test(val)) return false;
-        const digitsOnly = val.replace(/[^\d]/g, '');
-        return digitsOnly.length >= 7;
+        const cleanVal = val.replace(/\./g, '');
+        return CEDULA_REGEX.test(cleanVal);
     }
 
     function showError(id, msg) {
@@ -361,11 +355,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.value = val;
                 hiddenEl.value = val.length ? 'P-' + val : '';
             } else {
-                // Cédula V/E: solo dígitos con formato de puntos, máx 8 dígitos
-                let val = numberEl.value.replace(/[^\d]/g, '').substring(0, 8);
-                val = formatCedulaNumber(val);
-                numberEl.value = val;
-                hiddenEl.value = val.length ? prefixEl.value + '-' + val : '';
+                // Cédula V/E: solo dígitos con formato de puntos, máx 10 dígitos (para regex 6-10)
+                let digits = numberEl.value.replace(/[^\d]/g, '').substring(0, 10);
+                numberEl.value = formatCedulaNumber(digits);
+                hiddenEl.value = digits.length ? prefixEl.value + '-' + digits : '';
             }
         }
 
@@ -390,9 +383,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.placeholder = 'ABC123456';
                 numberEl.maxLength = 15;
             } else {
-                numberEl.value = formatCedulaNumber(num.replace(/[^\d]/g, ''));
+                let digits = num.replace(/[^\d]/g, '').substring(0, 10);
+                numberEl.value = formatCedulaNumber(digits);
                 numberEl.placeholder = '12.345.678';
-                numberEl.maxLength = 10;
+                numberEl.maxLength = 13;
             }
         }
 
@@ -418,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
         numberEl.addEventListener('blur', () => {
             const val = hiddenEl.value;
             if (val && !validarCedula(val)) {
-                const hint = isPassport() ? 'Ej: P-ABC123456' : 'Ej: ' + prefixEl.value + '-12.345.678';
+                const hint = isPassport() ? 'Ej: P-ABC123456' : 'Ej: ' + prefixEl.value + '-12345678';
                 showError(errorKey, 'Formato inválido. ' + hint);
             } else {
                 clearError(errorKey);
@@ -428,6 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setupCedulaWidget('cedula_prefix', 'cedula_number', 'cedula', 'cedula');
+
 
     // —— Widget Teléfono ———————————————————————————————————————————————————————
     function setupPhoneWidget(prefixId, numberId, hiddenId, errorKey) {
@@ -500,12 +495,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // —— Botones de Navegación del Wizard ——————————————————————————————————————
-    btnNext.addEventListener('click', () => {
-        // Validar paso actual
+    btnNext.addEventListener('click', async () => {
+        // Validar paso actual en el cliente primero
         const panel = panels[currentIdx];
         const requiredInputs = panel.querySelectorAll('[required]');
         let isValid = true;
-        let errors = [];
+        let errorsList = [];
 
         requiredInputs.forEach(input => {
             if (input.style.display === 'none' || input.offsetParent === null) return;
@@ -517,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!input.value.trim()) {
                 if (wrap) wrap.style.borderColor = 'var(--color-danger,#e53e3e)';
                 else input.style.borderColor = 'var(--color-danger,#e53e3e)';
-                errors.push('El campo "' + label + '" es obligatorio.');
+                errorsList.push('El campo "' + label + '" es obligatorio.');
                 isValid = false;
             } else {
                 if (wrap) wrap.style.borderColor = '';
@@ -530,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!emailRegex.test(input.value.trim())) {
                     if (wrap) wrap.style.borderColor = 'var(--color-danger,#e53e3e)';
                     else input.style.borderColor = 'var(--color-danger,#e53e3e)';
-                    errors.push('El formato del correo electrónico es inválido.');
+                    errorsList.push('El formato del correo electrónico es inválido.');
                     isValid = false;
                 }
             }
@@ -545,11 +540,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const docName = isPass ? 'Pasaporte' : 'Cédula';
             if (!cedNum) {
                 if (cedWrap) cedWrap.style.borderColor = 'var(--color-danger,#e53e3e)';
-                errors.push('El campo "' + docName + '" es obligatorio.');
+                errorsList.push('El campo "' + docName + '" es obligatorio.');
                 isValid = false;
             } else if (!validarCedula(ced)) {
                 if (cedWrap) cedWrap.style.borderColor = 'var(--color-danger,#e53e3e)';
-                errors.push(isPass ? 'El pasaporte debe tener entre 5 y 15 caracteres alfanuméricos. Ej: P-ABC123456' : 'La cédula debe tener entre 7 y 8 dígitos numéricos. Ej: V-12.345.678');
+                errorsList.push(isPass ? 'El pasaporte debe tener entre 5 y 15 caracteres alfanuméricos. Ej: P-ABC123456' : 'La cédula debe tener entre 7 y 8 dígitos numéricos. Ej: V-12.345.678');
                 isValid = false;
             } else {
                 if (cedWrap) cedWrap.style.borderColor = '';
@@ -560,11 +555,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!telNum) {
                 if (telWrap) telWrap.style.borderColor = 'var(--color-danger,#e53e3e)';
-                errors.push('El campo "Teléfono" es obligatorio.');
+                errorsList.push('El campo "Teléfono" es obligatorio.');
                 isValid = false;
             } else if (telNum.length !== 7) {
                 if (telWrap) telWrap.style.borderColor = 'var(--color-danger,#e53e3e)';
-                errors.push('El teléfono debe tener exactamente 7 dígitos');
+                errorsList.push('El teléfono debe tener exactamente 7 dígitos');
                 isValid = false;
             } else {
                 if (telWrap) telWrap.style.borderColor = '';
@@ -572,12 +567,74 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (!isValid) {
-            FormValidator.showErrors(errors);
+            FormValidator.showErrors(errorsList);
             return;
         }
 
-        currentIdx++;
-        updateUI();
+        // 2. Preparar FormData para Fetch
+        const mainForm = document.getElementById('form-usuario');
+        const formData = new FormData(mainForm);
+        formData.append('step', currentIdx);
+        formData.append('usuario_id', '<?= $isEdit ? $p['usuario_id'] : '' ?>');
+
+        btnNext.disabled = true;
+        const originalText = btnNext.innerHTML;
+        btnNext.innerHTML = '<i class="ph ph-spinner spinner"></i> Validando...';
+
+        try {
+            const response = await fetch('<?= e(url('/admin/usuarios/validar-paso')) ?>', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const result = await response.json();
+            btnNext.disabled = false;
+            btnNext.innerHTML = originalText;
+
+            if (!response.ok || !result.success) {
+                const errors = result.errors || {};
+                const errorMsgs = [];
+                for (const key in errors) {
+                    errorMsgs.push(errors[key]);
+                    
+                    // Pintar borde rojo
+                    const input = document.getElementsByName(key)[0] || document.getElementById(key);
+                    if (input) {
+                        const wrap = input.closest('.phone-field');
+                        if (wrap) wrap.style.borderColor = 'var(--color-danger)';
+                        else input.style.borderColor = 'var(--color-danger)';
+                    }
+                }
+
+                if (typeof CadaModal !== 'undefined' && CadaModal.alert) {
+                    CadaModal.alert({
+                        title: 'Alerta de Validación',
+                        text: errorMsgs.join('<br>'),
+                        type: 'error'
+                    });
+                } else {
+                    alert(errorMsgs.join('\n'));
+                }
+                return;
+            }
+
+            currentIdx++;
+            updateUI();
+        } catch (err) {
+            console.error(err);
+            btnNext.disabled = false;
+            btnNext.innerHTML = originalText;
+            if (typeof CadaModal !== 'undefined' && CadaModal.alert) {
+                CadaModal.alert({
+                    title: 'Error de Conexión',
+                    text: 'Ocurrió un error al conectarse con el servidor para validar los datos.',
+                    type: 'danger'
+                });
+            }
+        }
     });
 
     btnPrev.addEventListener('click', () => {

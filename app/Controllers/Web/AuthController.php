@@ -106,7 +106,7 @@ final class AuthController extends Controller
     {
         $user = Auth::user();
         if ($user) {
-            Logger::audit('logout', ['email' => $user['email']]);
+            Logger::audit('logout', ['email' => $user['correo'] ?? '']);
         }
         Auth::logout();
         flash('success', 'Sesión cerrada correctamente.');

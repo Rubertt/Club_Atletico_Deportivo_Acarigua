@@ -5,6 +5,7 @@ const ROL_SUPERUSER   = 1;
 const ROL_ADMIN       = 2;
 const ROL_ENTRENADOR  = 3;
 const ROL_DIRECTIVO   = 4;
+const ROL_MEDICO      = 5;
 
 const ESTATUS_ATLETA = [
     1 => 'Activo',
@@ -38,6 +39,15 @@ const CLIMA_TIPO = [
     2 => 'Lluvioso',
     3 => 'Viento',
     4 => 'Tormenta'
+];
+
+const TERRENO_TIPO = [
+    1 => 'Grama Natural',
+    2 => 'Grama Sintética',
+    3 => 'Grama Alta',
+    4 => 'Tierra',
+    5 => 'Húmedo',
+    6 => 'Alt'
 ];
 
 const TIPO_EVENTO = ['Entrenamiento', 'Partido'];

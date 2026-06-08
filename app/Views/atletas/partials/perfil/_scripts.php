@@ -34,8 +34,9 @@
                 if (targetId === 'tab-antropometria' && chartAntro) {
                     setTimeout(() => chartAntro.resize(), 50);
                 }
-                if (targetId === 'tab-pruebas' && chartRadar) {
-                    setTimeout(() => chartRadar.resize(), 50);
+                if (targetId === 'tab-pruebas') {
+                    if (chartRadar) setTimeout(() => chartRadar.resize(), 50);
+                    if (chartRadarNac) setTimeout(() => chartRadarNac.resize(), 50);
                 }
                 if (targetId === 'tab-asistencia' && typeof chartDona !== 'undefined' && chartDona) {
                     setTimeout(() => chartDona.resize(), 50);
@@ -570,100 +571,7 @@
             chartAntro.setOption(optionAntro);
         }
 
-        // 1.8 Modal de Pruebas Físicas
-        const modalPrueba = document.getElementById('modal-prueba');
-        const formPrueba = document.getElementById('form-prueba');
 
-        function abrirModalPrueba() {
-            if (modalPrueba) {
-                modalPrueba.style.display = 'flex';
-            }
-        }
-
-        function cerrarModalPrueba() {
-            if (modalPrueba) modalPrueba.style.display = 'none';
-        }
-
-        document.getElementById('btn-nueva-prueba')?.addEventListener('click', abrirModalPrueba);
-
-        formPrueba?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // Validar con FormValidator
-            const validation = FormValidator.validate(formPrueba, validarPruebaCustom);
-            if (!validation.valid) {
-                FormValidator.showErrors(validation.errors);
-                return;
-            }
-
-            const submitBtn = formPrueba.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
-
-            try {
-                const formData = new FormData(formPrueba);
-                const response = await fetch(formPrueba.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                const text = await response.text();
-                let result;
-                try {
-                    result = JSON.parse(text);
-                } catch (e) {
-                    console.error("Invalid JSON:", text);
-                    throw new Error("El servidor no devolvió una respuesta válida.");
-                }
-
-                if (result.success) {
-                    window.location.href = window.location.pathname + '?tab=tab-pruebas';
-                } else {
-                    if (result.errors) {
-                        const errorsList = [];
-                        Object.entries(result.errors).forEach(([field, msgs]) => {
-                            const input = formPrueba.querySelector(`[name="${field}"]`);
-                            if (input) {
-                                FormValidator.markError(input);
-                                input.addEventListener('focus', function clearOnFocus() {
-                                    FormValidator.clearMark(input);
-                                    input.removeEventListener('focus', clearOnFocus);
-                                });
-                            }
-                            if (Array.isArray(msgs)) {
-                                msgs.forEach(m => errorsList.push(m));
-                            } else {
-                                errorsList.push(msgs);
-                            }
-                        });
-                        FormValidator.showErrors(errorsList);
-                    } else {
-                        CadaModal.alert({
-                            title: 'Error',
-                            text: result.message || 'Error al guardar los resultados.',
-                            type: 'danger'
-                        });
-                    }
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                }
-            } catch (error) {
-                CadaModal.alert({
-                    title: 'Error',
-                    text: error.message || 'Error de conexión con el servidor. Inténtalo de nuevo.',
-                    type: 'danger'
-                });
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            }
-        });
-
-        modalPrueba?.querySelectorAll('[data-close-modal]').forEach(btn => {
-            btn.addEventListener('click', cerrarModalPrueba);
-        });
 
         // 3. Gráfica Real Radar de Pruebas Físicas (Ya implementada arriba)
 
@@ -975,9 +883,11 @@
             cargarEstados(selectPais.value);
         }
 
-        // 3. Gráfica Real Radar de Pruebas Físicas
+        // 3. Gráfica Real Radar de Pruebas Físicas (Internacional y Nacional)
         var chartRadar = null;
+        var chartRadarNac = null;
         const chartRadarDOM = document.getElementById('chart-radar-pruebas');
+        const chartRadarNacDOM = document.getElementById('chart-radar-pruebas-nacional');
         const historialPruebasRadar = <?= json_encode($pruebas_historial ?? []) ?>;
 
         if (chartRadarDOM && typeof echarts !== 'undefined') {
@@ -1073,148 +983,106 @@
             chartRadar.setOption(optionRadar);
         }
 
+        if (chartRadarNacDOM && typeof echarts !== 'undefined') {
+            chartRadarNac = echarts.init(chartRadarNacDOM);
+
+            let radarNacDataSeries = [];
+            const coloresNac = [
+                { line: '#0EA5E9', fill: 'rgba(14, 165, 233, 0.4)' },
+                { line: '#10B981', fill: 'rgba(16, 185, 129, 0.3)' } // Verde para la prueba anterior nacional
+            ];
+
+            if (historialPruebasRadar.length > 0) {
+                // Última prueba (índice 0)
+                const p1 = historialPruebasRadar[0];
+                let d1 = 'Manual';
+                if (p1.fecha_evento) d1 = new Date(p1.fecha_evento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                radarNacDataSeries.push({
+                    value: [
+                        p1.test_de_fuerza_nac || 0,
+                        p1.test_resistencia_nac || 0,
+                        p1.test_velocidad_nac || 0,
+                        p1.test_coordinacion_nac || 0,
+                        p1.test_de_reaccion_nac || 0
+                    ],
+                    name: 'Última: ' + d1,
+                    itemStyle: { color: coloresNac[0].line },
+                    areaStyle: { color: coloresNac[0].fill },
+                    symbol: 'circle',
+                    symbolSize: 6
+                });
+
+                // Penúltima prueba (índice 1)
+                if (historialPruebasRadar.length > 1) {
+                    const p2 = historialPruebasRadar[1];
+                    let d2 = 'Manual';
+                    if (p2.fecha_evento) d2 = new Date(p2.fecha_evento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    radarNacDataSeries.push({
+                        value: [
+                            p2.test_de_fuerza_nac || 0,
+                            p2.test_resistencia_nac || 0,
+                            p2.test_velocidad_nac || 0,
+                            p2.test_coordinacion_nac || 0,
+                            p2.test_de_reaccion_nac || 0
+                        ],
+                        name: 'Anterior: ' + d2,
+                        itemStyle: { color: coloresNac[1].line },
+                        lineStyle: { type: 'dashed' },
+                        areaStyle: { color: coloresNac[1].fill },
+                        symbol: 'circle',
+                        symbolSize: 6
+                    });
+                }
+            } else {
+                radarNacDataSeries.push({
+                    value: [0, 0, 0, 0, 0],
+                    name: 'Sin Evaluaciones',
+                    itemStyle: { color: 'var(--color-text-muted)' },
+                    areaStyle: { color: 'rgba(150, 150, 150, 0.1)' }
+                });
+            }
+
+            const optionRadarNac = {
+                tooltip: { trigger: 'item' },
+                legend: { 
+                    data: radarNacDataSeries.map(s => s.name), 
+                    bottom: 0,
+                    textStyle: { fontSize: 11, color: chartTextMuted }
+                },
+                radar: {
+                    indicator: [
+                        { name: 'Fuerza', max: 100 },
+                        { name: 'Resistencia', max: 100 },
+                        { name: 'Velocidad', max: 100 },
+                        { name: 'Coordinación', max: 100 },
+                        { name: 'Reacción', max: 100 }
+                    ],
+                    radius: '60%',
+                    axisName: { color: chartTextMuted, fontWeight: 'bold' },
+                    axisLine: { lineStyle: { color: chartBorderColor } },
+                    splitLine: { lineStyle: { color: chartBorderColor } },
+                    splitArea: {
+                        areaStyle: {
+                            color: ['rgba(255, 255, 255, 0.05)', 'rgba(200, 200, 200, 0.05)']
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Rendimiento FUTVE',
+                    type: 'radar',
+                    data: radarNacDataSeries
+                }]
+            };
+            chartRadarNac.setOption(optionRadarNac);
+        }
+
         window.addEventListener('resize', () => {
             if (chartAntro) chartAntro.resize();
             if (chartRadar) chartRadar.resize();
+            if (chartRadarNac) chartRadarNac.resize();
         });
 
-        // 1.8.5 Modal de Edición de Pruebas Físicas
-        const modalPruebaEditar = document.getElementById('modal-prueba-editar');
-        const formPruebaEditar = document.getElementById('form-prueba-editar');
 
-        function cerrarModalPruebaEditar() {
-            if (modalPruebaEditar) modalPruebaEditar.style.display = 'none';
-        }
-
-        document.querySelectorAll('.btn-editar-prueba').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                const fecha = btn.getAttribute('data-fecha');
-                const entrenadorId = btn.getAttribute('data-entrenador-id');
-                const fuerza = btn.getAttribute('data-fuerza');
-                const resistencia = btn.getAttribute('data-resistencia');
-                const velocidad = btn.getAttribute('data-velocidad');
-                const coordinacion = btn.getAttribute('data-coordinacion');
-                const reaccion = btn.getAttribute('data-reaccion');
-
-                // Llenar campos
-                document.getElementById('edit-prueba-fecha').value = fecha ? fecha.substring(0, 10) : '';
-                document.getElementById('edit-prueba-entrenador').value = entrenadorId || '';
-                document.getElementById('edit-prueba-fuerza').value = fuerza || '';
-                document.getElementById('edit-prueba-resistencia').value = resistencia || '';
-                document.getElementById('edit-prueba-velocidad').value = velocidad || '';
-                document.getElementById('edit-prueba-coordinacion').value = coordinacion || '';
-                document.getElementById('edit-prueba-reaccion').value = reaccion || '';
-
-                // Ajustar acción de form dinámicamente
-                formPruebaEditar.action = `<?= url("/admin/resultados-pruebas") ?>/${id}/editar`;
-
-                if (modalPruebaEditar) modalPruebaEditar.style.display = 'flex';
-            });
-        });
-
-        formPruebaEditar?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // Validar con FormValidator
-            const validation = FormValidator.validate(formPruebaEditar, validarPruebaCustom);
-            if (!validation.valid) {
-                FormValidator.showErrors(validation.errors);
-                return;
-            }
-
-            const submitBtn = formPruebaEditar.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
-
-            try {
-                const formData = new FormData(formPruebaEditar);
-                const response = await fetch(formPruebaEditar.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    window.location.href = window.location.pathname + '?tab=tab-pruebas';
-                } else {
-                    if (result.errors) {
-                        const errorsList = [];
-                        Object.entries(result.errors).forEach(([field, msgs]) => {
-                            const input = formPruebaEditar.querySelector(`[name="${field}"]`);
-                            if (input) {
-                                FormValidator.markError(input);
-                                input.addEventListener('focus', function clearOnFocus() {
-                                    FormValidator.clearMark(input);
-                                    input.removeEventListener('focus', clearOnFocus);
-                                });
-                            }
-                            if (Array.isArray(msgs)) {
-                                msgs.forEach(m => errorsList.push(m));
-                            } else {
-                                errorsList.push(msgs);
-                            }
-                        });
-                        FormValidator.showErrors(errorsList);
-                    } else {
-                        CadaModal.alert({
-                            title: 'Error',
-                            text: result.message || 'Error al actualizar la prueba.',
-                            type: 'danger'
-                        });
-                    }
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                }
-            } catch (error) {
-                CadaModal.alert({
-                    title: 'Error',
-                    text: 'Error de conexión con el servidor. Inténtalo de nuevo.',
-                    type: 'danger'
-                });
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            }
-        });
-
-        modalPruebaEditar?.querySelectorAll('[data-close-modal]').forEach(btn => {
-            btn.addEventListener('click', cerrarModalPruebaEditar);
-        });
-
-        // 1.8.6 Eliminación de Pruebas Físicas con CadaModal
-        document.querySelectorAll('.btn-eliminar-prueba').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.dataset.id;
-                const atletaId = "<?= $atleta['atleta_id'] ?>";
-
-                CadaModal.confirm({
-                    title: '¿Eliminar Prueba Física?',
-                    text: '¿Estás seguro de eliminar este registro de pruebas físicas? Esta acción no se puede deshacer.',
-                    type: 'danger',
-                    confirmText: 'Sí, Eliminar',
-                    cancelText: 'Cancelar'
-                }).then((confirmed) => {
-                    if (confirmed) {
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = `<?= url('/admin/resultados-pruebas') ?>/${id}/eliminar?atleta_id=${atletaId}&redirect=${encodeURIComponent(window.location.pathname + '?tab=tab-pruebas')}`;
-
-                        const csrf = document.createElement('input');
-                        csrf.type = 'hidden';
-                        csrf.name = '_csrf';
-                        csrf.value = document.querySelector('meta[name="csrf-token"]').content;
-
-                        form.appendChild(csrf);
-                        document.body.appendChild(form);
-                        form.submit();
-                    }
-                });
-            });
-        });
 
         // 5. Asistencia: Calendario Mensual y Gráfico de Dona
         const historialAsistenciasData = <?= json_encode($asistencias_historial ?? []) ?>;
@@ -1772,50 +1640,7 @@
             return errors;
         }
 
-        function validarPruebaCustom(form) {
-            const errors = [];
-            const fechaInput = form.querySelector('[name="fecha_evaluacion"]');
-            if (fechaInput) {
-                const fechaVal = fechaInput.value;
-                if (fechaVal) {
-                    const selectedDate = new Date(fechaVal + 'T00:00:00');
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    if (selectedDate > today) {
-                        errors.push({
-                            element: fechaInput,
-                            message: 'La fecha de evaluación no puede ser en el futuro'
-                        });
-                    }
-                }
-            }
 
-            // Validar que al menos un test esté lleno
-            const campos = ['test_de_fuerza', 'test_resistencia', 'test_velocidad', 'test_coordinacion', 'test_de_reaccion'];
-            let filledCount = 0;
-            campos.forEach(campo => {
-                const input = form.querySelector(`[name="${campo}"]`);
-                if (input && input.value && input.value.trim() !== '') {
-                    filledCount++;
-                }
-            });
-
-            if (filledCount === 0) {
-                const firstInput = form.querySelector('[name="test_de_fuerza"]');
-                errors.push({
-                    element: firstInput,
-                    message: 'Debe ingresar al menos un resultado de test (Fuerza, Resistencia, Velocidad, Coordinación o Reacción)'
-                });
-                campos.forEach(campo => {
-                    const input = form.querySelector(`[name="${campo}"]`);
-                    if (input) {
-                        FormValidator.markError(input);
-                    }
-                });
-            }
-
-            return errors;
-        }
 
         // —— Actualización Dinámica de Asteriscos ——————————————————————————————————————
         function updateRequiredLabels() {
@@ -1865,72 +1690,6 @@
         paginateTable('tabla-asistencias', 5);
         paginateTable('tabla-antropometria', 5);
         paginateTable('tabla-pruebas', 5);
-
-        // —— Botones de Ayuda en Modales [?] ———————————————————————————————————————————
-        document.getElementById('btn-help-basico')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Datos Básicos',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-representante')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Editar Representante',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-direccion')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Dirección Detallada',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-ficha-medica')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Ficha Médica',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-discapacidad')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Agregar Discapacidad',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-medicion')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Nueva Medición',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-medicion-editar')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Editar Medición',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-            );
-        });
-
-        document.getElementById('btn-help-prueba')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Registrar Prueba Física',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>',
-                'Ingrese los resultados de las pruebas (escala 1-100). Si no tiene un evento creado, se generará uno automáticamente para la fecha indicada.'
-            );
-        });
-
-        document.getElementById('btn-help-prueba-editar')?.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Editar Prueba Física',
-                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>',
-                'Ingrese los resultados de las pruebas (escala 1-100). Si no tiene un evento creado, se generará uno automáticamente para la fecha indicada.'
-            );
-        });
 
     });
 </script>

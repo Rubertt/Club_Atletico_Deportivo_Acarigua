@@ -29,12 +29,9 @@
 
     <!-- Pestaña: General y Sesión -->
     <div id="tab-general" class="form-tab-panel active">
-        <div class="form-card" style="background:var(--color-bg); padding:24px; border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:24px;">
+        <div class="form-card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--color-primary);">Ajustes de Sesión</h3>
-                <button type="button" class="btn-help" id="btn-help-general" title="Ayuda sobre sesión">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
             <div class="form-group">
                 <label class="form-label" for="tiempo_sesion" data-tooltip="Tiempo máximo de inactividad antes de cerrar la sesión automáticamente. Mínimo 5 minutos, máximo 480 minutos." data-tooltip-pos="top"><span class="required">*</span> Tiempo de expiración de sesión (en minutos)</label>
@@ -50,12 +47,9 @@
 
     <!-- Pestaña: Identidad -->
     <div id="tab-identidad" class="form-tab-panel">
-        <div class="form-card" style="background:var(--color-bg); padding:24px; border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:24px;">
+        <div class="form-card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--color-primary);">Identidad de la Comunidad</h3>
-                <button type="button" class="btn-help" id="btn-help-identidad" title="Ayuda sobre identidad">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
             
             <div class="form-group">
@@ -83,12 +77,9 @@
 
     <!-- Pestaña: Contacto y Redes -->
     <div id="tab-contacto" class="form-tab-panel">
-        <div class="form-card" style="background:var(--color-bg); padding:24px; border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:24px;">
+        <div class="form-card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--color-primary);">Información de Contacto y Redes</h3>
-                <button type="button" class="btn-help" id="btn-help-contacto" title="Ayuda sobre contacto">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
             
             <div class="form-row">
@@ -132,7 +123,7 @@
         </div>
     </div>
 
-    <div style="text-align: right;">
+    <div class="config-actions">
         <button type="submit" class="btn btn-primary btn-lg"><i class="ph ph-floppy-disk"></i> Guardar Cambios</button>
     </div>
 </form>
@@ -167,38 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // ========== Botones de Ayuda ==========
-    document.getElementById('btn-help-general')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Ayuda: General y Sesión',
-            null,
-            '<p>El <strong>tiempo de expiración de sesión</strong> determina cuánto tiempo de inactividad ' +
-            'puede pasar antes de que el sistema cierre tu sesión automáticamente.</p>' +
-            '<p><strong>Mínimo:</strong> 5 minutos<br><strong>Máximo:</strong> 480 minutos (8 horas)</p>' +
-            '<p>Si el campo está vacío o tiene un valor fuera de rango, no se guardará.</p>'
-        );
-    });
-
-    document.getElementById('btn-help-identidad')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Ayuda: Identidad de la Comunidad',
-            null,
-            '<p>Aquí puedes editar la <strong>Misión</strong> y <strong>Visión</strong> del club, ' +
-            'así como los <strong>Requisitos de Inscripción</strong> que se mostrarán al público en la página de Nosotros.</p>' +
-            '<p>Todos los campos marcados con <span style="color:var(--color-danger);">*</span> son obligatorios.</p>'
-        );
-    });
-
-    document.getElementById('btn-help-contacto')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Ayuda: Contacto y Redes',
-            null,
-            '<p>Configura la información de contacto del club que se mostrará públicamente en la página de Contacto y en el pie de página.</p>' +
-            '<p><strong>Teléfono WhatsApp:</strong> Debe incluir el código de país sin espacios. Ejemplo: +584121234567</p>' +
-            '<p><strong>Redes sociales:</strong> Pega la URL completa del perfil (ejemplo: https://facebook.com/tu_club)</p>'
-        );
-    });
 
     // ========== FormValidator ==========
     const form = document.getElementById('form-configuracion');

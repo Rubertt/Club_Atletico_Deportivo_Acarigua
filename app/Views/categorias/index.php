@@ -64,8 +64,7 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
     </div>
 
     <div style="display: flex; gap: 8px;">
-        <button type="submit" class="btn btn-outline"><i class="ph ph-funnel"></i> Filtrar</button>
-        <a href="<?= e(url('/admin/categorias')) ?>" class="btn btn-ghost" title="Limpiar filtros"><i class="ph ph-x"></i></a>
+        <a href="<?= e(url('/admin/categorias')) ?>" class="btn btn-outline" title="Limpiar filtros" style="height: 44px; display: inline-flex; align-items: center; justify-content: center;"><i class="ph ph-trash"></i> Limpiar</a>
     </div>
 </form>
 
@@ -131,7 +130,7 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
             <div style="padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 20px;">
                 <!-- Entrenador -->
                 <div style="background: var(--color-surface); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
-                    <div style="font-size: 11px; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">Enlistador</div>
+                    <div style="font-size: 11px; color: var(--color-text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">Entrenador</div>
                     <?php if (!empty($c['entrenador'])): ?>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <?php if (!empty($c['entrenador_foto'])): ?>
@@ -193,32 +192,95 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.btn-eliminar-categoria').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const form = btn.closest('form');
-            const totalAtletas = parseInt(btn.getAttribute('data-total-atletas') || '0', 10);
-            const nombre = btn.getAttribute('data-nombre');
+    const form = document.querySelector('.table-filters');
+    if (form) {
+        const qInput = form.querySelector('#q');
+        const sexoSelect = form.querySelector('#sexo');
+        const entrenadorSelect = form.querySelector('#entrenador_id');
+        let debounceTimer;
 
-            if (totalAtletas > 0) {
-                CadaModal.alert({
-                    title: 'No se puede eliminar',
-                    text: `La categoría <strong>${nombre}</strong> tiene <strong>${totalAtletas}</strong> atleta(s) asignado(s). Debe reasignar, desactivar o eliminar a los atletas antes de poder eliminar la categoría.`,
-                    type: 'error',
-                    confirmText: 'Entendido'
-                });
-                return;
-            }
+        const performFilter = () => {
+            const formData = new FormData(form);
+            formData.append('ajax', '1');
+            const queryString = new URLSearchParams(formData).toString();
+            
+            // Actualizar URL en el navegador de forma limpia
+            const newUrl = `${window.location.pathname}?${new URLSearchParams(new FormData(form)).toString()}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
 
-            CadaModal.confirm({
-                title: '¿Eliminar Categoría?',
-                text: `¿Estás seguro de que deseas eliminar la categoría <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
-                type: 'danger',
-                confirmText: 'Sí, Eliminar',
-                cancelText: 'Cancelar'
-            }).then(confirmed => {
-                if (confirmed) form.submit();
+            fetch(`${window.location.pathname}?${queryString}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Actualizar cuadrícula
+                const oldGrid = document.querySelector('.quick-grid');
+                const newGrid = doc.querySelector('.quick-grid');
+                if (oldGrid && newGrid) {
+                    oldGrid.innerHTML = newGrid.innerHTML;
+                }
+                
+                // Actualizar estadísticas (stats-grid)
+                const oldStats = document.querySelector('.stats-grid');
+                const newStats = doc.querySelector('.stats-grid');
+                if (oldStats && newStats) {
+                    oldStats.innerHTML = newStats.innerHTML;
+                }
+
+                // Re-vincular botones de eliminar
+                bindDeleteButtons();
+            })
+            .catch(err => console.error('Error al filtrar:', err));
+        };
+
+        if (sexoSelect) sexoSelect.addEventListener('change', performFilter);
+        if (entrenadorSelect) entrenadorSelect.addEventListener('change', performFilter);
+        if (qInput) {
+            qInput.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(performFilter, 300);
             });
+            qInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        }
+        
+        form.addEventListener('submit', (e) => e.preventDefault());
+    }
+
+    function bindDeleteButtons() {
+        document.querySelectorAll('.btn-eliminar-categoria').forEach(btn => {
+            btn.onclick = () => {
+                const form = btn.closest('form');
+                const totalAtletas = parseInt(btn.getAttribute('data-total-atletas') || '0', 10);
+                const nombre = btn.getAttribute('data-nombre');
+
+                if (totalAtletas > 0) {
+                    CadaModal.alert({
+                        title: 'No se puede eliminar',
+                        text: `La categoría <strong>${nombre}</strong> tiene <strong>${totalAtletas}</strong> atleta(s) asignado(s). Debe reasignar, desactivar o eliminar a los atletas antes de poder eliminar la categoría.`,
+                        type: 'error',
+                        confirmText: 'Entendido'
+                    });
+                    return;
+                }
+
+                CadaModal.confirm({
+                    title: '¿Eliminar Categoría?',
+                    text: `¿Estás seguro de que deseas eliminar la categoría <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
+                    type: 'danger',
+                    confirmText: 'Sí, Eliminar',
+                    cancelText: 'Cancelar'
+                }).then(confirmed => {
+                    if (confirmed) form.submit();
+                });
+            };
         });
-    });
+    }
+
+    bindDeleteButtons();
 });
 </script>

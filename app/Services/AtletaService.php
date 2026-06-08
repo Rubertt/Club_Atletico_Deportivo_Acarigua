@@ -22,8 +22,14 @@ final class AtletaService
     {
         Database::beginTransaction();
         try {
-            $direccionId = $this->guardarDireccion($data);
-            $representanteId = $this->guardarRepresentante($data, $direccionId);
+            $direccionId = !empty($data['direccion_id'])
+                ? (int) $data['direccion_id']
+                : $this->guardarDireccion($data);
+
+            $representanteId = !empty($data['representante_id'])
+                ? (int) $data['representante_id']
+                : $this->guardarRepresentante($data);
+
             $fotoPath    = $this->guardarFoto($fotoFile);
 
             $atleta = new Atleta();
@@ -62,20 +68,41 @@ final class AtletaService
 
         Database::beginTransaction();
         try {
-            // Dirección: reutilizar existente o crear nueva
-            $direccionId = $actual['direccion_id'] ?? null;
-            if ($direccionId) {
-                (new Direccion())->update((int) $direccionId, [
-                    'parroquias_id'     => $data['parroquia_id'] ?? null,
-                    'localidad'         => $data['localidad'] ?? null,
-                    'tipo_vivienda'     => $data['tipo_vivienda'] ?? null,
-                    'ubicacion_vivienda'=> $data['ubicacion_vivienda'] ?? null,
-                ]);
+            // Dirección: reutilizar existente, asociar nueva, o actualizar existente
+            $newDireccionId = !empty($data['direccion_id']) ? (int) $data['direccion_id'] : null;
+            $oldDireccionId = $actual['direccion_id'] ? (int) $actual['direccion_id'] : null;
+
+            if ($newDireccionId !== null && $newDireccionId !== $oldDireccionId) {
+                $direccionId = $newDireccionId;
+                if ($oldDireccionId !== null) {
+                    $this->eliminarDireccionSiHuerfana($oldDireccionId);
+                }
             } else {
-                $direccionId = $this->guardarDireccion($data);
+                if ($oldDireccionId !== null) {
+                    (new Direccion())->update($oldDireccionId, [
+                        'parroquias_id'     => $data['parroquia_id'] ?? null,
+                        'localidad'         => $data['localidad'] ?? null,
+                        'tipo_vivienda'     => $data['tipo_vivienda'] ?? null,
+                        'ubicacion_vivienda'=> $data['ubicacion_vivienda'] ?? null,
+                    ]);
+                    $direccionId = $oldDireccionId;
+                } else {
+                    $direccionId = $this->guardarDireccion($data);
+                }
             }
 
-            $representanteId = $this->guardarRepresentante($data, $direccionId, (int) ($actual['representante_id'] ?? 0));
+            // Representante: reutilizar existente, asociar nuevo, o actualizar existente
+            $newRepresentanteId = !empty($data['representante_id']) ? (int) $data['representante_id'] : null;
+            $oldRepresentanteId = $actual['representante_id'] ? (int) $actual['representante_id'] : null;
+
+            if ($newRepresentanteId !== null && $newRepresentanteId !== $oldRepresentanteId) {
+                $representanteId = $newRepresentanteId;
+                if ($oldRepresentanteId !== null) {
+                    $this->eliminarRepresentanteSiHuerfano($oldRepresentanteId);
+                }
+            } else {
+                $representanteId = $this->guardarRepresentante($data, $oldRepresentanteId ?: 0);
+            }
 
             $update = [
                 'nombre'            => $data['nombre'],
@@ -120,7 +147,7 @@ final class AtletaService
         ]);
     }
 
-    private function guardarRepresentante(array $data, int $direccionId, int $representanteIdExistente = 0): int
+    private function guardarRepresentante(array $data, int $representanteIdExistente = 0): int
     {
         $representanteModel = new Representante(); // Apunta a representantes
         
@@ -136,7 +163,6 @@ final class AtletaService
                 'apellido'      => $data['tutor_apellidos'] ?? $existente['apellido'],
                 'telefono'      => $data['tutor_telefono'] ?? $existente['telefono'],
                 'tipo_relacion' => $data['tutor_relacion'] ?? $existente['tipo_relacion'],
-                'direccion_id'  => $direccionId,
             ]);
             
             $nuevoId = (int) $existente['representante_id'];
@@ -161,7 +187,6 @@ final class AtletaService
                     'cedula'        => $nuevaCedula,
                     'telefono'      => $data['tutor_telefono'] ?? $previo['telefono'],
                     'tipo_relacion' => $data['tutor_relacion'] ?? $previo['tipo_relacion'],
-                    'direccion_id'  => $direccionId,
                 ]);
                 return $representanteIdExistente;
             }
@@ -174,7 +199,6 @@ final class AtletaService
             'cedula'        => $nuevaCedula,
             'telefono'      => $data['tutor_telefono'] ?? '',
             'tipo_relacion' => $data['tutor_relacion'] ?? 'representante',
-            'direccion_id'  => $direccionId,
         ]);
     }
 
@@ -192,6 +216,27 @@ final class AtletaService
             
             if ($count === 0) {
                 $db->prepare('DELETE FROM representantes WHERE representante_id = ?')->execute([$representanteId]);
+            }
+        } catch (Throwable $e) {
+            Logger::error($e);
+        }
+    }
+
+    /**
+     * Elimina una dirección de la base de datos si ningún atleta está vinculado a ella.
+     */
+    private function eliminarDireccionSiHuerfana(int $direccionId): void
+    {
+        try {
+            $db = Database::connection();
+            
+            // Verificar si hay atletas vinculados a esta dirección
+            $stmt1 = $db->prepare('SELECT COUNT(*) FROM atletas WHERE direccion_id = ?');
+            $stmt1->execute([$direccionId]);
+            $count1 = (int) $stmt1->fetchColumn();
+            
+            if ($count1 === 0) {
+                $db->prepare('DELETE FROM direcciones WHERE direccion_id = ?')->execute([$direccionId]);
             }
         } catch (Throwable $e) {
             Logger::error($e);

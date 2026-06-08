@@ -16,47 +16,72 @@
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px;">
+<div class="asig-details-grid">
     <!-- Lista de Asistencia -->
     <div class="card" style="padding: 0; overflow: hidden;">
         <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-border); background: var(--color-surface-2);">
             <h3 style="margin:0; font-size: 16px;"><i class="ph ph-users-three"></i> Lista de Atletas</h3>
         </div>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th style="padding-left: 24px;">Atleta</th>
-                    <th>Cédula</th>
-                    <th>Estado de Asistencia</th>
-                    <th style="padding-right: 24px;">Observaciones</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="data-table-wrap card" style="padding: 0; border: none; border-radius: 0; border-top: 1px solid var(--color-border);">
+            <!-- Cabeceras en PC -->
+            <div class="asig-headers-desktop" style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 10; font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
+                <div style="width: 320px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px;"></div>
+                    <div>Atleta / Cédula</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; flex: 1;">
+                    <div>Estado de Asistencia</div>
+                    <div>Observaciones</div>
+                </div>
+                <div style="width: 140px; text-align: right; flex-shrink: 0; padding-right: 12px;">Acciones</div>
+            </div>
+
+            <!-- Lista de Atletas -->
+            <div class="asistencia-detalles-list">
                 <?php foreach ($detalles as $d): ?>
-                <tr class="detalle-row">
-                    <td style="padding-left: 24px;">
-                        <div style="font-weight: 600;"><?= e($d['nombre'] . ' ' . $d['apellido']) ?></div>
-                    </td>
-                    <td><?= e($d['cedula'] ?? '—') ?></td>
-                    <td>
-                        <?php 
-                            $status = match ((int)$d['estatus']) { 1 => 'Presente', 2 => 'Justificado', default => 'Ausente' };
-                            $badge = match ((int)$d['estatus']) { 1 => 'success', 2 => 'warning', default => 'danger' };
-                        ?>
-                        <span class="badge badge-<?= $badge ?>" style="font-weight: 600; text-transform: uppercase; font-size: 11px;">
-                            <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; margin-right:6px;"></span>
-                            <?= e($status) ?>
-                        </span>
-                    </td>
-                    <td style="padding-right: 24px;">
-                        <span style="font-size: 13px; color: var(--color-text-muted);">
-                            <?= e($d['observaciones'] ?? '—') ?>
-                        </span>
-                    </td>
-                </tr>
+                    <div class="asig-atleta-row detalle-row">
+                        <div class="asig-atleta-row__athlete">
+                            <div class="avatar-placeholder" style="width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; border: 1px solid var(--color-primary-light); flex-shrink: 0;">
+                                <?= e(mb_substr($d['nombre'], 0, 1) . mb_substr($d['apellido'], 0, 1)) ?>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                                <div class="asig-atleta-row__name" style="font-size: 14px;"><?= e($d['nombre'] . ' ' . $d['apellido']) ?></div>
+                                <div style="font-size: 12px; color: var(--color-text-muted);">C.I: <?= e($d['cedula'] ?? '—') ?></div>
+                            </div>
+                        </div>
+
+                        <div class="asig-atleta-row__inputs asig-atleta-row__inputs--asistencia">
+                            <div class="asig-input-group">
+                                <span class="asig-input-label">Estado de Asistencia</span>
+                                <?php 
+                                    $status = match ((int)$d['estatus']) { 1 => 'Presente', 2 => 'Justificado', default => 'Ausente' };
+                                    $badge = match ((int)$d['estatus']) { 1 => 'success', 2 => 'warning', default => 'danger' };
+                                ?>
+                                <div>
+                                    <span class="badge badge-<?= $badge ?>" style="font-weight: 600; text-transform: uppercase; font-size: 11px; display: inline-block; align-self: flex-start; padding: 4px 10px; border-radius: 12px;">
+                                        <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; margin-right:6px; vertical-align: middle;"></span>
+                                        <?= e($status) ?>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="asig-input-group">
+                                <span class="asig-input-label">Observaciones</span>
+                                <span style="font-size: 13px; color: var(--color-text-muted);">
+                                    <?= e($d['observaciones'] ?? '—') ?>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="asig-atleta-row__actions">
+                            <a href="<?= e(url('/admin/atletas/' . $d['atleta_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Perfil Atleta" style="display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-user"></i> Ver Perfil
+                            </a>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
-            </tbody>
-        </table>
+            </div>
+        </div>
         <div id="detalles-pagination" style="display: flex; justify-content: center; margin-top: 24px; margin-bottom: 24px;"></div>
     </div>
 
@@ -88,6 +113,12 @@
                     <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); margin-bottom: 4px;">Ubicación</label>
                     <div style="font-weight: 500;"><?= e($actividad['ubicacion'] ?? '—') ?></div>
                 </div>
+                <?php if (isset($actividad['terreno']) && isset(TERRENO_TIPO[(int)$actividad['terreno']])): ?>
+                <div>
+                    <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); margin-bottom: 4px;">Terreno de Juego</label>
+                    <div style="font-weight: 500;"><?= e(TERRENO_TIPO[(int)$actividad['terreno']]) ?></div>
+                </div>
+                <?php endif; ?>
                 <?php if (isset($actividad['clima']) && isset(CLIMA_TIPO[(int)$actividad['clima']])): ?>
                 <div>
                     <label style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); margin-bottom: 4px;">Clima</label>

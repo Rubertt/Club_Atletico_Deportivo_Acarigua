@@ -1,22 +1,4 @@
-<?php /** @var array $items */ 
-if (!function_exists('formatDocumento')) {
-    function formatDocumento($cedula) {
-        if (empty($cedula)) {
-            return '—';
-        }
-        $cedula = trim($cedula);
-        if (preg_match('/^[VEPvep]-?\d+/', $cedula)) {
-            $prefix = strtoupper($cedula[0]);
-            $number = ltrim(substr($cedula, 1), '-');
-            return $prefix . '-' . $number;
-        }
-        if (ctype_digit($cedula)) {
-            return 'V-' . $cedula;
-        }
-        return $cedula;
-    }
-}
-?>
+<?php /** @var array $items */ ?>
 <div class="page-header">
     <div>
         <h1>Gestión de Usuarios</h1>
@@ -32,40 +14,42 @@ if (!function_exists('formatDocumento')) {
     </div>
 </div>
 
-<div class="data-table-wrap card" style="padding: 0; overflow-x: auto;">
-    <table class="data-table" style="margin: 0; border: none;">
-        <thead style="background: var(--color-bg-alt);">
-            <tr>
-                <th style="width: 60px; padding-left: 24px;"></th>
-                <th>Nombre Completo</th>
-                <th>Datos de Contacto</th>
-                <th>Rol / Cargo</th>
-                <th style="width: 140px; text-align: right; padding-right: 24px;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($items as $p): ?>
-            <tr>
-                <td style="padding-left: 24px;">
+<div class="responsive-table-wrap">
+    <div class="responsive-table-header" style="grid-template-columns: 2fr 1.8fr 1.2fr 1fr; padding-left: 24px; padding-right: 24px;">
+        <div>Usuario / Nombre Completo</div>
+        <div>Datos de Contacto</div>
+        <div>Rol / Cargo</div>
+        <div style="text-align: right;">Acciones</div>
+    </div>
+    <div class="responsive-table-body">
+    <?php foreach ($items as $p): ?>
+        <div class="responsive-table-row user-row" style="grid-template-columns: 2fr 1.8fr 1.2fr 1fr; padding-left: 24px; padding-right: 24px;">
+            <div class="responsive-row-col">
+                <span class="responsive-col-label">Usuario</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
                     <?php if (!empty($p['foto'])): ?>
-                        <img src="<?= e(url($p['foto'])) ?>" class="avatar-thumb" alt="" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?= e(url($p['foto'])) ?>" class="avatar-thumb" alt="" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                     <?php else: ?>
-                        <div class="avatar-placeholder" style="width: 44px; height: 44px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                        <div class="avatar-placeholder" style="width: 44px; height: 44px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0;">
                             <?= e(mb_substr($p['nombre'], 0, 1) . mb_substr($p['apellido'], 0, 1)) ?>
                         </div>
                     <?php endif; ?>
-                </td>
-                <td>
-                    <div style="font-weight: 600; font-size: 15px; color: var(--color-text);"><?= e($p['nombre'] . ' ' . $p['apellido']) ?></div>
-                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;"><?= e(formatDocumento($p['cedula'] ?? '')) ?></div>
-                </td>
-                <td>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-size: 13px; color: var(--color-text);"><i class="ph ph-phone text-muted"></i> <?= e($p['telefono']) ?></span>
-                        <span style="font-size: 13px; color: var(--color-text-muted);"><i class="ph ph-envelope text-muted"></i> <?= e($p['correo'] ?? 'Sin correo') ?></span>
+                    <div>
+                        <div style="font-weight: 600; font-size: 15px; color: var(--color-text);"><?= e($p['nombre'] . ' ' . $p['apellido']) ?></div>
+                        <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;"><?= !empty($p['cedula_formateada']) ? e($p['cedula_formateada']) : '—' ?></div>
                     </div>
-                </td>
-                <td>
+                </div>
+            </div>
+            <div class="responsive-row-col">
+                <span class="responsive-col-label">Datos de Contacto</span>
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <span style="font-size: 13px; color: var(--color-text);"><i class="ph ph-phone text-muted"></i> <?= e($p['telefono']) ?></span>
+                    <span style="font-size: 13px; color: var(--color-text-muted);"><i class="ph ph-envelope text-muted"></i> <?= e($p['correo'] ?? 'Sin correo') ?></span>
+                </div>
+            </div>
+            <div class="responsive-row-col">
+                <span class="responsive-col-label">Rol / Cargo</span>
+                <div>
                     <?php 
                         $badgeColor = match (strtolower($p['nombre_rol'] ?? '')) {
                             'entrenador' => 'primary',
@@ -78,39 +62,40 @@ if (!function_exists('formatDocumento')) {
                     <span class="badge badge-<?= $badgeColor ?>" style="padding: 6px 12px; border-radius: 20px;">
                         <?= e($p['nombre_rol'] ?? 'Sin Rol') ?>
                     </span>
-                </td>
-                <td style="text-align: right; padding-right: 24px;">
-                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                        <a href="<?= e(url("/admin/usuarios/{$p['usuario_id']}/perfil")) ?>" class="btn btn-sm btn-outline" title="Ver Perfil">
-                            <i class="ph ph-eye"></i>
-                        </a>
-                        <form method="POST" action="<?= e(url("/admin/usuarios/{$p['usuario_id']}/restablecer")) ?>" style="display:inline;" class="form-restablecer-usuario">
-                            <?= csrf_field() ?>
-                            <button type="button" class="btn btn-sm btn-outline btn-restablecer-usuario" style="color: var(--color-warning);" title="Restablecer Credenciales">
-                                <i class="ph ph-key"></i>
-                            </button>
-                        </form>
-                        <form method="POST" action="<?= e(url("/admin/usuarios/{$p['usuario_id']}/eliminar")) ?>" style="display:inline;" class="form-eliminar-usuario">
-                            <?= csrf_field() ?>
-                            <button type="button" class="btn btn-sm btn-ghost btn-eliminar-usuario" style="color: var(--color-danger);" title="Eliminar">
-                                <i class="ph ph-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        <?php if (empty($items)): ?>
-            <tr>
-                <td colspan="5" style="padding: 64px 24px; text-align: center;">
-                    <i class="ph ph-users-three text-muted" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
-                    <h3 class="text-muted" style="margin: 0 0 8px;">No hay usuarios registrados</h3>
-                    <p class="text-muted" style="font-size: 14px; max-width: 400px; margin: 0 auto;">Registra a entrenadores y personal administrativo aquí.</p>
-                </td>
-            </tr>
-        <?php endif; ?>
-        </tbody>
-    </table>
+                </div>
+            </div>
+            <div class="responsive-row-col" style="text-align: right;">
+                <span class="responsive-col-label" style="text-align: right;">Acciones</span>
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <a href="<?= e(url("/admin/usuarios/{$p['usuario_id']}/perfil")) ?>" class="btn btn-sm btn-outline" title="Ver Perfil">
+                        <i class="ph ph-eye"></i>
+                    </a>
+                    <form method="POST" action="<?= e(url("/admin/usuarios/{$p['usuario_id']}/restablecer")) ?>" style="display:inline;" class="form-restablecer-usuario">
+                        <?= csrf_field() ?>
+                        <button type="button" class="btn btn-sm btn-outline btn-restablecer-usuario" style="color: var(--color-warning);" title="Restablecer Credenciales">
+                            <i class="ph ph-key"></i>
+                        </button>
+                    </form>
+                    <form method="POST" action="<?= e(url("/admin/usuarios/{$p['usuario_id']}/eliminar")) ?>" style="display:inline;" class="form-eliminar-usuario">
+                        <?= csrf_field() ?>
+                        <button type="button" class="btn btn-sm btn-ghost btn-eliminar-usuario" style="color: var(--color-danger);" title="Eliminar">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    <?php if (empty($items)): ?>
+        <div class="responsive-table-row no-results-row" style="grid-template-columns: 1fr; justify-content: center; text-align: center; padding: 64px 24px;">
+            <div class="text-center text-muted">
+                <i class="ph ph-users-three text-muted" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
+                <h3 class="text-muted" style="margin: 0 0 8px;">No hay usuarios registrados</h3>
+                <p class="text-muted" style="font-size: 14px; max-width: 400px; margin: 0 auto;">Registra a entrenadores y personal administrativo aquí.</p>
+            </div>
+        </div>
+    <?php endif; ?>
+    </div>
 </div>
 
 <script>
@@ -149,14 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Paginación ---
     const rowsPerPage = 10;
-    const dataTableWrap = document.querySelector('.data-table-wrap');
-    const tableBody = document.querySelector('.data-table tbody');
+    const dataTableWrap = document.querySelector('.responsive-table-wrap');
+    const tableBody = document.querySelector('.responsive-table-body');
     
     if (tableBody && dataTableWrap) {
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        const rows = Array.from(tableBody.querySelectorAll('.responsive-table-row'));
         
         // Solo paginar si hay más de 10 usuarios y no es la fila de "sin registros"
-        if (rows.length > rowsPerPage && !rows[0].querySelector('td[colspan]')) {
+        if (rows.length > rowsPerPage && !rows[0].classList.contains('no-results-row')) {
             const totalPages = Math.ceil(rows.length / rowsPerPage);
             let currentPage = 1;
 

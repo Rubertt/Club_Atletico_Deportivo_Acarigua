@@ -23,7 +23,7 @@ final class Usuario extends Model
      */
     public function allWithRol(): array
     {
-        return $this->query(
+        $rows = $this->query(
             'SELECT u.usuario_id, u.correo, u.nombre, u.apellido, u.cedula,
                     u.telefono, u.estatus, u.foto, u.ultimo_acceso, u.creado_en,
                     r.nombre_rol, u.rol_id
@@ -31,6 +31,10 @@ final class Usuario extends Model
              JOIN roles_usuarios r ON r.rol_id = u.rol_id
              ORDER BY u.apellido, u.nombre'
         );
+        foreach ($rows as &$row) {
+            $row['cedula_formateada'] = format_cedula($row['cedula'] ?? '');
+        }
+        return $rows;
     }
 
     /**
@@ -86,7 +90,11 @@ final class Usuario extends Model
             WHERE u.usuario_id = :id
             LIMIT 1
         ";
-        return $this->queryOne($sql, [':id' => $id]);
+        $row = $this->queryOne($sql, [':id' => $id]);
+        if ($row) {
+            $row['cedula_formateada'] = format_cedula($row['cedula'] ?? '');
+        }
+        return $row;
     }
 
     /**

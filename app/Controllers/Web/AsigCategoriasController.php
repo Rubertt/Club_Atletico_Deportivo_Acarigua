@@ -293,8 +293,8 @@ final class AsigCategoriasController extends Controller
 
         try {
             $asigModel->update($asignacionId, [
-                'posicion_principal_id' => $request->input('posicion_principal_id') !== '' ? (int) $request->input('posicion_principal_id') : null,
-                'posicion_secundaria_id' => $request->input('posicion_secundaria_id') !== '' ? (int) $request->input('posicion_secundaria_id') : null,
+                'posicion_principal_id' => ($request->input('posicion_principal_id') !== null && $request->input('posicion_principal_id') !== '') ? (int) $request->input('posicion_principal_id') : null,
+                'posicion_secundaria_id' => ($request->input('posicion_secundaria_id') !== null && $request->input('posicion_secundaria_id') !== '') ? (int) $request->input('posicion_secundaria_id') : null,
                 'nun_dorsal' => $dorsalVal,
             ]);
             if ($request->isAjax() || $request->isJson()) {

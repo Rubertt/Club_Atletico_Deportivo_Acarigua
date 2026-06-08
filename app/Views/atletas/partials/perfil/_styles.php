@@ -208,4 +208,76 @@
     html.dark .dorsal-circle {
         color: #ffffff; /* Blanco en modo oscuro */
     }
+
+    /* —— Tablas Responsivas en Perfil (Patrón Flex/Grid) —— */
+    .perfil-table-wrap {
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .perfil-table-header {
+        display: grid;
+        gap: 16px;
+        padding: 12px 20px;
+        background: var(--color-surface-2);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
+        align-items: center;
+    }
+
+    .perfil-table-row {
+        display: grid;
+        gap: 16px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--color-border);
+        align-items: center;
+        transition: background 0.2s;
+        background: var(--color-surface);
+    }
+
+    .perfil-table-row:hover {
+        background: var(--color-bg-alt);
+    }
+
+    .perfil-table-row:last-child {
+        border-bottom: 0;
+    }
+
+    .perfil-row-col {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .perfil-col-label {
+        display: none;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .perfil-table-header {
+            display: none !important;
+        }
+        
+        .perfil-table-row {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            padding: 16px !important;
+        }
+        
+        .perfil-col-label {
+            display: block;
+        }
+    }
 </style>

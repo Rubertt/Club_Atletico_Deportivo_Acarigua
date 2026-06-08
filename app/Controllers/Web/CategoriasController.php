@@ -20,6 +20,14 @@ final class CategoriasController extends Controller
             'entrenador_id' => trim((string) $request->input('entrenador_id', '')),
         ];
 
+        if ($request->query('ajax') || $request->input('ajax')) {
+            return Response::html($this->renderView('categorias.index', [
+                'items' => (new Categoria())->allWithEntrenador($filters),
+                'filters' => $filters,
+                'entrenadores' => (new Usuario())->coordinadoresCategorias(),
+            ]));
+        }
+
         return $this->view('categorias.index', [
             'title' => 'Categorías',
             'active' => 'categorias',
@@ -68,7 +76,7 @@ final class CategoriasController extends Controller
             'edad_min'         => 'La edad mínima es obligatoria y debe ser de al menos 6 años.',
             'edad_max'         => 'La edad máxima es obligatoria y debe ser de al menos 6 años.',
             'sexo_categoria'   => 'El género de la categoría es obligatorio.',
-            'usuario_id'       => 'El enlistador es obligatorio.',
+            'usuario_id'       => 'El entrenador es obligatorio.',
             'estatus'          => 'El estatus es obligatorio.',
         ]);
         if (!$v->validate()) {
@@ -83,7 +91,7 @@ final class CategoriasController extends Controller
         $entrenador = (new Usuario())->find((int) $data['usuario_id']);
         $rolId = $entrenador ? (int) $entrenador['rol_id'] : 0;
         if (!$entrenador || ($rolId !== ROL_ENTRENADOR && $rolId !== ROL_DIRECTIVO)) {
-            $this->withOld($data)->withErrors(['usuario_id' => 'El enlistador seleccionado no es válido o no posee el rol requerido.']);
+            $this->withOld($data)->withErrors(['usuario_id' => 'El entrenador seleccionado no es válido o no posee el rol requerido.']);
             return $this->redirect('/admin/categorias/crear');
         }
 
@@ -182,7 +190,7 @@ final class CategoriasController extends Controller
             'edad_min'         => 'La edad mínima es obligatoria y debe ser de al menos 6 años.',
             'edad_max'         => 'La edad máxima es obligatoria y debe ser de al menos 6 años.',
             'sexo_categoria'   => 'El género de la categoría es obligatorio.',
-            'usuario_id'       => 'El enlistador es obligatorio.',
+            'usuario_id'       => 'El entrenador es obligatorio.',
             'estatus'          => 'El estatus es obligatorio.',
         ]);
         if (!$v->validate()) {
@@ -197,7 +205,7 @@ final class CategoriasController extends Controller
         $entrenador = (new Usuario())->find((int) $data['usuario_id']);
         $rolId = $entrenador ? (int) $entrenador['rol_id'] : 0;
         if (!$entrenador || ($rolId !== ROL_ENTRENADOR && $rolId !== ROL_DIRECTIVO)) {
-            $this->withOld($data)->withErrors(['usuario_id' => 'El enlistador seleccionado no es válido o no posee el rol de entrenador o directivo.']);
+            $this->withOld($data)->withErrors(['usuario_id' => 'El entrenador seleccionado no es válido o no posee el rol de entrenador o directivo.']);
             return $this->redirect("/admin/categorias/$id/editar");
         }
 

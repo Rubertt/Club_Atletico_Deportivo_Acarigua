@@ -167,9 +167,6 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
             <div class="af-footer" style="justify-content: flex-end;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Guardar Cambios</button>
-                    <button type="button" class="btn-help js-btn-help-perfil" title="¿Cómo actualizar mi perfil?" style="width: 38px; height: 38px;">
-                        <i class="ph ph-question"></i>
-                    </button>
                 </div>
             </div>
         </form>
@@ -272,9 +269,6 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
             <div class="af-footer" style="justify-content: flex-end;">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <button type="submit" class="btn btn-primary"><i class="ph ph-shield-check"></i> Guardar Seguridad</button>
-                    <button type="button" class="btn-help js-btn-help-perfil" title="¿Cómo actualizar mi perfil?" style="width: 38px; height: 38px;">
-                        <i class="ph ph-question"></i>
-                    </button>
                 </div>
             </div>
         </form>
@@ -283,15 +277,6 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ── Botón de ayuda [?] ──
-    document.querySelectorAll('.js-btn-help-perfil').forEach(btn => {
-        btn.addEventListener('click', () => {
-            FormValidator.showHelp(
-                'Guía: Mi Perfil',
-                '<?= e(asset("img/ayuda/formulario_perfil.png")) ?>'
-            );
-        });
-    });
 
     // ── Tabs ──
     const urlParams = new URLSearchParams(window.location.search);

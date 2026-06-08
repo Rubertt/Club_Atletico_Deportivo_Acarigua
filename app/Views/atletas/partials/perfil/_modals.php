@@ -108,6 +108,7 @@
                     <label class="form-label" data-tooltip="Estado actual del atleta en el club (activo, suspendido o inactivo)." data-tooltip-pos="top">Estatus</label>
                     <select name="estatus" class="form-control">
                         <?php foreach (ESTATUS_ATLETA as $val => $lbl): ?>
+                            <?php if ($val === 2) continue; // Lesionado se maneja automáticamente por consulta médica ?>
                             <option value="<?= $val ?>" <?= (int) $atleta['estatus'] === $val ? 'selected' : '' ?>>
                                 <?= e($lbl) ?></option>
                         <?php endforeach; ?>
@@ -149,9 +150,6 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
             <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar Cambios</button>
-            <button type="button" class="btn-help" id="btn-help-basico" title="¿Cómo llenar esta sección?">
-                <i class="ph ph-question"></i>
-            </button>
         </div>
     </form>
 </div>
@@ -309,10 +307,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar</button>
-            <button type="button" class="btn-help" id="btn-help-representante" title="¿Cómo llenar esta sección?">
-                <i class="ph ph-question"></i>
-            </button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar cambios</button>
         </div>
     </form>
 </div>
@@ -380,10 +375,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar</button>
-            <button type="button" class="btn-help" id="btn-help-direccion" title="¿Cómo llenar esta sección?">
-                <i class="ph ph-question"></i>
-            </button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar cambios</button>
         </div>
     </form>
 </div>
