@@ -98,6 +98,8 @@
     </div>
 </div>
 
+<div id="usuarios-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // Confirmar eliminación de usuario
@@ -133,64 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Paginación ---
-    const rowsPerPage = 10;
-    const dataTableWrap = document.querySelector('.responsive-table-wrap');
-    const tableBody = document.querySelector('.responsive-table-body');
-    
-    if (tableBody && dataTableWrap) {
-        const rows = Array.from(tableBody.querySelectorAll('.responsive-table-row'));
-        
-        // Solo paginar si hay más de 10 usuarios y no es la fila de "sin registros"
-        if (rows.length > rowsPerPage && !rows[0].classList.contains('no-results-row')) {
-            const totalPages = Math.ceil(rows.length / rowsPerPage);
-            let currentPage = 1;
-
-            const paginationWrap = document.createElement('div');
-            paginationWrap.style.display = 'flex';
-            paginationWrap.style.justifyContent = 'center';
-            paginationWrap.style.marginTop = '24px';
-            
-            const ul = document.createElement('ul');
-            ul.className = 'pagination';
-            paginationWrap.appendChild(ul);
-            
-            dataTableWrap.parentNode.insertBefore(paginationWrap, dataTableWrap.nextSibling);
-
-            function showPage(page) {
-                currentPage = page;
-                
-                rows.forEach(r => r.style.display = 'none');
-                
-                const start = (page - 1) * rowsPerPage;
-                const end = start + rowsPerPage;
-                rows.slice(start, end).forEach(r => r.style.display = '');
-
-                ul.innerHTML = '';
-                
-                for (let i = 1; i <= totalPages; i++) {
-                    const li = document.createElement('li');
-                    if (i === page) li.className = 'active';
-                    
-                    if (i === page) {
-                        const span = document.createElement('span');
-                        span.textContent = i;
-                        li.appendChild(span);
-                    } else {
-                        const a = document.createElement('a');
-                        a.href = '#';
-                        a.textContent = i;
-                        a.onclick = (e) => {
-                            e.preventDefault();
-                            showPage(i);
-                        };
-                        li.appendChild(a);
-                    }
-                    ul.appendChild(li);
-                }
-            }
-
-            showPage(1);
-        }
-    }
+    CadaPagination({
+        rowSelector: '.user-row',
+        containerId: 'usuarios-pagination'
+    });
 });
 </script>

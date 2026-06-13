@@ -15,7 +15,7 @@
                     <!-- ECharts renders here -->
                 </div>
 
-                <div class="perfil-table-wrap">
+                <div class="perfil-table-wrap" id="tabla-antropometria">
                     <?php 
                         $hasActions = can('admin') || can('entrenador');
                         $gridCols = $hasActions ? '1.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1.8fr 1fr' : '1.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1.8fr';

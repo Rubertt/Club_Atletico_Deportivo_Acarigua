@@ -33,7 +33,8 @@ final class AtletasController extends Controller
         ];
         $page = max(1, (int) $request->query('page', 1));
         $atletaModel = new Atleta();
-        $data = $atletaModel->paginate(array_filter($filters, fn($v) => $v !== null && $v !== ''), $page, 15);
+        $perPage = (int) config_db('filas_por_pagina', 15);
+        $data = $atletaModel->paginate(array_filter($filters, fn($v) => $v !== null && $v !== ''), $page, $perPage);
 
         // Calcular conteos reales para las tarjetas
         $countsRaw = $atletaModel->countByEstatus();

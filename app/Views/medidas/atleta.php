@@ -112,7 +112,7 @@
                 </thead>
                 <tbody>
                     <?php foreach ($historial as $m): ?>
-                    <tr>
+                    <tr class="medida-row">
                         <td style="padding-left: 24px;">
                             <div style="font-weight: 600;"><?= e(date('d/m/Y', strtotime($m['fecha_medicion']))) ?></div>
                         </td>
@@ -141,6 +141,7 @@
                 </tbody>
             </table>
         </div>
+        <div id="medidas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
     </div>
 </div>
 
@@ -248,3 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    CadaPagination({
+        rowSelector: '.medida-row',
+        containerId: 'medidas-pagination'
+    });
+});
+</script>

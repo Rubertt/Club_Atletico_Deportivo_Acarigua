@@ -42,6 +42,16 @@
                     Mínimo 5 minutos · Máximo 480 minutos (8 horas).
                 </p>
             </div>
+
+            <div class="form-group" style="margin-top: 20px; border-top: 1px dashed var(--color-border); padding-top: 20px;">
+                <label class="form-label" for="filas_por_pagina" data-tooltip="Cantidad de filas/tarjetas que se muestran por página en las listas del sistema antes de aparecer el pasador de páginas." data-tooltip-pos="top"><span class="required">*</span> Filas por página en tablas</label>
+                <input type="number" name="filas_por_pagina" id="filas_por_pagina" class="form-control" 
+                       value="<?= e($configs['filas_por_pagina'] ?? '15') ?>" required min="5" max="100"
+                       data-label="Filas por página">
+                <p class="form-help" style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
+                    Mínimo 5 filas · Máximo 100 filas.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -194,6 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     errors.push({
                         label: 'El tiempo de sesión debe estar entre 5 y 480 minutos.',
                         element: tiempoInput
+                    });
+                }
+            }
+            const filasInput = document.getElementById('filas_por_pagina');
+            if (filasInput) {
+                const val = parseInt(filasInput.value);
+                if (isNaN(val) || val < 5 || val > 100) {
+                    errors.push({
+                        label: 'La cantidad de filas por página debe estar entre 5 y 100.',
+                        element: filasInput
                     });
                 }
             }

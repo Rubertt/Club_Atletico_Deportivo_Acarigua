@@ -158,49 +158,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const rowsPerPage = 15;
-    const rows = Array.from(document.querySelectorAll('.detalle-row'));
-    const totalCount = rows.length;
-
-    if (totalCount > rowsPerPage) {
-        const totalPages = Math.ceil(totalCount / rowsPerPage);
-        const container = document.getElementById('detalles-pagination');
-
-        function showPage(page) {
-            rows.forEach(r => r.style.display = 'none');
-            const start = (page - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            rows.slice(start, end).forEach(r => r.style.display = '');
-
-            if (container) {
-                container.innerHTML = '';
-                const ul = document.createElement('ul');
-                ul.className = 'pagination';
-
-                for (let i = 1; i <= totalPages; i++) {
-                    const li = document.createElement('li');
-                    if (i === page) {
-                        li.className = 'active';
-                        const span = document.createElement('span');
-                        span.textContent = i;
-                        li.appendChild(span);
-                    } else {
-                        const a = document.createElement('a');
-                        a.href = '#';
-                        a.textContent = i;
-                        a.onclick = (e) => {
-                            e.preventDefault();
-                            showPage(i);
-                        };
-                        li.appendChild(a);
-                    }
-                    ul.appendChild(li);
-                }
-                container.appendChild(ul);
-            }
-        }
-
-        showPage(1);
-    }
+    CadaPagination({
+        rowSelector: '.detalle-row',
+        containerId: 'detalles-pagination'
+    });
 });
 </script>

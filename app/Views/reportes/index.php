@@ -399,7 +399,7 @@ const $filterEstAtleta = document.getElementById('filter-estatus-atleta');
 const $rowsAtletas = document.querySelectorAll('.atleta-row');
 const $noAtletasSearch = document.getElementById('no-atletas-search');
 
-const rowsPerPage = 15;
+const rowsPerPage = window.ROWS_PER_PAGE || 15;
 let currentAtletasPage = 1;
 
 function filterAtletas() {
@@ -522,25 +522,90 @@ function renderPagination(containerId, currentPage, totalPages, onPageChange) {
     const ul = document.createElement('ul');
     ul.className = 'pagination';
 
+    // << First page
+    const liFirst = document.createElement('li');
+    if (currentPage === 1) {
+        liFirst.className = 'disabled';
+        liFirst.innerHTML = '<span><i class="ph ph-caret-double-left"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-double-left"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(1); };
+        liFirst.appendChild(a);
+    }
+    ul.appendChild(liFirst);
+
+    // < Prev page
+    const liPrev = document.createElement('li');
+    if (currentPage === 1) {
+        liPrev.className = 'disabled';
+        liPrev.innerHTML = '<span><i class="ph ph-caret-left"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-left"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(currentPage - 1); };
+        liPrev.appendChild(a);
+    }
+    ul.appendChild(liPrev);
+
+    // Sliding window pages
+    const range = 1;
+    const pages = [];
     for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - range && i <= currentPage + range)) {
+            pages.push(i);
+        } else if (pages[pages.length - 1] !== '...') {
+            pages.push('...');
+        }
+    }
+
+    pages.forEach(p => {
         const li = document.createElement('li');
-        if (i === currentPage) {
+        if (p === '...') {
+            li.className = 'disabled';
+            li.innerHTML = '<span>...</span>';
+        } else if (p === currentPage) {
             li.className = 'active';
-            const span = document.createElement('span');
-            span.textContent = i;
-            li.appendChild(span);
+            li.innerHTML = `<span>${p}</span>`;
         } else {
             const a = document.createElement('a');
             a.href = '#';
-            a.textContent = i;
-            a.onclick = (e) => {
-                e.preventDefault();
-                onPageChange(i);
-            };
+            a.textContent = p;
+            a.onclick = (e) => { e.preventDefault(); onPageChange(p); };
             li.appendChild(a);
         }
         ul.appendChild(li);
+    });
+
+    // > Next page
+    const liNext = document.createElement('li');
+    if (currentPage === totalPages) {
+        liNext.className = 'disabled';
+        liNext.innerHTML = '<span><i class="ph ph-caret-right"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-right"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(currentPage + 1); };
+        liNext.appendChild(a);
     }
+    ul.appendChild(liNext);
+
+    // >> Last page
+    const liLast = document.createElement('li');
+    if (currentPage === totalPages) {
+        liLast.className = 'disabled';
+        liLast.innerHTML = '<span><i class="ph ph-caret-double-right"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-double-right"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(totalPages); };
+        liLast.appendChild(a);
+    }
+    ul.appendChild(liLast);
 
     container.appendChild(ul);
 }

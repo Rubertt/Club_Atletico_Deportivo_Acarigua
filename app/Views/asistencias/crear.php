@@ -81,6 +81,7 @@
                 </div>
             </div>
             <div id="atletas-list-wrap" style="overflow: hidden;"></div>
+            <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
         </div>
 
         <div class="form-actions-btn-group" style="margin-top: 24px;">
@@ -249,6 +250,11 @@
                     this.classList.add('active');
                     wrap.querySelector('.status-val').value = this.dataset.val;
                 });
+            });
+
+            CadaPagination({
+                rowSelector: '.asistencia-row',
+                containerId: 'atletas-pagination'
             });
 
         } catch (e) {

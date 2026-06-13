@@ -122,6 +122,8 @@
             <?php endforeach; endif; ?>
         </div>
 
+        <div id="asig-atleta-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
+
         <div class="form-actions-btn-group" style="background: var(--color-surface); padding: 24px 32px; border-top: 1px solid var(--color-border);">
             <a href="<?= e(url('/admin/categorias/' . $categoria['categoria_id'] . '/detalles')) ?>" class="btn btn-ghost">Cancelar</a>
             <button type="submit" class="btn btn-primary" id="btn-submit-asignacion" disabled>
@@ -298,6 +300,11 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
         }
+    });
+
+    CadaPagination({
+        rowSelector: '.asig-atleta-row',
+        containerId: 'asig-atleta-pagination'
     });
 });
 </script>

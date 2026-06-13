@@ -153,6 +153,7 @@
                     </div>
                 <?php endforeach; ?>
             </div>
+            <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
         </div>
     </div>
 
@@ -365,6 +366,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = document.getElementById('btn-save');
         btn.disabled = true;
         btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando Asistencia...';
+    });
+
+    CadaPagination({
+        rowSelector: '.detalle-row',
+        containerId: 'atletas-pagination'
     });
 });
 </script>

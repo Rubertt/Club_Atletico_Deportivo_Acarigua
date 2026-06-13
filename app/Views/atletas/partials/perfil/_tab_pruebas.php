@@ -191,7 +191,7 @@
                         <strong>Leyenda:</strong> <span style="color: var(--color-primary);">I</span>: Intl. (Élite) | <span style="color: var(--color-primary); opacity: 0.7;">N</span>: Nac. (FUTVE)
                     </span>
                 </div>
-                <div class="perfil-table-wrap">
+                <div class="perfil-table-wrap" id="tabla-pruebas">
                     <div class="perfil-table-header" style="grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1.5fr 1.5fr;">
                         <div>Fecha</div>
                         <div>Fuerza (CMJ)</div>

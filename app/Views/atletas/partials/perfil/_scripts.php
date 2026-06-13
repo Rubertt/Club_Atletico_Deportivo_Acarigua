@@ -1379,12 +1379,19 @@
         function paginateTable(tableId, rowsPerPage = 5) {
             const table = document.getElementById(tableId);
             if (!table) return;
-            const tbody = table.querySelector('tbody');
-            if (!tbody) return;
-            const rows = Array.from(tbody.querySelectorAll('tr'));
             
-            // Si la tabla dice "No hay registros", ignora
-            if (rows.length <= 1 && rows[0] && rows[0].innerText.includes('No hay')) return;
+            let rows = [];
+            const tbody = table.querySelector('tbody');
+            if (tbody) {
+                rows = Array.from(tbody.querySelectorAll('tr'));
+            } else {
+                rows = Array.from(table.querySelectorAll('.perfil-table-row'));
+            }
+            
+            if (!rows || rows.length === 0) return;
+            
+            // Si la tabla o el listado de divs dice "No hay registros" o similar, ignora
+            if (rows.length === 1 && rows[0] && (rows[0].innerText.includes('No hay') || rows[0].innerText.includes('registradas') || rows[0].innerText.includes('registradas aún'))) return;
 
             let currentPage = 1;
             const totalPages = Math.ceil(rows.length / rowsPerPage);
@@ -2201,6 +2208,8 @@
         paginateTable('tabla-asistencias', 5);
         paginateTable('tabla-antropometria', 5);
         paginateTable('tabla-pruebas', 5);
+        paginateTable('tabla-consultas', 5);
+        paginateTable('tabla-discapacidades', 5);
 
         // —— Botones de Ayuda en Modales [?] ———————————————————————————————————————————
         document.getElementById('btn-help-basico')?.addEventListener('click', () => {

@@ -115,7 +115,7 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
             <?php endif; ?>
         </div>
     <?php else: foreach ($items as $c): ?>
-        <div class="card" style="margin: 0; padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s;">
+        <div class="card categoria-card" style="margin: 0; padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s;">
             <!-- Header Card -->
             <div style="padding: 24px; border-bottom: 1px solid var(--color-border); position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -213,6 +213,8 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
         </div>
     <?php endforeach; endif; ?>
 </div>
+
+<div id="categorias-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
 
 <style>
 .card:hover {
@@ -427,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 bindDeleteButtons();
+                initPagination();
             })
             .catch(err => console.error('Error al filtrar:', err));
         };
@@ -444,6 +447,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         form.addEventListener('submit', (e) => e.preventDefault());
+    }
+
+    function initPagination() {
+        CadaPagination({
+            rowSelector: '.categoria-card',
+            containerId: 'categorias-pagination'
+        });
     }
 
     function bindDeleteButtons() {
@@ -477,5 +487,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     bindDeleteButtons();
+    initPagination();
 });
 </script>

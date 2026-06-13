@@ -184,19 +184,65 @@
 
 
 <div class="pagination-wrap">
-<?php if (($pag['last_page'] ?? 1) > 1): ?>
+<?php
+$currentPage = (int) ($pag['page'] ?? 1);
+$totalPages = (int) ($pag['last_page'] ?? 1);
+if ($totalPages > 1):
+    $range = 1;
+    $pagesToShow = [];
+    for ($i = 1; $i <= $totalPages; $i++) {
+        if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
+            $pagesToShow[] = $i;
+        } else if (empty($pagesToShow) || end($pagesToShow) !== '...') {
+            $pagesToShow[] = '...';
+        }
+    }
+?>
     <div style="display: flex; justify-content: center; margin-top: 24px;">
         <ul class="pagination">
-            <?php for ($p = 1; $p <= $pag['last_page']; $p++):
-                $qs = array_filter(array_merge($filters, ['page' => $p]), fn($v) => $v !== null && $v !== ''); ?>
-                <li class="<?= $p === (int) $pag['page'] ? 'active' : '' ?>">
-                    <?php if ($p === (int) $pag['page']): ?>
-                        <span><?= $p ?></span>
-                    <?php else: ?>
-                        <a href="<?= e(url('/admin/atletas?' . http_build_query($qs))) ?>"><?= $p ?></a>
-                    <?php endif; ?>
-                </li>
-            <?php endfor; ?>
+            <!-- Botón << (Primero) -->
+            <?php if ($currentPage === 1): ?>
+                <li class="disabled"><span><i class="ph ph-caret-double-left"></i></span></li>
+            <?php else: 
+                $qsFirst = array_filter(array_merge($filters, ['page' => 1]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsFirst))) ?>"><i class="ph ph-caret-double-left"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Botón < (Anterior) -->
+            <?php if ($currentPage === 1): ?>
+                <li class="disabled"><span><i class="ph ph-caret-left"></i></span></li>
+            <?php else: 
+                $qsPrev = array_filter(array_merge($filters, ['page' => $currentPage - 1]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsPrev))) ?>"><i class="ph ph-caret-left"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Números de Página -->
+            <?php foreach ($pagesToShow as $p): ?>
+                <?php if ($p === '...'): ?>
+                    <li class="disabled"><span>...</span></li>
+                <?php elseif ($p === $currentPage): ?>
+                    <li class="active"><span><?= $p ?></span></li>
+                <?php else: 
+                    $qsPage = array_filter(array_merge($filters, ['page' => $p]), fn($v) => $v !== null && $v !== ''); ?>
+                    <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsPage))) ?>"><?= $p ?></a></li>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <!-- Botón > (Siguiente) -->
+            <?php if ($currentPage === $totalPages): ?>
+                <li class="disabled"><span><i class="ph ph-caret-right"></i></span></li>
+            <?php else: 
+                $qsNext = array_filter(array_merge($filters, ['page' => $currentPage + 1]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsNext))) ?>"><i class="ph ph-caret-right"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Botón >> (Último) -->
+            <?php if ($currentPage === $totalPages): ?>
+                <li class="disabled"><span><i class="ph ph-caret-double-right"></i></span></li>
+            <?php else: 
+                $qsLast = array_filter(array_merge($filters, ['page' => $totalPages]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsLast))) ?>"><i class="ph ph-caret-double-right"></i></a></li>
+            <?php endif; ?>
         </ul>
     </div>
 <?php endif; ?>

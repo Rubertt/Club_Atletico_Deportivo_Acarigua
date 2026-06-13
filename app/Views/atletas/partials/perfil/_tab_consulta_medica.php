@@ -32,7 +32,7 @@
             <p style="color: var(--color-text-muted); margin-top: 12px; margin-bottom: 16px;">No se han registrado consultas médicas para este atleta.</p>
         </div>
     <?php else: ?>
-        <div class="perfil-table-wrap">
+        <div class="perfil-table-wrap" id="tabla-consultas">
             <div class="perfil-table-header" style="grid-template-columns: 1.5fr 2fr 1.2fr 1.2fr 1.2fr 1.5fr 1fr;">
                 <div>Tipo de Consulta</div>
                 <div>Diagnóstico</div>

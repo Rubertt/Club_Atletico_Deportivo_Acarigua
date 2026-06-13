@@ -75,7 +75,7 @@
             </div>
         </div>
         
-        <div class="pruebas-container-wrap" style="max-height: 600px; overflow-y: auto;">
+        <div class="pruebas-container-wrap">
             <!-- Cabecera de Escritorio -->
             <div class="prueba-headers-desktop" style="display: flex; align-items: center; padding: 12px 20px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); font-size: 12px; font-weight: 600; color: var(--color-text-muted); position: sticky; top: 0; z-index: 10; gap: 16px;">
                 <div style="width: 280px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
@@ -158,6 +158,7 @@
                     </div>
                 <?php endforeach; ?>
             </div>
+            <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
         </div>
     </div>
 
@@ -297,6 +298,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
             btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando...';
         }
+    });
+
+    CadaPagination({
+        rowSelector: '.prueba-row',
+        containerId: 'atletas-pagination'
     });
 });
 </script>

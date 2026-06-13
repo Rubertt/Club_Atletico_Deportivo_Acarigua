@@ -141,7 +141,8 @@ INSERT INTO `configuraciones` (`configuracion_id`, `clave`, `valor`, `descripcio
 (6, 'facebook_url', 'https://www.facebook.com/p/CLUB-atl%C3%A9tico-Deportivo-acarigua-100086449924024/', 'Enlace al perfil de Facebook', '2026-05-24 04:05:37'),
 (7, 'instagram_url', 'https://www.instagram.com/deportivoacarigua_oficial/', 'Enlace al perfil de Instagram', '2026-05-24 04:13:45'),
 (8, 'telefono_whatsapp', '+584121556442', 'Número de contacto con WhatsApp', '2026-05-24 04:14:47'),
-(9, 'requisitos_inscripcion', 'Requisitos para la inscripción:\r\n- Mínimo 6 años de edad.\r\n- Copia de cédula del representante.\r\n- Copia de cédula del niño o partida de nacimiento si no tiene cédula.\r\n- Carta de residencia.\r\n- 5$ la inscripción al BCV.\r\n\r\n\r\nHorario de entrenamiento: Lunes a Viernes de 4:00 PM a 6:00 PM.', 'Requisitos para la inscripción de atletas', '2026-05-24 04:15:35');
+(9, 'requisitos_inscripcion', 'Requisitos para la inscripción:\r\n- Mínimo 6 años de edad.\r\n- Copia de cédula del representante.\r\n- Copia de cédula del niño o partida de nacimiento si no tiene cédula.\r\n- Carta de residencia.\r\n- 5$ la inscripción al BCV.\r\n\r\n\r\nHorario de entrenamiento: Lunes a Viernes de 4:00 PM a 6:00 PM.', 'Requisitos para la inscripción de atletas', '2026-05-24 04:15:35'),
+(10, 'filas_por_pagina', '15', 'Cantidad de filas por página en las tablas del sistema', '2026-06-01 00:00:00');
 
 -- --------------------------------------------------------
 

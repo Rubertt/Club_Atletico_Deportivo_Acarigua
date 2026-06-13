@@ -98,6 +98,7 @@
                 </div>
             <?php endforeach; ?>
         </div>
+        <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
     </div>
 
     <div class="form-actions-btn-group" style="margin-top: 24px;">
@@ -190,6 +191,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = document.getElementById('btn-save');
         btn.disabled = true;
         btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Actualizando...';
+    });
+
+    CadaPagination({
+        rowSelector: '.asistencia-row',
+        containerId: 'atletas-pagination'
     });
 });
 </script>

@@ -159,5 +159,15 @@
                 </div>
             <?php endforeach; endif; ?>
         </div>
+        <div id="pruebas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    CadaPagination({
+        rowSelector: '.prueba-row',
+        containerId: 'pruebas-pagination'
+    });
+});
+</script>

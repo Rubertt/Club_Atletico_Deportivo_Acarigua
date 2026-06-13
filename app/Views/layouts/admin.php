@@ -34,6 +34,10 @@ $breadcrumb = $breadcrumb ?? [$title];
     <script src="<?= e(asset('js/core/theme.js')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/js/core/theme.js') ?>"></script>
     <script src="<?= e(asset('js/core/modal.js')) ?>"></script>
     <script src="<?= e(asset('js/core/form-validator.js')) ?>"></script>
+    <script>
+        window.ROWS_PER_PAGE = <?= (int) config_db('filas_por_pagina', 15) ?>;
+    </script>
+    <script src="<?= e(asset('js/core/pagination.js')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/js/core/pagination.js') ?>"></script>
 </head>
 <body class="admin-body">
     <div class="admin-layout" id="admin-layout">

@@ -104,7 +104,7 @@
 
                     <?php if (!empty($atleta['discapacidades']) && count($atleta['discapacidades']) > 0): ?>
                         <div class="table-responsive" style="overflow-x: auto;">
-                            <table class="data-table" style="min-width: 600px; margin: 0;">
+                            <table id="tabla-discapacidades" class="data-table" style="min-width: 600px; margin: 0;">
                                 <thead>
                                     <tr>
                                         <th>Tipo</th>

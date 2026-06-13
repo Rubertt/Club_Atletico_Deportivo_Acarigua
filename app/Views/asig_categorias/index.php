@@ -127,6 +127,8 @@
     <?php endforeach; endif; ?>
 </div>
 
+<div id="asig-atleta-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-retirar-atleta').forEach(btn => {
@@ -146,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+    });
+
+    CadaPagination({
+        rowSelector: '.asig-atleta-row',
+        containerId: 'asig-atleta-pagination'
     });
 });
 </script>
