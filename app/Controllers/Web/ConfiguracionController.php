@@ -33,6 +33,16 @@ final class ConfiguracionController extends Controller
             }
         }
 
+        // Si no está la edad mínima para atletas en la BD, la auto-insertamos
+        if (!isset($configs['edad_minima_atleta'])) {
+            try {
+                $db->prepare("INSERT INTO configuraciones (clave, valor, descripcion) VALUES ('edad_minima_atleta', '6', 'Edad mínima permitida para registrar un atleta')")->execute();
+                $configs['edad_minima_atleta'] = '6';
+            } catch (\Throwable) {
+                // Silenciamos en caso de que ocurra un error o concurrencia
+            }
+        }
+
         return $this->view('configuracion.index', [
             'title' => 'Configuración General',
             'active' => 'configuracion',
@@ -46,6 +56,7 @@ final class ConfiguracionController extends Controller
         $input = [
             'tiempo_sesion' => $request->input('tiempo_sesion'),
             'filas_por_pagina' => $request->input('filas_por_pagina'),
+            'edad_minima_atleta' => $request->input('edad_minima_atleta'),
             'mision' => $request->input('mision'),
             'vision' => $request->input('vision'),
             'requisitos_inscripcion' => $request->input('requisitos_inscripcion'),
@@ -56,10 +67,11 @@ final class ConfiguracionController extends Controller
             'google_maps_url' => $request->input('google_maps_url'),
         ];
 
-        // Validar que al menos tiempo_sesion y filas_por_pagina sean válidos
+        // Validar que al menos tiempo_sesion, filas_por_pagina y edad_minima_atleta sean válidos
         $validator = Validator::make($input, [
             'tiempo_sesion' => 'required|integer',
             'filas_por_pagina' => 'required|integer',
+            'edad_minima_atleta' => 'required|integer|min:1|max:25',
             'correo_contacto' => 'email'
         ]);
 

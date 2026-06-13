@@ -111,8 +111,9 @@
                         <span class="field-error" id="telefono-error"></span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de 6 a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha de nacimiento</label>
-                        <input type="date" name="fecha_nacimiento" class="form-control" required value="<?= e($get('fecha_nac', $get('fecha_nacimiento', ''))) ?>" max="<?= date('Y-m-d', strtotime('-6 years')) ?>">
+                        <?php $edadMinimaReg = (int) config_db('edad_minima_atleta', 6); ?>
+                        <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de <?= $edadMinimaReg ?> a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" class="form-control" required value="<?= e($get('fecha_nac', $get('fecha_nacimiento', ''))) ?>" max="<?= date('Y-m-d', strtotime('-' . $edadMinimaReg . ' years')) ?>">
                     </div>
                 </div>
 

@@ -404,7 +404,7 @@ if (btnReset) {
 updateUI();
 
 // —— Cédula, Pasaporte y Acta de Nacimiento ——————————————————————————————————————————————
-const CEDULA_REGEX = /^[VE]-\d{6,10}$/i;
+const CEDULA_REGEX = /^[VE]-\d{6,8}$/i;
 const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
 const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}$/i;
 
@@ -421,13 +421,13 @@ function validarCedula(val) {
         // Si el pasaporte es puramente numérico, validar longitud
         const digitsOnly = val.substring(2).replace(/\./g, '');
         if (/^\d+$/.test(digitsOnly)) {
-            return digitsOnly.length >= 6 && digitsOnly.length <= 10;
+            return digitsOnly.length >= 6 && digitsOnly.length <= 8;
         }
         return PASAPORTE_REGEX.test(val);
     }
     const cleanVal = val.replace(/\./g, '');
     const digitsOnly = cleanVal.replace(/\D/g, '');
-    if (digitsOnly.length < 6 || digitsOnly.length > 10) {
+    if (digitsOnly.length < 6 || digitsOnly.length > 8) {
         return false;
     }
     return CEDULA_REGEX.test(cleanVal);
@@ -473,7 +473,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
                 val = raw;
             }
         } else {
-            let digits = numberEl.value.replace(/\D/g, '');
+            let digits = numberEl.value.replace(/\D/g, '').substring(0, 8);
             numberEl.value = formatCedulaNumber(digits);
             val = digits;
         }
@@ -506,7 +506,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
         } else {
             let cleanNum = num.replace(/[^A-Z0-9]/gi, '').toUpperCase();
             if (prefix === 'V' || prefix === 'E' || (prefix === 'P' && /^\d+$/.test(cleanNum.replace(/\./g, '')))) {
-                numberEl.value = formatCedulaNumber(cleanNum.replace(/\D/g, ''));
+                numberEl.value = formatCedulaNumber(cleanNum.replace(/\D/g, '').substring(0, 8));
             } else {
                 numberEl.value = cleanNum;
             }
@@ -544,7 +544,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
                 numberEl.maxLength = 15;
             } else {
                 numberEl.placeholder = "12.345.678";
-                numberEl.maxLength = 12; // Acomodar puntos ej: 12.345.678 (10 chars)
+                numberEl.maxLength = 10; // Acomodar puntos ej: 12.345.678 (10 chars)
             }
             numberEl.focus();
         }

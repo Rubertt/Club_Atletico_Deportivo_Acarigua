@@ -164,6 +164,8 @@ if (!function_exists('formatDocumento')) {
                         <option value="1">Superusuario</option>
                         <option value="2">Administrador</option>
                         <option value="3">Entrenador</option>
+                        <option value="4">Directivo</option>
+                        <option value="5">Médico</option>
                     </select>
                 </div>
             </div>
@@ -205,6 +207,8 @@ if (!function_exists('formatDocumento')) {
                                     1 => 'Superusuario',
                                     2 => 'Administrador',
                                     3 => 'Entrenador',
+                                    4 => 'Directivo',
+                                    5 => 'Médico',
                                     default => 'Desconocido'
                                 };
                                 ?>

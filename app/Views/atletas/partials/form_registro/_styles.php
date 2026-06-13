@@ -295,15 +295,28 @@ select.form-control {
     background: var(--color-surface-2);
     font-weight: 700;
     font-size: 13px;
-    padding: 0 12px;
+    padding: 0 24px 0 12px;
     cursor: pointer;
     border-right: 1px solid var(--color-border);
-    color: var(--color-text);
+    color: var(--color-text) !important;
     outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
 }
 .phone-field .phone-prefix option {
     background-color: var(--color-surface, #1e293b) !important;
     color: var(--color-text, #f8fafc) !important;
+}
+.phone-field #cedula_prefix,
+.phone-field #tutor_cedula_prefix {
+    width: 60px !important;
+    padding: 0 16px 0 10px !important;
+    background-position: right 4px center !important;
 }
 .phone-field .phone-number {
     flex: 1;

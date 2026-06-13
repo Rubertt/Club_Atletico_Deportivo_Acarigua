@@ -60,7 +60,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Cédula de identidad del usuario (V/E-Número) o Pasaporte. Debe ser única en el sistema." data-tooltip-pos="top"><span class="required">*</span> Número de documento de identidad</label>
+                        <label class="form-label" data-tooltip="Cédula de identidad del usuario (V/E-Número) o Pasaporte. Debe ser única en el sistema." data-tooltip-pos="top"><span class="required">*</span> Documento de identidad</label>
                         <?php
                             $cedVal   = $get('cedula', '');
                             $cedPref  = 'V';
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // —— Validaciones de Cédula y Teléfono ———————————————————————————————————————
-    const CEDULA_REGEX = /^[VE]-\d{6,10}$/i;
+    const CEDULA_REGEX = /^[VE]-\d{6,8}$/i;
     const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
 
     function formatCedulaNumber(digits) {
@@ -328,6 +328,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!val) return true;
         if (PASAPORTE_REGEX.test(val)) return true;
         const cleanVal = val.replace(/\./g, '');
+        const digitsOnly = cleanVal.replace(/\D/g, '');
+        if (digitsOnly.length < 6 || digitsOnly.length > 8) {
+            return false;
+        }
         return CEDULA_REGEX.test(cleanVal);
     }
 
@@ -355,8 +359,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.value = val;
                 hiddenEl.value = val.length ? 'P-' + val : '';
             } else {
-                // Cédula V/E: solo dígitos con formato de puntos, máx 10 dígitos (para regex 6-10)
-                let digits = numberEl.value.replace(/[^\d]/g, '').substring(0, 10);
+                // Cédula V/E: solo dígitos con formato de puntos, máx 8 dígitos
+                let digits = numberEl.value.replace(/[^\d]/g, '').substring(0, 8);
                 numberEl.value = formatCedulaNumber(digits);
                 hiddenEl.value = digits.length ? prefixEl.value + '-' + digits : '';
             }
@@ -383,10 +387,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.placeholder = 'ABC123456';
                 numberEl.maxLength = 15;
             } else {
-                let digits = num.replace(/[^\d]/g, '').substring(0, 10);
+                let digits = num.replace(/[^\d]/g, '').substring(0, 8);
                 numberEl.value = formatCedulaNumber(digits);
                 numberEl.placeholder = '12.345.678';
-                numberEl.maxLength = 13;
+                numberEl.maxLength = 10;
             }
         }
 
@@ -402,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.maxLength = 15;
             } else {
                 numberEl.placeholder = '12.345.678';
-                numberEl.maxLength = 13;
+                numberEl.maxLength = 10;
             }
             sync();
             clearError(errorKey);

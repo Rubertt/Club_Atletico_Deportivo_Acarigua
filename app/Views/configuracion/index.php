@@ -52,6 +52,16 @@
                     Mínimo 5 filas · Máximo 100 filas.
                 </p>
             </div>
+
+            <div class="form-group" style="margin-top: 20px; border-top: 1px dashed var(--color-border); padding-top: 20px;">
+                <label class="form-label" for="edad_minima_atleta" data-tooltip="Edad mínima requerida para poder registrar a un atleta en la academia." data-tooltip-pos="top"><span class="required">*</span> Edad mínima para registrar atletas</label>
+                <input type="number" name="edad_minima_atleta" id="edad_minima_atleta" class="form-control" 
+                       value="<?= e($configs['edad_minima_atleta'] ?? '6') ?>" required min="1" max="25"
+                       data-label="Edad mínima de registro">
+                <p class="form-help" style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
+                    Mínimo 1 año · Máximo 25 años.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -214,6 +224,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     errors.push({
                         label: 'La cantidad de filas por página debe estar entre 5 y 100.',
                         element: filasInput
+                    });
+                }
+            }
+            const edadMinimaInput = document.getElementById('edad_minima_atleta');
+            if (edadMinimaInput) {
+                const val = parseInt(edadMinimaInput.value);
+                if (isNaN(val) || val < 1 || val > 25) {
+                    errors.push({
+                        label: 'La edad mínima para registrar a un atleta debe estar entre 1 y 25 años.',
+                        element: edadMinimaInput
                     });
                 }
             }

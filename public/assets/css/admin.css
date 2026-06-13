@@ -1480,6 +1480,12 @@ body.admin-body {
     width: 85px !important;
     flex-shrink: 0 !important;
 }
+.phone-field #cedula_prefix,
+.phone-field #tutor_cedula_prefix {
+    width: 60px !important;
+    padding: 0 16px 0 10px !important;
+    background-position: right 4px center !important;
+}
 
 /* —— Grid General Reutilizable (Formularios y Perfiles) —— */
 .af-grid {

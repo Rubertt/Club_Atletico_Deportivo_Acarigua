@@ -108,7 +108,7 @@
                             <?= e($a['nombre'] . ' ' . $a['apellido']) ?>
                         </div>
                         <div class="asig-atleta-row__meta">
-                            C.I: <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Cédula' ?>
+                            <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Cédula' ?>
                         </div>
                     </div>
                 </div>

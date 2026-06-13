@@ -395,8 +395,8 @@ final class AtletasController extends Controller
 
     private function validar(array $data, ?int $ignoreId = null): Validator
     {
-        // Regex: cédula venezolana V-NUMERO o E-NUMERO (6 a 10 dígitos) o N-FECHA-NUMERO-FOLIO (acta de nacimiento) o P-NUMERO (pasaporte alfanumérico 5 a 15)
-        $cedRegex = '/^([VE]-\d{6,10}|N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}|P-[A-Z0-9]{5,15})$/i';
+        // Regex: cédula venezolana V-NUMERO o E-NUMERO (6 a 8 dígitos) o N-FECHA-NUMERO-FOLIO (acta de nacimiento) o P-NUMERO (pasaporte alfanumérico 5 a 15)
+        $cedRegex = '/^([VE]-\d{6,8}|N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}|P-[A-Z0-9]{5,15})$/i';
         // Regex: teléfono 11 dígitos con prefijo venezolano (prefijo 4 dígitos + 7 dígitos = 11 total)
         $telRegex = '/^0(412|414|416|422|424|426|255|256)\d{7}$/';
 
@@ -508,12 +508,12 @@ final class AtletasController extends Controller
         }
 
         $messages = [
-            'cedula' => 'La cédula del atleta ya está registrada o tiene un formato inválido (Ej: V-12345678, E-12345678 (6 a 10 dígitos, sin puntos), N-AÑO-ACTA o P-Pasaporte). Es obligatoria para mayores de 9 años y debe ser única.',
-            'telefono' => 'El teléfono debe comenzar con 0412, 0414, 0416, 0422, 0424, 0255 o 0256 y tener 11 dígitos. Es obligatorio para mayores de edad.',
+            'cedula' => 'La cédula del atleta ya está registrada o tiene un formato inválido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos), N-AÑO-ACTA o P-Pasaporte). Es obligatoria para mayores de 9 años y debe ser única.',
+            'telefono' => 'El teléfono debe comenzar con 0412, 0414, 0416, 0422, 0424, 0255 o 0256 and tener 11 dígitos. Es obligatorio para mayores de edad.',
             'tutor_representante' => 'Para registrar al atleta como menor de edad, primero debe asignar y guardar los datos de su representante en la sección correspondiente de su perfil.',
             'tutor_nombres' => 'El nombre del representante es obligatorio.',
             'tutor_apellidos' => 'El apellido del representante es obligatorio.',
-            'tutor_cedula' => 'La cédula o pasaporte del representante es obligatoria y debe tener un formato válido (Ej: V-12345678, E-12345678 (6 a 10 dígitos, sin puntos) o P-Pasaporte).',
+            'tutor_cedula' => 'La cédula o pasaporte del representante es obligatoria y debe tener un formato válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte).',
             'tutor_telefono' => 'El teléfono del representante es obligatorio y debe tener 11 dígitos.',
             'tutor_relacion' => 'El tipo de relación con el representante es obligatorio.',
             'parroquia_id' => 'La parroquia es obligatoria.',
@@ -536,8 +536,9 @@ final class AtletasController extends Controller
                     if (date('md') < date('md', $birthDate)) {
                         $age--;
                     }
-                    if ($age < self::EDAD_MINIMA_ATLETA) {
-                        $v->addError('fecha_nacimiento', 'El atleta debe tener al menos ' . self::EDAD_MINIMA_ATLETA . ' años de edad.');
+                    $edadMinima = (int) config_db('edad_minima_atleta', self::EDAD_MINIMA_ATLETA);
+                    if ($age < $edadMinima) {
+                        $v->addError('fecha_nacimiento', 'El atleta debe tener al menos ' . $edadMinima . ' años de edad.');
                     } elseif ($age > self::EDAD_MAXIMA_ATLETA) {
                         $v->addError('fecha_nacimiento', 'La edad máxima permitida es de ' . self::EDAD_MAXIMA_ATLETA . ' años.');
                     }

@@ -124,10 +124,11 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de 6 a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha Nacimiento</label>
+                    <?php $edadMinModal = (int) config_db('edad_minima_atleta', 6); ?>
+                    <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de <?= $edadMinModal ?> a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha Nacimiento</label>
                     <input type="date" name="fecha_nacimiento" class="form-control"
                         value="<?= e($atleta['fecha_nac']) ?>" required
-                        max="<?= date('Y-m-d', strtotime('-6 years')) ?>">
+                        max="<?= date('Y-m-d', strtotime('-' . $edadMinModal . ' years')) ?>">
                 </div>
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Perfil natural del atleta para el golpeo del balón (derecha, izquierda o ambidiestro)." data-tooltip-pos="top">Pierna Dominante</label>

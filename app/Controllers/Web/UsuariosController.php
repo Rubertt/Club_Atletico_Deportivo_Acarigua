@@ -421,8 +421,8 @@ final class UsuariosController extends Controller
 
     private function validar(array $data, ?int $ignoreId = null): array
     {
-        // Regex: V-/E- seguido de dígitos sin puntos (6 a 10 dígitos) o P- seguido de alfanumérico (5-15 chars)
-        $cedulaRegex = '/^([VE]-\d{6,10}|P-[A-Z0-9]{5,15})$/i';
+        // Regex: V-/E- seguido de dígitos sin puntos (6 a 8 dígitos) o P- seguido de alfanumérico (5-15 chars)
+        $cedulaRegex = '/^([VE]-\d{6,8}|P-[A-Z0-9]{5,15})$/i';
         $cedulaRules = ['required', "regex:$cedulaRegex"];
         if ($ignoreId) {
             $cedulaRules[] = "unique:usuarios,cedula,usuario_id:$ignoreId";
@@ -452,7 +452,7 @@ final class UsuariosController extends Controller
         ], [
             'nombre'       => 'El nombre debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
             'apellido'     => 'El apellido debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
-            'cedula'       => 'La cédula o pasaporte debe ser válido (Ej: V-12345678, E-12345678 (6 a 10 dígitos, sin puntos) o P-Pasaporte) y ser único.',
+            'cedula'       => 'La cédula o pasaporte debe ser válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte) y ser único.',
             'parroquia_id' => 'El campo parroquia es obligatorio.',
             'rol_id'       => 'El campo rol / cargo es obligatorio.',
         ]);
