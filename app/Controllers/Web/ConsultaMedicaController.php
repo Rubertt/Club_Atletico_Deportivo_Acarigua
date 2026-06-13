@@ -30,6 +30,11 @@ final class ConsultaMedicaController extends Controller
             return $this->redirect('/admin/atletas');
         }
 
+        $creadoEnInput = trim((string) $request->input('creado_en', ''));
+        if (empty($creadoEnInput)) {
+            $creadoEnInput = date('Y-m-d H:i:s');
+        }
+
         $data = [
             'atleta_id'              => $atletaId,
             'usuario_id'             => Auth::id(),
@@ -40,12 +45,13 @@ final class ConsultaMedicaController extends Controller
             'fecha_suceso'           => trim((string) $request->input('fecha_suceso', '')),
             'fecha_alta_estimada'    => trim((string) $request->input('fecha_alta_estimada', '')),
             'estatus_disponibilidad' => $request->input('estatus_disponibilidad') !== '' ? (int) $request->input('estatus_disponibilidad') : null,
+            'creado_en'              => $creadoEnInput,
         ];
 
         // Validaciones básicas con el Validator
         $validator = Validator::make($data, [
             'tipo_consulta'          => 'required|integer|in:1,2,3,4,5,6,7',
-            'estatus_disponibilidad' => 'required|integer|in:1,2,3',
+            'estatus_disponibilidad' => 'required|integer|in:0,1',
             'diagnostico'            => 'required|max:255',
             'descripcion'            => 'max:255',
             'tratamiento_indicado'   => 'max:255',
@@ -65,21 +71,23 @@ final class ConsultaMedicaController extends Controller
                 $errors['fecha_suceso'] = 'La fecha de la consulta no puede ser una fecha futura.';
             } elseif ($fechaSuceso < $diezAnosAtras) {
                 $errors['fecha_suceso'] = 'La consulta no puede tener una antigüedad mayor a 10 años.';
+            } else {
+                // Validar límite diario de 3 consultas
+                if (!(new ConsultaMedica())->validarLimiteConsultas($atletaId, $fechaSuceso)) {
+                    $errors['fecha_suceso'] = 'Límite de registro por fecha de suceso alcanzado';
+                }
             }
         }
 
         if (!empty($data['fecha_alta_estimada'])) {
             $fechaAlta = $data['fecha_alta_estimada'];
             $fechaSuceso = $data['fecha_suceso'];
-            $ayer = date('Y-m-d', strtotime('-1 day'));
             $tresAnosFuturo = date('Y-m-d', strtotime('+3 years'));
 
-            if (!empty($fechaSuceso) && $fechaAlta < $fechaSuceso) {
-                $errors['fecha_alta_estimada'] = 'La fecha de alta estimada no puede ser anterior a la consulta.';
-            } elseif ($fechaAlta < $ayer) {
-                $errors['fecha_alta_estimada'] = 'La fecha de alta estimada debe ser de ayer en adelante.';
+            if (!empty($fechaSuceso) && $fechaAlta <= $fechaSuceso) {
+                $errors['fecha_alta_estimada'] = 'La fecha de recuperación estimada debe ser posterior a la fecha del suceso.';
             } elseif ($fechaAlta > $tresAnosFuturo) {
-                $errors['fecha_alta_estimada'] = 'La fecha de alta estimada no puede superar los 3 años a futuro.';
+                $errors['fecha_alta_estimada'] = 'La fecha de recuperacion estimada no puede superar los 3 años a futuro.';
             }
         }
 
@@ -131,7 +139,7 @@ final class ConsultaMedicaController extends Controller
         // Validaciones
         $validator = Validator::make($data, [
             'tipo_consulta'          => 'required|integer|in:1,2,3,4,5,6,7',
-            'estatus_disponibilidad' => 'required|integer|in:1,2,3',
+            'estatus_disponibilidad' => 'required|integer|in:0,1',
             'diagnostico'            => 'required|max:255',
             'descripcion'            => 'max:255',
             'tratamiento_indicado'   => 'max:255',
@@ -151,21 +159,23 @@ final class ConsultaMedicaController extends Controller
                 $errors['fecha_suceso'] = 'La fecha de la consulta no puede ser una fecha futura.';
             } elseif ($fechaSuceso < $diezAnosAtras) {
                 $errors['fecha_suceso'] = 'La consulta no puede tener una antigüedad mayor a 10 años.';
+            } else {
+                // Validar límite diario de 3 consultas (excluyendo el registro actual)
+                if (!(new ConsultaMedica())->validarLimiteConsultas($atletaId, $fechaSuceso, $consultaId)) {
+                    $errors['fecha_suceso'] = 'Límite de registro por fecha de suceso alcanzado';
+                }
             }
         }
 
         if (!empty($data['fecha_alta_estimada'])) {
             $fechaAlta = $data['fecha_alta_estimada'];
             $fechaSuceso = $data['fecha_suceso'];
-            $ayer = date('Y-m-d', strtotime('-1 day'));
             $tresAnosFuturo = date('Y-m-d', strtotime('+3 years'));
 
-            if (!empty($fechaSuceso) && $fechaAlta < $fechaSuceso) {
-                $errors['fecha_alta_estimada'] = 'La fecha de alta estimada no puede ser anterior a la consulta.';
-            } elseif ($fechaAlta < $ayer) {
-                $errors['fecha_alta_estimada'] = 'La fecha de alta estimada debe ser de ayer en adelante.';
+            if (!empty($fechaSuceso) && $fechaAlta <= $fechaSuceso) {
+                $errors['fecha_alta_estimada'] = 'La fecha de recuperación estimada debe ser posterior a la fecha del suceso.';
             } elseif ($fechaAlta > $tresAnosFuturo) {
-                $errors['fecha_alta_estimada'] = 'La fecha de alta estimada no puede superar los 3 años a futuro.';
+                $errors['fecha_alta_estimada'] = 'La fecha de recuperacion estimada no puede superar los 3 años a futuro.';
             }
         }
 
@@ -200,8 +210,14 @@ final class ConsultaMedicaController extends Controller
 
         try {
             (new ConsultaMedicaService())->eliminar($consultaId);
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => true, 'message' => 'Consulta médica eliminada correctamente.']);
+            }
             flash('success', 'Consulta médica eliminada correctamente.');
         } catch (Throwable $e) {
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => false, 'message' => 'Error al eliminar la consulta médica.'], 500);
+            }
             flash('error', 'Error al eliminar la consulta médica.');
         }
 

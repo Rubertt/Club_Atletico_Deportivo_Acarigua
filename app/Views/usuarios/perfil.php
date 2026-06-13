@@ -390,26 +390,6 @@
     color: var(--color-text);
 }
 
-.btn-icon-premium {
-    background: var(--color-bg-alt);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-muted);
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.btn-icon-premium:hover {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-}
 #btn-abrir-editar-basico { position: absolute; top: 12px; right: 12px; z-index: 10; }
 
 #btn-abrir-editar-foto:hover .photo-overlay { opacity: 1 !important; }

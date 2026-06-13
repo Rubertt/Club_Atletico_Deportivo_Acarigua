@@ -956,9 +956,8 @@ final class ReporteAtletaService
         ];
 
         $estatusesMedicos = [
-            1 => ['label' => 'No Apto', 'color' => '#cf222e'],
-            2 => ['label' => 'Apto', 'color' => '#2ea44f'],
-            3 => ['label' => 'Diferenciado', 'color' => '#dbab09']
+            0 => ['label' => 'No Apto', 'color' => '#cf222e'],
+            1 => ['label' => 'Apto', 'color' => '#2ea44f']
         ];
 
         $consultasBlocks = '';

@@ -30,14 +30,6 @@
         </select>
     </div>
 
-    <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
-        <label class="form-label" for="tipo_actividad"><i class="ph ph-activity"></i> Tipo de Actividad</label>
-        <select id="tipo_actividad" name="tipo_actividad" class="form-control">
-            <option value="">Todos los tipos</option>
-            <option value="1" <?= ($filters['tipo_actividad'] ?? '') == '1' ? 'selected' : '' ?>>Entrenamiento</option>
-            <option value="0" <?= ($filters['tipo_actividad'] ?? '') == '0' ? 'selected' : '' ?>>Partido</option>
-        </select>
-    </div>
 
     <div style="display: flex; gap: 8px;">
         <a href="<?= e(url('/admin/asistencias')) ?>" class="btn btn-outline" title="Limpiar filtros" style="height: 44px; display: inline-flex; align-items: center; justify-content: center;"><i class="ph ph-trash"></i> Limpiar</a>
@@ -112,16 +104,16 @@
                 </div>
 
                 <div class="sesion-row-card__actions">
-                    <a href="<?= e(url('/admin/asistencias/' . $ev['evento_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Detalles">
+                    <a href="<?= e(url('/admin/asistencias/' . $ev['evento_id'])) ?>" class="btn-view-premium" title="Ver Detalles">
                         <i class="ph ph-eye"></i>
                     </a>
-                    <a href="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/editar')) ?>" class="btn btn-sm btn-outline" title="Editar">
+                    <a href="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/editar')) ?>" class="btn-edit-premium" title="Editar">
                         <i class="ph ph-pencil-simple"></i>
                     </a>
                     <form action="<?= e(url('/admin/asistencias/' . $ev['evento_id'] . '/eliminar')) ?>" method="POST" style="display:inline;">
                         <?= csrf_field() ?>
-                        <button type="button" class="btn btn-sm btn-outline btn-delete-asistencia" title="Eliminar Registro" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
-                            <i class="ph ph-trash" style="color: var(--color-danger);"></i>
+                        <button type="button" class="btn-delete-premium btn-delete-asistencia" title="Eliminar Registro" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
+                            <i class="ph ph-trash"></i>
                         </button>
                     </form>
                 </div>
@@ -213,7 +205,6 @@
         if (form) {
             const usuarioSelect = form.querySelector('#usuario_id');
             const categoriaSelect = form.querySelector('#categoria_id');
-            const tipoSelect = form.querySelector('#tipo_actividad');
 
             const performFilter = () => {
                 const formData = new FormData(form);
@@ -245,7 +236,6 @@
 
             if (usuarioSelect) usuarioSelect.addEventListener('change', performFilter);
             if (categoriaSelect) categoriaSelect.addEventListener('change', performFilter);
-            if (tipoSelect) tipoSelect.addEventListener('change', performFilter);
 
             form.addEventListener('submit', (e) => e.preventDefault());
         }

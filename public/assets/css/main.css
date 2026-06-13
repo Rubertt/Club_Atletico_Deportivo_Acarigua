@@ -17,6 +17,7 @@
     --color-bg: #FFFFFF;
     --color-surface: #F8FAFC;
     --color-surface-2: #F1F5F9;
+    --color-bg-alt: #F1F5F9;
     --color-border: #E2E8F0;
     --color-sidebar-bg: #0F172A;
     --color-sidebar-text: #CBD5E1;
@@ -49,6 +50,7 @@ html.dark {
     --color-bg: #0B1220;
     --color-surface: #111827;
     --color-surface-2: #1F2937;
+    --color-bg-alt: #1F2937;
     --color-border: #374151;
     --color-sidebar-bg: #070B14;
     --color-sidebar-text: #CBD5E1;
@@ -211,6 +213,113 @@ img {
 .btn-lg {
     padding: 14px 28px;
     font-size: 16px;
+}
+
+/* Botones Premium Estandarizados */
+.btn-icon-premium,
+.btn-edit-premium {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-icon-premium:hover,
+.btn-edit-premium:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.15);
+}
+.btn-icon-premium:active,
+.btn-edit-premium:active {
+    transform: scale(0.95);
+}
+
+.btn-delete-premium {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-danger);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-delete-premium:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+.btn-delete-premium:active {
+    transform: scale(0.95);
+}
+
+.btn-view-premium {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-view-premium:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.15);
+}
+.btn-view-premium:active {
+    transform: scale(0.95);
+}
+
+.btn-report-premium {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-report-premium:hover {
+    background: var(--color-primary);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.2);
+}
+.btn-report-premium:active {
+    transform: scale(0.95);
 }
 
 /* Forms */

@@ -406,7 +406,7 @@ updateUI();
 // —— Cédula, Pasaporte y Acta de Nacimiento ——————————————————————————————————————————————
 const CEDULA_REGEX = /^[VE]-\d{6,10}$/i;
 const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
-const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,5}$/i;
+const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}$/i;
 
 function formatCedulaNumber(digits) {
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -452,14 +452,16 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     const folioInputs = isAthlete ? document.getElementById('folio_inputs') : null;
     const fYear = isAthlete ? document.getElementById('folio_year') : null;
     const fActa = isAthlete ? document.getElementById('folio_acta') : null;
+    const fFolio = isAthlete ? document.getElementById('folio_folio') : null;
 
     function sync() {
         let val = '';
         if (prefixEl.value === 'N' && folioInputs) {
             let y = fYear.value.replace(/\D/g, '').substring(0, 4);
-            let a = fActa.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
-            fYear.value = y; fActa.value = a;
-            val = (y||a) ? `${y}-${a}` : '';
+            let a = fActa.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
+            let f = fFolio.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+            fYear.value = y; fActa.value = a; fFolio.value = f;
+            val = (y||a||f) ? `${y}-${a}-${f}` : '';
         } else if (prefixEl.value === 'P') {
             let raw = numberEl.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
             let digitsOnly = raw.replace(/\./g, '');
@@ -499,6 +501,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
                 let parts = num.split('-');
                 if (fYear) fYear.value = parts[0] || '';
                 if (fActa) fActa.value = parts[1] || '';
+                if (fFolio) fFolio.value = parts[2] || '';
             }
         } else {
             let cleanNum = num.replace(/[^A-Z0-9]/gi, '').toUpperCase();
@@ -515,6 +518,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     if (folioInputs) {
         fYear.addEventListener('input', () => { sync(); clearError(errorKey); });
         fActa.addEventListener('input', () => { sync(); clearError(errorKey); });
+        fFolio?.addEventListener('input', () => { sync(); clearError(errorKey); });
     }
 
     prefixEl.addEventListener('change', () => {
@@ -524,7 +528,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
             numberEl.style.display = 'none';
             if (folioInputs) {
                 folioInputs.style.display = 'flex';
-                fYear.value = ''; fActa.value = '';
+                fYear.value = ''; fActa.value = ''; fFolio.value = '';
                 fYear.focus();
             } else {
                 numberEl.style.display = 'block';
@@ -552,7 +556,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
         const val = hiddenEl.value;
         if (val && !validarCedula(val)) {
             if (prefixEl.value === 'N') {
-                showError(errorKey, 'Completa Año y Acta (Formato Año-Acta)');
+                showError(errorKey, 'Completa Año, Acta y Folio (Formato Año-Acta-Folio)');
             } else if (prefixEl.value === 'P') {
                 showError(errorKey, 'Formato de Pasaporte inválido.');
             } else {
@@ -567,12 +571,14 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     if (folioInputs) {
         fYear.addEventListener('blur', blurHandler);
         fActa.addEventListener('blur', blurHandler);
+        fFolio?.addEventListener('blur', blurHandler);
     }
     
     numberEl.addEventListener('focus', () => clearError(errorKey));
     if (folioInputs) {
         fYear.addEventListener('focus', () => clearError(errorKey));
         fActa.addEventListener('focus', () => clearError(errorKey));
+        fFolio?.addEventListener('focus', () => clearError(errorKey));
     }
 }
 

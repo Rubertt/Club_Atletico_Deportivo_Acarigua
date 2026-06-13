@@ -1,4 +1,4 @@
-<?php /** @var array $stats @var array $dataCategorias @var array $dataAsistencia @var array $dataDemografia @var array $dataActividades @var array $dataEntrenadores */ $user = auth() ?? []; ?>
+<?php /** @var array $stats @var array $dataAsistencia @var array $dataActividades @var array $dataEntrenadores @var array $topAtletas @var array $evolucionRoster @var array $consistenciaCategorias */ $user = auth() ?? []; ?>
 
 <div class="welcome-card">
     <div class="wc-avatar"><?= strtoupper(mb_substr($user['nombre'] ?? '?', 0, 1)) ?></div>
@@ -50,34 +50,14 @@
         <div class="stat-label">Categorías activas</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: var(--color-warning);"><?= (int) ($stats['usuarios'] ?? 0) ?></div>
-        <div class="stat-label">Usuarios del sistema</div>
+        <div class="stat-number" style="color: #F59E0B;"><?= (int) ($stats['lesionados'] ?? 0) ?></div>
+        <div class="stat-label">Lesionados</div>
     </div>
 </div>
 
 
 <h3 style="font-family: var(--font-display); margin-top: 32px; margin-bottom: 16px;">Análisis General</h3>
-<div class="dashboard-charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
-    <!-- Gráfica 1: Distribución por Categoría -->
-    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
-        <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
-            <i class="ph ph-tag" style="color: var(--color-primary);"></i> Distribución por Categoría
-        </h4>
-        <div style="flex: 1; position: relative; width: 100%;">
-            <canvas id="chart-categorias"></canvas>
-        </div>
-    </div>
-
-    <!-- Gráfica 3: Demografía por Rango de Edad y Género -->
-    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
-        <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
-            <i class="ph ph-gender-intersex" style="color: var(--color-info);"></i> Pirámide Demográfica
-        </h4>
-        <div style="flex: 1; position: relative; width: 100%;">
-            <canvas id="chart-demografia"></canvas>
-        </div>
-    </div>
-
+<div class="dashboard-charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 24px; margin-bottom: 32px;">
     <!-- Gráfica 5: Carga de Atletas por Entrenador -->
     <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
         <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
@@ -88,27 +68,73 @@
         </div>
     </div>
 
-    <!-- Gráfica 4: Historial de Actividades por Tipo al Mes -->
+    <!-- Gráfica 4: Actividades del Mes Actual -->
     <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
         <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
-            <i class="ph ph-calendar" style="color: var(--color-warning);"></i> Actividades Mensuales
+            <i class="ph ph-calendar" style="color: var(--color-warning);"></i> Actividades de este Mes
         </h4>
         <div style="flex: 1; position: relative; width: 100%;">
             <canvas id="chart-actividades"></canvas>
         </div>
     </div>
 
-    <!-- Gráfica 2: Tasa de Asistencia Mensual por Categoría -->
-    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px; grid-column: 1 / -1;">
+    <!-- Gráfica Directiva 1: Top 5 Rendimiento Físico -->
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h4 style="margin: 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                <i class="ph ph-trophy" style="color: var(--color-warning);"></i> Top 5 Rendimiento Físico
+            </h4>
+            <select id="select-categoria-edad" style="background: var(--color-border); color: var(--color-text); border: 1px solid var(--color-border); padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; outline: none;">
+                <option value="Sub-7">Sub-7</option>
+                <option value="Sub-10">Sub-10</option>
+                <option value="Sub-13">Sub-13</option>
+                <option value="Sub-16" selected>Sub-16</option>
+                <option value="Sub-19">Sub-19</option>
+                <option value="Sub-40">Sub-40</option>
+                <option value="Master-49">Master-49</option>
+                <option value="Master-59">Master-59</option>
+                <option value="Master-69">Master-69</option>
+                <option value="Master-70+">Master-70+</option>
+            </select>
+        </div>
+        <div style="flex: 1; position: relative; width: 100%;">
+            <canvas id="chart-top-rendimiento"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfica Directiva 2: Índice de Consistencia y Asistencia -->
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
         <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
-            <i class="ph ph-chart-bar" style="color: var(--color-success);"></i> Tasa de Asistencia por Categoría
+            <i class="ph ph-shield-check" style="color: var(--color-success);"></i> Asistencia y Consistencia
+        </h4>
+        <div style="flex: 1; position: relative; width: 100%;">
+            <canvas id="chart-consistencia-asistencia"></canvas>
+        </div>
+    </div>
+</div>
+
+<h3 style="font-family: var(--font-display); margin-top: 32px; margin-bottom: 16px;">Métricas Directivas</h3>
+<div class="dashboard-charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr)); gap: 24px; margin-bottom: 32px;">
+    <!-- Gráfica 2: Asistencia por Categoría y Tipo de Actividad -->
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
+        <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
+            <i class="ph ph-chart-bar" style="color: var(--color-success);"></i> Asistencia por Categoría y Actividad
         </h4>
         <div style="flex: 1; position: relative; width: 100%; min-height: 250px;">
             <canvas id="chart-asistencia"></canvas>
         </div>
     </div>
-</div>
 
+    <!-- Gráfica Directiva 3: Crecimiento Histórico de Matrícula -->
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; min-height: 380px;">
+        <h4 style="margin: 0 0 16px 0; font-family: var(--font-display); font-size: 15px; display: flex; align-items: center; gap: 8px;">
+            <i class="ph ph-trend-up" style="color: var(--color-info);"></i> Evolución del Roster
+        </h4>
+        <div style="flex: 1; position: relative; width: 100%; min-height: 250px;">
+            <canvas id="chart-evolucion-roster"></canvas>
+        </div>
+    </div>
+</div>
 
 <!-- Incluir CDN de Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -132,77 +158,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let colors = getColors();
 
     // Datos inyectados desde el servidor
-    const dataCategoriasRaw = <?= json_encode($dataCategorias) ?>;
     const dataAsistenciaRaw = <?= json_encode($dataAsistencia) ?>;
-    const dataDemografiaRaw = <?= json_encode($dataDemografia) ?>;
     const dataActividadesRaw = <?= json_encode($dataActividades) ?>;
     const dataEntrenadoresRaw = <?= json_encode($dataEntrenadores) ?>;
+    
+    // Datos directivos
+    const topAtletasRaw = <?= json_encode($topAtletas) ?>;
+    const evolucionRosterRaw = <?= json_encode($evolucionRoster) ?>;
+    const consistenciaCategoriasRaw = <?= json_encode($consistenciaCategorias) ?>;
 
     const chartInstances = [];
 
     // --- CONFIGURACIÓN DE GRÁFICOS ---
-
-    // 1. Gráfica de Dona: Distribución por Categoría
-    const ctxCategorias = document.getElementById('chart-categorias').getContext('2d');
-    const chartCategorias = new Chart(ctxCategorias, {
-        type: 'doughnut',
-        data: {
-            labels: dataCategoriasRaw.map(x => x.nombre_categoria),
-            datasets: [{
-                data: dataCategoriasRaw.map(x => x.total),
-                backgroundColor: [
-                    '#DE0A26', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280'
-                ],
-                borderColor: 'transparent'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: colors.text }
-                }
-            }
-        }
-    });
-    chartInstances.push(chartCategorias);
-
-    // 2. Gráfica de Barras Apiladas: Pirámide Demográfica
-    const rangosEdades = ['Sub-10', 'Sub-13', 'Sub-16', 'Sub-20/Mayores'];
-    const dataM = rangosEdades.map(r => {
-        const found = dataDemografiaRaw.find(x => x.sexo === 'M' && x.rango_edad === r);
-        return found ? parseInt(found.total) : 0;
-    });
-    const dataF = rangosEdades.map(r => {
-        const found = dataDemografiaRaw.find(x => x.sexo === 'F' && x.rango_edad === r);
-        return found ? parseInt(found.total) : 0;
-    });
-
-    const ctxDemografia = document.getElementById('chart-demografia').getContext('2d');
-    const chartDemografia = new Chart(ctxDemografia, {
-        type: 'bar',
-        data: {
-            labels: rangosEdades,
-            datasets: [
-                { label: 'Masculino', data: dataM, backgroundColor: '#3B82F6', borderRadius: 4 },
-                { label: 'Femenino', data: dataF, backgroundColor: '#EC4899', borderRadius: 4 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { stacked: true, grid: { color: colors.border }, ticks: { color: colors.text } },
-                y: { stacked: true, grid: { color: colors.border }, ticks: { color: colors.text, precision: 0 } }
-            },
-            plugins: {
-                legend: { labels: { color: colors.text } }
-            }
-        }
-    });
-    chartInstances.push(chartDemografia);
 
     // 3. Gráfica de Barras Horizontal: Carga por Entrenador
     const ctxEntrenadores = document.getElementById('chart-entrenadores').getContext('2d');
@@ -232,8 +199,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     chartInstances.push(chartEntrenadores);
 
-    // 4. Gráfica de Línea: Actividades Mensuales
-    const mesesActividades = [...new Set(dataActividadesRaw.map(x => x.mes))].sort();
+    // 4. Gráfica de Línea: Actividades de este Mes (Agrupado por día)
+    const serverYear = <?= date('Y') ?>;
+    const serverMonth = <?= date('m') - 1 ?>; // 0-indexed for JS Date
+    const totalDays = new Date(serverYear, serverMonth + 1, 0).getDate();
+    
+    const labelsActividades = [];
+    const diasKeys = [];
+    for (let i = 1; i <= totalDays; i++) {
+        labelsActividades.push(i);
+        diasKeys.push(String(i).padStart(2, '0'));
+    }
+
     const tiposActividades = [
         { id: 0, label: 'Partido', color: '#10B981' },
         { id: 1, label: 'Entrenamiento', color: '#3B82F6' },
@@ -243,8 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const datasetsActividades = tiposActividades.map(t => ({
         label: t.label,
-        data: mesesActividades.map(m => {
-            const found = dataActividadesRaw.find(x => x.mes === m && parseInt(x.tipo_actividad) === t.id);
+        data: diasKeys.map(d => {
+            const found = dataActividadesRaw.find(x => x.dia === d && parseInt(x.tipo_actividad) === t.id);
             return found ? parseInt(found.total) : 0;
         }),
         borderColor: t.color,
@@ -257,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartActividades = new Chart(ctxActividades, {
         type: 'line',
         data: {
-            labels: mesesActividades,
+            labels: labelsActividades,
             datasets: datasetsActividades
         },
         options: {
@@ -274,21 +251,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     chartInstances.push(chartActividades);
 
-    // 5. Gráfica de Barras Agrupadas: Asistencia Mensual por Categoría
-    const mesesAsistencia = [...new Set(dataAsistenciaRaw.map(x => x.mes))].sort();
-    const categoriasAsistencia = [...new Set(dataAsistenciaRaw.map(x => x.nombre_categoria))];
-    const colorsAsistencia = ['#DE0A26', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280'];
+    // 5. Gráfica de Barras Apiladas: Asistencia por Categoría y Tipo de Actividad
+    const categoriasAsistenciaBase = [...new Set(dataAsistenciaRaw.map(x => x.nombre_categoria))].sort();
+    
+    // Generar nombres con contador total de asistencia sin importar tipo
+    const categoriasAsistencia = categoriasAsistenciaBase.map(cat => {
+        const totalPresentes = dataAsistenciaRaw
+            .filter(x => x.nombre_categoria === cat)
+            .reduce((sum, x) => sum + parseInt(x.presentes), 0);
+        return `${cat} (${totalPresentes})`;
+    });
 
-    const datasetsAsistencia = categoriasAsistencia.map((cat, idx) => ({
-        label: cat,
-        data: mesesAsistencia.map(m => {
-            const found = dataAsistenciaRaw.find(x => x.nombre_categoria === cat && x.mes === m);
-            if (found && parseInt(found.total_registros) > 0) {
-                return Math.round((parseInt(found.presentes) * 100) / parseInt(found.total_registros));
-            }
-            return 0;
+    const tiposActividadesMap = [
+        { id: 0, label: 'Partido', color: '#10B981' },
+        { id: 1, label: 'Entrenamiento', color: '#3B82F6' },
+        { id: 2, label: 'Pruebas Físicas', color: '#F59E0B' },
+        { id: 3, label: 'Evento Especial', color: '#8B5CF6' }
+    ];
+
+    const datasetsAsistencia = tiposActividadesMap.map(t => ({
+        label: t.label,
+        data: categoriasAsistencia.map(catLabel => {
+            const cat = catLabel.split(' (')[0];
+            const found = dataAsistenciaRaw.find(x => x.nombre_categoria === cat && parseInt(x.tipo_actividad) === t.id);
+            return found ? parseInt(found.presentes) : 0;
         }),
-        backgroundColor: colorsAsistencia[idx % colorsAsistencia.length],
+        backgroundColor: t.color,
         borderRadius: 4
     }));
 
@@ -296,34 +284,267 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartAsistencia = new Chart(ctxAsistencia, {
         type: 'bar',
         data: {
-            labels: mesesAsistencia,
+            labels: categoriasAsistencia,
             datasets: datasetsAsistencia
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { grid: { color: colors.border }, ticks: { color: colors.text } },
-                y: { 
+                x: { 
+                    stacked: true, 
                     grid: { color: colors.border }, 
-                    ticks: { 
-                        color: colors.text,
-                        callback: value => value + "%"
-                    },
-                    max: 100
+                    ticks: { color: colors.text } 
+                },
+                y: { 
+                    stacked: true, 
+                    grid: { color: colors.border }, 
+                    ticks: { color: colors.text },
+                    title: {
+                        display: true,
+                        text: 'Asistencias (Presentes)',
+                        color: colors.textMuted
+                    }
                 }
             },
             plugins: {
                 legend: { labels: { color: colors.text } },
                 tooltip: {
                     callbacks: {
-                        label: context => `${context.dataset.label}: ${context.raw}%`
+                        label: context => {
+                            const catLabel = context.label;
+                            const cat = catLabel.split(' (')[0];
+                            const label = context.dataset.label;
+                            const val = context.raw;
+                            const typeObj = tiposActividadesMap.find(x => x.label === label);
+                            if (typeObj) {
+                                const found = dataAsistenciaRaw.find(x => x.nombre_categoria === cat && parseInt(x.tipo_actividad) === typeObj.id);
+                                if (found && parseInt(found.total_registros) > 0) {
+                                    const rate = Math.round((parseInt(found.presentes) * 100) / parseInt(found.total_registros));
+                                    return `${label}: ${val} presentes (Tasa: ${rate}%)`;
+                                }
+                            }
+                            return `${label}: ${val} presentes`;
+                        }
                     }
                 }
             }
         }
     });
     chartInstances.push(chartAsistencia);
+
+
+    // --- NUEVOS GRÁFICOS DIRECTIVOS ---
+
+    // 1. Gráfica de Barras Horizontales: Top 5 Rendimiento Físico con filtro dinámico
+    const ctxTopRendimiento = document.getElementById('chart-top-rendimiento').getContext('2d');
+    const selectCategoriaEdad = document.getElementById('select-categoria-edad');
+    
+    // Función para obtener datasets correspondientes al rango de edad seleccionado
+    const getTopRendimientoData = (rango) => {
+        const atletas = topAtletasRaw[rango] || [];
+        // Ordenamos inverso para que las barras queden de mayor (arriba) a menor (abajo) en el eje Y
+        const sorted = [...atletas].reverse();
+        return {
+            labels: sorted.map(x => x.nombre),
+            data: sorted.map(x => x.promedio)
+        };
+    };
+
+    const initialRango = selectCategoriaEdad.value;
+    const initialChartData = getTopRendimientoData(initialRango);
+
+    const chartTopRendimiento = new Chart(ctxTopRendimiento, {
+        type: 'bar',
+        data: {
+            labels: initialChartData.labels,
+            datasets: [{
+                label: 'Promedio General',
+                data: initialChartData.data,
+                backgroundColor: colors.warning,
+                borderRadius: 4,
+                barThickness: 20
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    grid: { color: colors.border }, 
+                    ticks: { color: colors.text },
+                    min: 0,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Puntaje Promedio (%)',
+                        color: colors.textMuted,
+                        font: { size: 11 }
+                    }
+                },
+                y: { 
+                    grid: { display: false }, 
+                    ticks: { color: colors.text } 
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: context => `Puntaje: ${context.raw}%`
+                    }
+                }
+            }
+        }
+    });
+    chartInstances.push(chartTopRendimiento);
+
+    // Escuchar cambios de categoría de edad para actualizar gráfico dinámicamente
+    selectCategoriaEdad.addEventListener('change', (e) => {
+        const newData = getTopRendimientoData(e.target.value);
+        chartTopRendimiento.data.labels = newData.labels;
+        chartTopRendimiento.data.datasets[0].data = newData.data;
+        chartTopRendimiento.update();
+    });
+
+    // 2. Gráfica Mixta (Línea/Área + Barras): Evolución del Roster
+    const ctxEvolucionRoster = document.getElementById('chart-evolucion-roster').getContext('2d');
+    
+    // Crear degradado para el área de la línea del roster
+    const getRosterGradient = (color) => {
+        const grad = ctxEvolucionRoster.createLinearGradient(0, 0, 0, 300);
+        grad.addColorStop(0, color + '66'); // Con opacidad
+        grad.addColorStop(1, color + '00');
+        return grad;
+    };
+
+    const chartEvolucionRoster = new Chart(ctxEvolucionRoster, {
+        type: 'bar', // Tipo base mixto
+        data: {
+            labels: evolucionRosterRaw.map(x => x.mes),
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Roster Acumulado (Total)',
+                    data: evolucionRosterRaw.map(x => x.acumulado),
+                    borderColor: colors.info,
+                    borderWidth: 3,
+                    backgroundColor: getRosterGradient(colors.info),
+                    fill: true,
+                    tension: 0.3,
+                    yAxisID: 'y'
+                },
+                {
+                    type: 'bar',
+                    label: 'Nuevos Registros',
+                    data: evolucionRosterRaw.map(x => x.nuevos),
+                    backgroundColor: colors.primary + 'bb',
+                    borderColor: colors.primary,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barThickness: 20,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    grid: { color: colors.border }, 
+                    ticks: { color: colors.text } 
+                },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    grid: { color: colors.border },
+                    ticks: { color: colors.text, precision: 0 },
+                    title: {
+                        display: true,
+                        text: 'Total Atletas',
+                        color: colors.textMuted
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    grid: { drawOnChartArea: false }, // Evitar rejilla encimada
+                    ticks: { color: colors.text, precision: 0 },
+                    title: {
+                        display: true,
+                        text: 'Nuevos Registros',
+                        color: colors.textMuted
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: colors.text }
+                }
+            }
+        }
+    });
+    chartInstances.push(chartEvolucionRoster);
+
+    // 3. Gráfica de Barras Agrupadas: Consistencia y Asistencia
+    const ctxConsistencia = document.getElementById('chart-consistencia-asistencia').getContext('2d');
+    const chartConsistencia = new Chart(ctxConsistencia, {
+        type: 'bar',
+        data: {
+            labels: consistenciaCategoriasRaw.map(x => x.nombre_categoria),
+            datasets: [
+                {
+                    label: 'Promedio Asistencia',
+                    data: consistenciaCategoriasRaw.map(x => x.tasa_asistencia_promedio),
+                    backgroundColor: colors.success + 'dd',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Índice Consistencia (>=80%)',
+                    data: consistenciaCategoriasRaw.map(x => x.indice_consistencia),
+                    backgroundColor: colors.primary + 'dd',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    grid: { color: colors.border }, 
+                    ticks: { color: colors.text } 
+                },
+                y: { 
+                    grid: { color: colors.border }, 
+                    ticks: { 
+                        color: colors.text,
+                        callback: val => val + '%'
+                    },
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: colors.text }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: (items) => {
+                            const idx = items[0].dataIndex;
+                            const item = consistenciaCategoriasRaw[idx];
+                            return `${item.nombre_categoria}\nEntrenador: ${item.entrenador}`;
+                        },
+                        label: context => `${context.dataset.label}: ${context.raw}%`
+                    }
+                }
+            }
+        }
+    });
+    chartInstances.push(chartConsistencia);
+
 
     // --- MANEJO DE CAMBIO DE TEMA DINÁMICO ---
     const updateChartThemes = () => {
@@ -339,11 +560,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     const scale = chart.options.scales[scaleKey];
                     if (scale.grid) scale.grid.color = colors.border;
                     if (scale.ticks) scale.ticks.color = colors.text;
+                    if (scale.title) scale.title.color = colors.textMuted;
                 });
             }
             // Actualizar datasets individuales si usan colores de marca del tema
             if (chart === chartEntrenadores) {
                 chart.data.datasets[0].backgroundColor = colors.primary;
+            }
+            if (chart === chartTopRendimiento) {
+                chart.data.datasets[0].backgroundColor = colors.warning;
+            }
+            if (chart === chartEvolucionRoster) {
+                chart.data.datasets[0].backgroundColor = getRosterGradient(colors.info);
+                chart.data.datasets[0].borderColor = colors.info;
+                chart.data.datasets[1].backgroundColor = colors.primary + 'bb';
+                chart.data.datasets[1].borderColor = colors.primary;
+            }
+            if (chart === chartConsistencia) {
+                chart.data.datasets[0].backgroundColor = colors.success + 'dd';
+                chart.data.datasets[1].backgroundColor = colors.primary + 'dd';
             }
             chart.update();
         });

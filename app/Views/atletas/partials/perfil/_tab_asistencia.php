@@ -1,6 +1,4 @@
-            <!-- Tab: Asistencia -->
-            <div id="tab-asistencia" class="tab-content" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-calendar-check"></i> Historial de Asistencias</h3>
                 </div>
                 <div>
@@ -82,7 +80,7 @@
                         <!-- Gráfico de Dona -->
                         <div style="background: var(--color-bg-alt); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--color-border);">
                             <h4 style="margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;"><i class="ph ph-chart-pie-slice"></i> Distribución</h4>
-                            <div id="chart-asistencia-dona" style="flex: 1; min-height: 250px;"></div>
+                            <div id="chart-asistencia-dona" style="flex: 1; min-height: 250px;" data-historial="<?= e(json_encode($asistencias_historial ?? [])) ?>"></div>
                         </div>
                     </div>
 
@@ -157,4 +155,3 @@
                         </table>
                     </div>
                 </div>
-            </div>

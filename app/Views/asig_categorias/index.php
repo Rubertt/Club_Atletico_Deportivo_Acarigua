@@ -108,16 +108,16 @@
             </div>
 
             <div class="asig-atleta-row__actions">
-                <a href="<?= e(url('/admin/atletas/' . $a['atleta_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Perfil Atleta" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                <a href="<?= e(url('/admin/atletas/' . $a['atleta_id'])) ?>" class="btn-view-premium" title="Ver Perfil Atleta">
                     <i class="ph ph-eye"></i>
                 </a>
                 <?php if (can('admin')): ?>
-                    <a href="<?= e(url('/admin/asig-categorias/' . $a['asignacion_id'] . '/editar')) ?>" class="btn btn-sm btn-ghost" title="Editar Asignación" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                    <a href="<?= e(url('/admin/asig-categorias/' . $a['asignacion_id'] . '/editar')) ?>" class="btn-edit-premium" title="Editar Asignación">
                         <i class="ph ph-pencil-simple"></i>
                     </a>
                     <form method="POST" action="<?= e(url('/admin/asig-categorias/' . $a['asignacion_id'] . '/eliminar')) ?>" style="display:inline;">
                         <?= csrf_field() ?>
-                        <button type="button" class="btn btn-sm btn-ghost text-danger btn-retirar-atleta" title="Retirar de Categoría" data-nombre="<?= e($a['nombre'] . ' ' . $a['apellido']) ?>" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                        <button type="button" class="btn-delete-premium btn-retirar-atleta" title="Retirar de Categoría" data-nombre="<?= e($a['nombre'] . ' ' . $a['apellido']) ?>">
                             <i class="ph ph-trash"></i>
                         </button>
                     </form>

@@ -374,11 +374,20 @@ final class ResultadosPruebasController extends Controller
         try {
             $deleted = (new ResultadoPrueba())->delete($id);
             if ($deleted) {
+                if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                    return Response::json(['success' => true, 'message' => 'Prueba física eliminada correctamente.']);
+                }
                 flash('success', 'Prueba física eliminada correctamente.');
             } else {
+                if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                    return Response::json(['success' => false, 'message' => 'La prueba no existe o ya fue eliminada.'], 404);
+                }
                 flash('error', 'La prueba no existe o ya fue eliminada.');
             }
         } catch (\Throwable $e) {
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => false, 'message' => 'No se pudo eliminar la prueba: ' . $e->getMessage()], 500);
+            }
             flash('error', 'No se pudo eliminar la prueba: ' . $e->getMessage());
         }
 

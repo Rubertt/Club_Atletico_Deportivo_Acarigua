@@ -46,11 +46,11 @@ final class ConvocatoriasController extends Controller
                     (SELECT COUNT(*) FROM convocatorias conv WHERE conv.actividad_id = a.actividad_id AND conv.estatus = 1) AS total_convocados,
                     (SELECT COUNT(*) FROM convocatorias conv WHERE conv.actividad_id = a.actividad_id AND conv.estatus = 1) AS convocados_si,
                     (SELECT COUNT(*) FROM convocatorias conv WHERE conv.actividad_id = a.actividad_id AND conv.asistencia = 3) AS asistieron
-             FROM actividades a
-             LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
-             WHERE {$whereClause}
-             ORDER BY a.fecha DESC, a.actividad_id DESC
-             LIMIT 50";
+            FROM actividades a
+            LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
+            WHERE {$whereClause}
+            ORDER BY a.fecha DESC, a.actividad_id DESC
+            LIMIT 50";
 
         $db = Database::connection();
         $stmt = $db->prepare($sql);
@@ -60,8 +60,8 @@ final class ConvocatoriasController extends Controller
         $categorias = (new Categoria())->activas();
         $enlistadores = (new Usuario())->query(
             "SELECT usuario_id, nombre, apellido FROM usuarios 
-             WHERE estatus = 'Activo' AND rol_id IN (" . ROL_ADMIN . ", " . ROL_ENTRENADOR . ", " . ROL_DIRECTIVO . ") 
-             ORDER BY apellido, nombre"
+            WHERE estatus = 'Activo' AND rol_id IN (" . ROL_ADMIN . ", " . ROL_ENTRENADOR . ", " . ROL_DIRECTIVO . ") 
+            ORDER BY apellido, nombre"
         );
 
         $viewData = [
@@ -228,10 +228,10 @@ final class ConvocatoriasController extends Controller
 
         $actividad = $db->prepare(
             "SELECT a.*, CONCAT(u.nombre, ' ', u.apellido) AS entrenador,
-             (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
-             FROM actividades a
-             LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
-             WHERE a.actividad_id = ? AND a.tipo_actividad = 0"
+            (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
+            FROM actividades a
+            LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
+            WHERE a.actividad_id = ? AND a.tipo_actividad = 0"
         );
         $actividad->execute([$id]);
         $actividad = $actividad->fetch();
@@ -243,19 +243,19 @@ final class ConvocatoriasController extends Controller
 
         $convocatorias = $db->prepare(
             "SELECT conv.*, atl.nombre, atl.apellido, atl.cedula, atl.foto, ac.nun_dorsal
-             FROM convocatorias conv
-             JOIN atletas atl ON conv.atleta_id = atl.atleta_id
-             LEFT JOIN asig_categorias ac ON ac.atleta_id = conv.atleta_id 
-                  AND ac.categoria_id = (
-                      SELECT ac2.categoria_id 
-                      FROM asig_categorias ac2 
-                      JOIN actividades a ON a.asignacion_id = ac2.asignacion_id
-                      WHERE a.actividad_id = conv.actividad_id 
-                      LIMIT 1
-                  )
-                  AND ac.estatus = 1
-             WHERE conv.actividad_id = ?
-             ORDER BY atl.apellido, atl.nombre"
+            FROM convocatorias conv
+            JOIN atletas atl ON conv.atleta_id = atl.atleta_id
+            LEFT JOIN asig_categorias ac ON ac.atleta_id = conv.atleta_id 
+                AND ac.categoria_id = (
+                    SELECT ac2.categoria_id 
+                    FROM asig_categorias ac2 
+                    JOIN actividades a ON a.asignacion_id = ac2.asignacion_id
+                    WHERE a.actividad_id = conv.actividad_id 
+                    LIMIT 1
+                )
+                AND ac.estatus = 1
+            WHERE conv.actividad_id = ?
+            ORDER BY atl.apellido, atl.nombre"
         );
         $convocatorias->execute([$id]);
         $detalles = $convocatorias->fetchAll();
@@ -292,9 +292,9 @@ final class ConvocatoriasController extends Controller
 
         $actividad = $db->prepare(
             "SELECT a.*,
-             (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
-             FROM actividades a
-             WHERE a.actividad_id = ? AND a.tipo_actividad = 0"
+            (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
+            FROM actividades a
+            WHERE a.actividad_id = ? AND a.tipo_actividad = 0"
         );
         $actividad->execute([$id]);
         $actividad = $actividad->fetch();
@@ -316,19 +316,19 @@ final class ConvocatoriasController extends Controller
 
         $convocatorias = $db->prepare(
             "SELECT conv.*, atl.nombre, atl.apellido, atl.cedula, atl.foto, ac.nun_dorsal
-             FROM convocatorias conv
-             JOIN atletas atl ON conv.atleta_id = atl.atleta_id
-             LEFT JOIN asig_categorias ac ON ac.atleta_id = conv.atleta_id 
-                  AND ac.categoria_id = (
-                      SELECT ac2.categoria_id 
-                      FROM asig_categorias ac2 
-                      JOIN actividades a ON a.asignacion_id = ac2.asignacion_id
-                      WHERE a.actividad_id = conv.actividad_id 
-                      LIMIT 1
-                  )
-                  AND ac.estatus = 1
-             WHERE conv.actividad_id = ?
-             ORDER BY atl.apellido, atl.nombre"
+            FROM convocatorias conv
+            JOIN atletas atl ON conv.atleta_id = atl.atleta_id
+            LEFT JOIN asig_categorias ac ON ac.atleta_id = conv.atleta_id 
+                AND ac.categoria_id = (
+                    SELECT ac2.categoria_id 
+                    FROM asig_categorias ac2 
+                    JOIN actividades a ON a.asignacion_id = ac2.asignacion_id
+                    WHERE a.actividad_id = conv.actividad_id 
+                    LIMIT 1
+                )
+                AND ac.estatus = 1
+            WHERE conv.actividad_id = ?
+            ORDER BY atl.apellido, atl.nombre"
         );
         $convocatorias->execute([$id]);
         $detalles = $convocatorias->fetchAll();

@@ -77,37 +77,81 @@ final class AtletasController extends Controller
             flash('error', 'Atleta no encontrado.');
             return $this->redirect('/admin/atletas');
         }
-        $pdo = \App\Core\Database::connection();
-        $tipos_discapacidades = $pdo->query("SELECT * FROM tipos_discapacidades ORDER BY nombre_tipo ASC")->fetchAll(\PDO::FETCH_ASSOC);
 
-        $medidasModel = new MedidaAntropometrica();
-        $medidas_historial = $medidasModel->historial($id);
+        // 1. Manejar consultas asíncronas de pestañas individuales (Lazy Loading)
+        $tabAjax = $request->query('tab_ajax');
+        if ($tabAjax) {
+            return $this->renderTabAjax($id, $tabAjax, $atleta);
+        }
 
-        $pruebasModel = new ResultadoPrueba();
-        $pruebas_historial = $pruebasModel->historial($id);
-
-        $asistenciaModel = new Asistencia();
-        $asistencias_historial = $asistenciaModel->historialAtleta($id);
-
+        // 2. Carga básica (para vista inicial o para refresco parcial por AJAX)
         $asignaciones = (new \App\Models\AsigCategoria())->athleteAssignments($id);
+        $paises = (new Direccion())->paises();
 
-        $consultasModel = new \App\Models\ConsultaMedica();
-        $consultas_historial = $consultasModel->byAtleta($id);
-
-        return $this->view('atletas.show', [
+        $data = [
             'title' => $atleta['nombre'] . ' ' . $atleta['apellido'],
             'active' => 'atletas',
             'breadcrumb' => ['Inicio', 'Atletas', $atleta['nombre'] . ' ' . $atleta['apellido']],
             'atleta' => $atleta,
-            'tipos_discapacidades' => $tipos_discapacidades,
-            'medidas_historial' => $medidas_historial,
-            'pruebas_historial' => $pruebas_historial,
-            'asistencias_historial' => $asistencias_historial,
-            'consultas_historial' => $consultas_historial,
             'asignaciones' => $asignaciones,
-            'paises'     => (new Direccion())->paises(),
-            'entrenadores' => (new \App\Models\Usuario())->entrenadores(),
-        ], 'admin');
+            'paises' => $paises,
+            // Variables diferidas vacías en la carga inicial para evitar lints/errores de vista
+            'tipos_discapacidades' => [],
+            'medidas_historial' => [],
+            'pruebas_historial' => [],
+            'asistencias_historial' => [],
+            'consultas_historial' => [],
+        ];
+
+        // Si es una recarga parcial por AJAX de toda la vista
+        if ($request->query('ajax_partial')) {
+            return Response::html($this->renderView('atletas.show', $data));
+        }
+
+        return $this->view('atletas.show', $data, 'admin');
+    }
+
+    private function renderTabAjax(int $id, string $tab, array $atleta): Response
+    {
+        $pdo = \App\Core\Database::connection();
+
+        switch ($tab) {
+            case 'ficha':
+                $tipos_discapacidades = $pdo->query("SELECT * FROM tipos_discapacidades ORDER BY nombre_tipo ASC")->fetchAll(\PDO::FETCH_ASSOC);
+                return Response::html($this->renderView('atletas.partials.perfil._tab_ficha_medica', [
+                    'atleta' => $atleta,
+                    'tipos_discapacidades' => $tipos_discapacidades
+                ]));
+
+            case 'consulta':
+                $consultas_historial = (new \App\Models\ConsultaMedica())->byAtleta($id);
+                return Response::html($this->renderView('atletas.partials.perfil._tab_consulta_medica', [
+                    'atleta' => $atleta,
+                    'consultas_historial' => $consultas_historial
+                ]));
+
+            case 'antropometria':
+                $medidas_historial = (new MedidaAntropometrica())->historial($id);
+                return Response::html($this->renderView('atletas.partials.perfil._tab_antropometria', [
+                    'atleta' => $atleta,
+                    'medidas_historial' => $medidas_historial
+                ]));
+
+            case 'pruebas':
+                $pruebas_historial = (new ResultadoPrueba())->historial($id);
+                return Response::html($this->renderView('atletas.partials.perfil._tab_pruebas', [
+                    'pruebas_historial' => $pruebas_historial
+                ]));
+
+            case 'asistencia':
+                $asistencias_historial = (new Asistencia())->historialAtleta($id);
+                return Response::html($this->renderView('atletas.partials.perfil._tab_asistencia', [
+                    'asistencias_historial' => $asistencias_historial
+                ]));
+
+            default:
+                return Response::html('<div class="alert alert-danger">Pestaña no válida.</div>');
+        }
     }
 
     public function create(Request $request): Response
@@ -350,8 +394,8 @@ final class AtletasController extends Controller
 
     private function validar(array $data, ?int $ignoreId = null): Validator
     {
-        // Regex: cédula venezolana V-NUMERO o E-NUMERO (6 a 10 dígitos) o N-AÑO-ACTA (acta de nacimiento) o P-NUMERO (pasaporte alfanumérico 5 a 15)
-        $cedRegex = '/^([VE]-\d{6,10}|N-\d{4}-[A-Z0-9]{1,5}|P-[A-Z0-9]{5,15})$/i';
+        // Regex: cédula venezolana V-NUMERO o E-NUMERO (6 a 10 dígitos) o N-FECHA-NUMERO-FOLIO (acta de nacimiento) o P-NUMERO (pasaporte alfanumérico 5 a 15)
+        $cedRegex = '/^([VE]-\d{6,10}|N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}|P-[A-Z0-9]{5,15})$/i';
         // Regex: teléfono 11 dígitos con prefijo venezolano (prefijo 4 dígitos + 7 dígitos = 11 total)
         $telRegex = '/^0(412|414|416|422|424|426|255|256)\d{7}$/';
 

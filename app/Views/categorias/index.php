@@ -1,6 +1,12 @@
 <?php /** @var array $items */
 /** @var array $filters */
-/** @var array $entrenadores */ ?>
+/** @var array $entrenadores */
+/** @var array $dataCategorias */
+/** @var array $dataDemografia */ ?>
+
+<!-- Incluir CDN de Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
 <div class="page-header">
     <div>
         <h1>Categorías Deportivas</h1>
@@ -19,19 +25,45 @@ $activas = count(array_filter($items, fn($i) => (int)$i['estatus'] === 1));
 $totalAtletas = array_sum(array_column($items, 'total_atletas'));
 ?>
 
-<!-- Métricas de Categorías -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-number"><?= $total ?></div>
-        <div class="stat-label">Total Categorías</div>
+<!-- Sección Superior: Contadores y Gráficos -->
+<div class="categories-top-section">
+    <!-- Contadores -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number"><?= $total ?></div>
+            <div class="stat-label">Total Categorías</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" style="color: var(--color-success)"><?= $activas ?></div>
+            <div class="stat-label">Activas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" style="color: var(--color-primary)"><?= $totalAtletas ?></div>
+            <div class="stat-label">Atletas Totales</div>
+        </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-number" style="color: var(--color-success)"><?= $activas ?></div>
-        <div class="stat-label">Activas</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number" style="color: var(--color-primary)"><?= $totalAtletas ?></div>
-        <div class="stat-label">Atletas Totales</div>
+
+    <!-- Gráficas -->
+    <div class="top-charts-container">
+        <!-- Distribución por Categoría -->
+        <div class="card chart-card">
+            <h4>
+                <i class="ph ph-tag" style="color: var(--color-primary);"></i> Distribución por Categoría
+            </h4>
+            <div class="canvas-wrapper">
+                <canvas id="chart-categorias"></canvas>
+            </div>
+        </div>
+
+        <!-- Pirámide Demográfica -->
+        <div class="card chart-card">
+            <h4>
+                <i class="ph ph-gender-intersex" style="color: var(--color-info);"></i> Pirámide Demográfica
+            </h4>
+            <div class="canvas-wrapper">
+                <canvas id="chart-demografia"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -100,12 +132,12 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
                     </div>
                     <?php if (can('admin')): ?>
                         <div class="flex gap-sm">
-                            <a href="<?= e(url("/admin/categorias/{$c['categoria_id']}/editar")) ?>" class="btn btn-ghost btn-sm" title="Editar">
+                            <a href="<?= e(url("/admin/categorias/{$c['categoria_id']}/editar")) ?>" class="btn-edit-premium" title="Editar">
                                 <i class="ph ph-pencil-simple"></i>
                             </a>
                             <form method="POST" action="<?= e(url("/admin/categorias/{$c['categoria_id']}/eliminar")) ?>" style="display:inline;">
                                 <?= csrf_field() ?>
-                                <button type="button" class="btn btn-ghost btn-sm text-danger btn-eliminar-categoria" title="Eliminar" data-total-atletas="<?= (int) ($c['total_atletas'] ?? 0) ?>" data-nombre="<?= e($c['nombre_categoria']) ?>">
+                                <button type="button" class="btn-delete-premium btn-eliminar-categoria" title="Eliminar" data-total-atletas="<?= (int) ($c['total_atletas'] ?? 0) ?>" data-nombre="<?= e($c['nombre_categoria']) ?>">
                                     <i class="ph ph-trash"></i>
                                 </button>
                             </form>
@@ -188,10 +220,177 @@ $totalAtletas = array_sum(array_column($items, 'total_atletas'));
     box-shadow: var(--shadow-lg);
     border-color: var(--color-primary-light);
 }
+
+.categories-top-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.top-charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+    padding: 20px;
+}
+
+.chart-card h4 {
+    margin: 0 0 16px 0;
+    font-family: var(--font-display);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text);
+}
+
+.chart-card .canvas-wrapper {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+}
+
+@media (min-width: 1024px) {
+    .categories-top-section {
+        grid-template-columns: 320px 1fr;
+    }
+    .categories-top-section .stats-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 0;
+        justify-content: space-between;
+    }
+    .categories-top-section .stats-grid .stat-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 16px 20px;
+        margin: 0;
+    }
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Obtener y configurar tema/paleta de colores dinámicos
+    const getColors = () => {
+        const style = getComputedStyle(document.body);
+        return {
+            text: style.getPropertyValue('--color-text').trim() || '#e5e7eb',
+            textMuted: style.getPropertyValue('--color-text-muted').trim() || '#9ca3af',
+            border: style.getPropertyValue('--color-border').trim() || '#374151',
+            primary: style.getPropertyValue('--color-primary').trim() || '#DE0A26',
+            success: style.getPropertyValue('--color-success').trim() || '#10B981',
+            info: style.getPropertyValue('--color-info').trim() || '#3B82F6',
+            warning: style.getPropertyValue('--color-warning').trim() || '#F59E0B'
+        };
+    };
+
+    let colors = getColors();
+
+    // Datos inyectados desde el servidor
+    const dataCategoriasRaw = <?= json_encode($dataCategorias) ?>;
+    const dataDemografiaRaw = <?= json_encode($dataDemografia) ?>;
+
+    const chartInstances = [];
+
+    // 1. Gráfica de Dona: Distribución por Categoría
+    const ctxCategorias = document.getElementById('chart-categorias').getContext('2d');
+    const chartCategorias = new Chart(ctxCategorias, {
+        type: 'doughnut',
+        data: {
+            labels: dataCategoriasRaw.map(x => x.nombre_categoria),
+            datasets: [{
+                data: dataCategoriasRaw.map(x => x.total),
+                backgroundColor: [
+                    '#DE0A26', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280'
+                ],
+                borderColor: 'transparent'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: colors.text }
+                }
+            }
+        }
+    });
+    chartInstances.push(chartCategorias);
+
+    // 2. Gráfica de Barras Apiladas: Pirámide Demográfica
+    const rangosEdades = ['Sub-10', 'Sub-13', 'Sub-16', 'Sub-20/Mayores'];
+    const dataM = rangosEdades.map(r => {
+        const found = dataDemografiaRaw.find(x => x.sexo === 'M' && x.rango_edad === r);
+        return found ? parseInt(found.total) : 0;
+    });
+    const dataF = rangosEdades.map(r => {
+        const found = dataDemografiaRaw.find(x => x.sexo === 'F' && x.rango_edad === r);
+        return found ? parseInt(found.total) : 0;
+    });
+
+    const ctxDemografia = document.getElementById('chart-demografia').getContext('2d');
+    const chartDemografia = new Chart(ctxDemografia, {
+        type: 'bar',
+        data: {
+            labels: rangosEdades,
+            datasets: [
+                { label: 'Masculino', data: dataM, backgroundColor: '#3B82F6', borderRadius: 4 },
+                { label: 'Femenino', data: dataF, backgroundColor: '#EC4899', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true, grid: { color: colors.border }, ticks: { color: colors.text } },
+                y: { stacked: true, grid: { color: colors.border }, ticks: { color: colors.text, precision: 0 } }
+            },
+            plugins: {
+                legend: { labels: { color: colors.text } }
+            }
+        }
+    });
+    chartInstances.push(chartDemografia);
+
+    // --- MANEJO DE CAMBIO DE TEMA DINÁMICO ---
+    const updateChartThemes = () => {
+        colors = getColors();
+        chartInstances.forEach(chart => {
+            if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                chart.options.plugins.legend.labels.color = colors.text;
+            }
+            if (chart.options.scales) {
+                Object.keys(chart.options.scales).forEach(scaleKey => {
+                    const scale = chart.options.scales[scaleKey];
+                    if (scale.grid) scale.grid.color = colors.border;
+                    if (scale.ticks) scale.ticks.color = colors.text;
+                });
+            }
+            chart.update();
+        });
+    };
+
+    document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setTimeout(updateChartThemes, 100);
+        });
+    });
+
+    // --- FILTROS AJAX Y ELIMINACIÓN ---
     const form = document.querySelector('.table-filters');
     if (form) {
         const qInput = form.querySelector('#q');
@@ -204,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('ajax', '1');
             const queryString = new URLSearchParams(formData).toString();
             
-            // Actualizar URL en el navegador de forma limpia
             const newUrl = `${window.location.pathname}?${new URLSearchParams(new FormData(form)).toString()}`;
             window.history.replaceState({ path: newUrl }, '', newUrl);
 
@@ -216,21 +414,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 
-                // Actualizar cuadrícula
                 const oldGrid = document.querySelector('.quick-grid');
                 const newGrid = doc.querySelector('.quick-grid');
                 if (oldGrid && newGrid) {
                     oldGrid.innerHTML = newGrid.innerHTML;
                 }
                 
-                // Actualizar estadísticas (stats-grid)
                 const oldStats = document.querySelector('.stats-grid');
                 const newStats = doc.querySelector('.stats-grid');
                 if (oldStats && newStats) {
                     oldStats.innerHTML = newStats.innerHTML;
                 }
 
-                // Re-vincular botones de eliminar
                 bindDeleteButtons();
             })
             .catch(err => console.error('Error al filtrar:', err));

@@ -20,11 +20,37 @@ final class CategoriasController extends Controller
             'entrenador_id' => trim((string) $request->input('entrenador_id', '')),
         ];
 
+        $db = \App\Core\Database::connection();
+
+        $dataCategorias = $db->query("
+            SELECT c.nombre_categoria, COUNT(ac.atleta_id) AS total
+            FROM categorias c
+            LEFT JOIN asig_categorias ac ON ac.categoria_id = c.categoria_id
+            GROUP BY c.categoria_id, c.nombre_categoria
+            ORDER BY c.nombre_categoria
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+
+        $dataDemografia = $db->query("
+            SELECT a.sexo,
+                   CASE 
+                       WHEN TIMESTAMPDIFF(YEAR, a.fecha_nac, CURDATE()) < 10 THEN 'Sub-10'
+                       WHEN TIMESTAMPDIFF(YEAR, a.fecha_nac, CURDATE()) BETWEEN 10 AND 12 THEN 'Sub-13'
+                       WHEN TIMESTAMPDIFF(YEAR, a.fecha_nac, CURDATE()) BETWEEN 13 AND 15 THEN 'Sub-16'
+                       ELSE 'Sub-20/Mayores'
+                   END AS rango_edad,
+                   COUNT(*) AS total
+            FROM atletas a
+            WHERE a.estatus = 1
+            GROUP BY a.sexo, rango_edad
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+
         if ($request->query('ajax') || $request->input('ajax')) {
             return Response::html($this->renderView('categorias.index', [
                 'items' => (new Categoria())->allWithEntrenador($filters),
                 'filters' => $filters,
                 'entrenadores' => (new Usuario())->coordinadoresCategorias(),
+                'dataCategorias' => $dataCategorias,
+                'dataDemografia' => $dataDemografia,
             ]));
         }
 
@@ -35,6 +61,8 @@ final class CategoriasController extends Controller
             'items' => (new Categoria())->allWithEntrenador($filters),
             'filters' => $filters,
             'entrenadores' => (new Usuario())->coordinadoresCategorias(),
+            'dataCategorias' => $dataCategorias,
+            'dataDemografia' => $dataDemografia,
         ], 'admin');
     }
 

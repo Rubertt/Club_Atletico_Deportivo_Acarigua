@@ -42,7 +42,11 @@ final class FichaMedicaController extends Controller
         $existente = $model->byAtleta($id);
 
         if (!$existente && in_array((int)$atleta['estatus'], [0, 3], true)) {
-            flash('error', 'No es posible registrar una ficha médica para atletas inactivos o suspendidos.');
+            $msg = 'No es posible registrar una ficha médica para atletas inactivos o suspendidos.';
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => false, 'message' => $msg], 403);
+            }
+            flash('error', $msg);
             return $this->redirect("/admin/atletas/$id?tab=tab-ficha");
         }
 
@@ -59,6 +63,11 @@ final class FichaMedicaController extends Controller
         } else {
             $model->insert(['atleta_id' => $id] + $payload);
         }
+        
+        if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+            return Response::json(['success' => true, 'message' => 'Ficha médica guardada correctamente.']);
+        }
+        
         flash('success', 'Ficha médica guardada correctamente.');
         return $this->redirect("/admin/atletas/$id?tab=tab-ficha");
     }
@@ -234,8 +243,14 @@ final class FichaMedicaController extends Controller
             $db = \App\Core\Database::connection();
             $stmt = $db->prepare("DELETE FROM discapacidades WHERE discapacidad_id = :disc_id");
             $stmt->execute([':disc_id' => $discId]);
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => true, 'message' => 'Discapacidad eliminada.']);
+            }
             flash('success', 'Discapacidad eliminada.');
         } catch (\Throwable $e) {
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => false, 'message' => 'No se pudo eliminar la discapacidad.'], 500);
+            }
             flash('error', 'No se pudo eliminar la discapacidad.');
         }
 

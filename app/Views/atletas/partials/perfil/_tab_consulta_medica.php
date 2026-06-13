@@ -1,5 +1,4 @@
 <!-- Tab: Consulta Médica -->
-<div id="tab-consulta" class="tab-content" style="display: none;">
     <?php
     $tipos = [
         1 => 'Enfermedad',
@@ -12,9 +11,8 @@
     ];
 
     $estatuses = [
-        1 => ['label' => 'No Apto', 'class' => 'danger'],
-        2 => ['label' => 'Apto', 'class' => 'success'],
-        3 => ['label' => 'Diferenciado', 'class' => 'warning']
+        0 => ['label' => 'No Apto', 'class' => 'danger'],
+        1 => ['label' => 'Apto', 'class' => 'success']
     ];
     ?>
 
@@ -78,8 +76,7 @@
                     <div class="perfil-row-col">
                         <span class="perfil-col-label">Acciones</span>
                         <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                            <button type="button" class="btn-icon btn-ver-consulta" title="Ver Detalles"
-                                style="color:var(--color-primary); background:none; border:none; cursor:pointer; font-size:16px; padding: 0;"
+                            <button type="button" class="btn-view-premium btn-ver-consulta" title="Ver Detalles"
                                 data-id="<?= e($row['consulta_id']) ?>"
                                 data-tipo-lbl="<?= e($tipos[$row['tipo_consulta']] ?? 'Otro') ?>"
                                 data-fecha-suceso="<?= e(date('d/m/Y', strtotime($row['fecha_suceso']))) ?>"
@@ -93,13 +90,13 @@
                                 <i class="ph ph-eye"></i>
                             </button>
                             <?php if (can('admin') || can('medico')): ?>
-                                <button type="button" class="btn-icon btn-editar-consulta" title="Editar"
-                                    style="color:var(--color-primary); background:none; border:none; cursor:pointer; font-size:16px; padding: 0;"
+                                <button type="button" class="btn-edit-premium btn-editar-consulta" title="Editar"
                                     data-id="<?= e($row['consulta_id']) ?>"
                                     data-tipo="<?= e($row['tipo_consulta']) ?>"
                                     data-fecha-suceso="<?= e($row['fecha_suceso']) ?>"
                                     data-fecha-alta="<?= e($row['fecha_alta_estimada'] ?? '') ?>"
                                     data-estatus="<?= e($row['estatus_disponibilidad'] ?? '') ?>"
+                                    data-creado-en="<?= e($row['creado_en']) ?>"
                                     data-diagnostico="<?= e($row['diagnostico']) ?>"
                                     data-descripcion="<?= e($row['descripcion'] ?? '') ?>"
                                     data-tratamiento="<?= e($row['tratamiento_indicado'] ?? '') ?>">
@@ -109,8 +106,7 @@
                                     action="<?= e(url("/admin/atletas/{$atleta['atleta_id']}/consultas-medicas/{$row['consulta_id']}/eliminar")) ?>"
                                     style="display:inline;">
                                     <?= csrf_field() ?>
-                                    <button type="button" class="btn-icon btn-delete-consulta" title="Eliminar"
-                                        style="color:var(--color-danger); background:none; border:none; cursor:pointer; font-size:16px; padding: 0;">
+                                    <button type="button" class="btn-delete-premium btn-delete-consulta" title="Eliminar">
                                         <i class="ph ph-trash"></i>
                                     </button>
                                 </form>
@@ -154,7 +150,11 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="form-group">
+                        <label class="form-label" data-tooltip="Fecha de registro de la consulta en el sistema." data-tooltip-pos="top">Fecha de Consulta</label>
+                        <input type="text" name="creado_en" id="input-creado-en" class="form-control" readonly>
+                    </div>
                     <div class="form-group">
                         <label class="form-label" data-tooltip="Fecha en la que ocurrió el suceso o la consulta (máximo hace 10 años, no futura)." data-tooltip-pos="top"><span class="required">*</span> Fecha Suceso</label>
                         <input type="date" name="fecha_suceso" id="input-fecha-suceso" class="form-control" 
@@ -162,9 +162,8 @@
                                max="<?= date('Y-m-d') ?>" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Fecha estimada de alta médica (desde ayer en adelante, máximo 3 años en el futuro)." data-tooltip-pos="top">Fecha de Alta Estimada</label>
+                        <label class="form-label" data-tooltip="Fecha estimada de recuperación (posterior al suceso, máximo 3 años a futuro)." data-tooltip-pos="top">Fecha de Recuperación Estimada</label>
                         <input type="date" name="fecha_alta_estimada" id="input-fecha-alta" class="form-control"
-                               min="<?= date('Y-m-d', strtotime('-1 day')) ?>"
                                max="<?= date('Y-m-d', strtotime('+3 years')) ?>">
                     </div>
                 </div>
@@ -285,334 +284,3 @@
             </div>
         </div>
     </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const modalConsulta = document.getElementById('modal-consulta-medica');
-    const formConsulta = document.getElementById('form-consulta-medica');
-    const baseActionConsulta = "<?= e(url("/admin/atletas/{$atleta['atleta_id']}/consultas-medicas")) ?>";
-
-    const modalVer = document.getElementById('modal-ver-consulta');
-
-    function abrirModalVer(data) {
-        if (!modalVer) return;
-
-        document.getElementById('detail-id').textContent = data.id;
-        document.getElementById('detail-tipo').textContent = data.tipo;
-
-        const estatusEl = document.getElementById('detail-estatus');
-        estatusEl.textContent = data.estatus;
-        estatusEl.className = 'badge badge-' + data.estatusClass;
-
-        document.getElementById('detail-fecha-suceso').textContent = data.fechaSuceso;
-        document.getElementById('detail-fecha-alta').textContent = data.fechaAlta;
-        document.getElementById('detail-diagnostico').textContent = data.diagnostico;
-        document.getElementById('detail-registrado').textContent = data.registrado;
-
-        const desc = data.descripcion && data.descripcion !== '—' && data.descripcion.trim() !== '' ? data.descripcion : '';
-        const descEl = document.getElementById('detail-descripcion');
-        if (desc) {
-            descEl.textContent = desc;
-            descEl.style.fontStyle = 'normal';
-            descEl.style.color = 'var(--color-text)';
-        } else {
-            descEl.textContent = 'Sin descripción ni síntomas adicionales registrados.';
-            descEl.style.fontStyle = 'italic';
-            descEl.style.color = 'var(--color-text-muted)';
-        }
-
-        const trat = data.tratamiento && data.tratamiento !== '—' && data.tratamiento.trim() !== '' ? data.tratamiento : '';
-        const tratEl = document.getElementById('detail-tratamiento');
-        if (trat) {
-            tratEl.textContent = trat;
-            tratEl.style.fontStyle = 'normal';
-            tratEl.style.color = 'var(--color-text)';
-        } else {
-            tratEl.textContent = 'Sin tratamiento específico indicado.';
-            tratEl.style.fontStyle = 'italic';
-            tratEl.style.color = 'var(--color-text-muted)';
-        }
-
-        modalVer.style.display = 'flex';
-    }
-
-    function cerrarModalVer() {
-        if (modalVer) modalVer.style.display = 'none';
-    }
-
-    function abrirModalConsulta(modo = 'agregar', data = {}) {
-        if (!modalConsulta) return;
-
-        const title = document.getElementById('title-consulta');
-        const submitText = document.getElementById('submit-text-consulta');
-
-        if (modo === 'editar') {
-            title.textContent = 'Editar Consulta Médica';
-            formConsulta.action = baseActionConsulta + '/' + data.id + '/editar';
-            document.getElementById('input-tipo-consulta').value = data.tipo;
-            document.getElementById('input-fecha-suceso').value = data.fecha_suceso;
-            document.getElementById('input-fecha-alta').value = data.fecha_alta;
-            document.getElementById('input-estatus-disp').value = data.estatus;
-            document.getElementById('input-diagnostico').value = data.diagnostico;
-            document.getElementById('input-descripcion').value = data.descripcion;
-            document.getElementById('input-tratamiento').value = data.tratamiento;
-        } else {
-            title.textContent = 'Registrar Consulta Médica';
-            submitText.innerHTML = '<i class="ph ph-plus"></i> Registrar';
-            formConsulta.action = baseActionConsulta;
-            formConsulta.reset();
-            // Poner fecha de hoy por defecto en fecha suceso
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('input-fecha-suceso').value = hoy;
-        }
-
-        // Sincronizar dinámicamente los límites del input de alta en base a la fecha de suceso cargada
-        const sucesoVal = document.getElementById('input-fecha-suceso').value;
-        const ayer = new Date();
-        ayer.setDate(ayer.getDate() - 1);
-        const ayerStr = ayer.toISOString().split('T')[0];
-
-        let minAlta = ayerStr;
-        if (sucesoVal && sucesoVal > minAlta) {
-            minAlta = sucesoVal;
-        }
-        document.getElementById('input-fecha-alta').setAttribute('min', minAlta);
-
-        const errorEl = document.getElementById('consulta-error');
-        if (errorEl) errorEl.style.display = 'none';
-        modalConsulta.style.display = 'flex';
-    }
-
-    function cerrarModalConsulta() {
-        if (modalConsulta) modalConsulta.style.display = 'none';
-    }
-
-    const inputSuceso = document.getElementById('input-fecha-suceso');
-    const inputAlta = document.getElementById('input-fecha-alta');
-
-    inputSuceso?.addEventListener('blur', () => {
-        const sucesoVal = inputSuceso.value;
-        const ayer = new Date();
-        ayer.setDate(ayer.getDate() - 1);
-        const ayerStr = ayer.toISOString().split('T')[0];
-
-        let minAlta = ayerStr;
-        if (sucesoVal && sucesoVal > minAlta) {
-            minAlta = sucesoVal;
-        }
-        inputAlta?.setAttribute('min', minAlta);
-
-        if (inputAlta && inputAlta.value && inputAlta.value < minAlta) {
-            inputAlta.value = minAlta;
-        }
-    });
-
-    function restrictDateInput(input) {
-        if (!input) return;
-        input.addEventListener('blur', (e) => {
-            const min = e.target.getAttribute('min');
-            const max = e.target.getAttribute('max');
-            let val = e.target.value;
-            if (val) {
-                const parts = val.split('-');
-                if (parts[0] && parts[0].length > 4) {
-                    parts[0] = parts[0].substring(0, 4);
-                    val = parts.join('-');
-                    e.target.value = val;
-                }
-                if (min && val < min) {
-                    e.target.value = min;
-                } else if (max && val > max) {
-                    e.target.value = max;
-                }
-            }
-        });
-    }
-
-    restrictDateInput(inputSuceso);
-    restrictDateInput(inputAlta);
-
-    // Botones de Abrir Modal
-    document.getElementById('btn-agregar-consulta')?.addEventListener('click', () => abrirModalConsulta('agregar'));
-
-    document.querySelectorAll('.btn-editar-consulta').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = e.currentTarget;
-            const data = {
-                id: target.getAttribute('data-id'),
-                tipo: target.getAttribute('data-tipo'),
-                fecha_suceso: target.getAttribute('data-fecha-suceso'),
-                fecha_alta: target.getAttribute('data-fecha-alta'),
-                estatus: target.getAttribute('data-estatus'),
-                diagnostico: target.getAttribute('data-diagnostico'),
-                descripcion: target.getAttribute('data-descripcion'),
-                tratamiento: target.getAttribute('data-tratamiento')
-            };
-            abrirModalConsulta('editar', data);
-        });
-    });
-
-    document.querySelectorAll('.btn-ver-consulta').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const target = e.currentTarget;
-            const data = {
-                id: target.getAttribute('data-id'),
-                tipo: target.getAttribute('data-tipo-lbl'),
-                estatus: target.getAttribute('data-estatus-lbl'),
-                estatusClass: target.getAttribute('data-estatus-class'),
-                fechaSuceso: target.getAttribute('data-fecha-suceso'),
-                fechaAlta: target.getAttribute('data-fecha-alta'),
-                diagnostico: target.getAttribute('data-diagnostico'),
-                descripcion: target.getAttribute('data-descripcion'),
-                tratamiento: target.getAttribute('data-tratamiento'),
-                registrado: target.getAttribute('data-registrado')
-            };
-            abrirModalVer(data);
-        });
-    });
-
-    modalVer?.querySelectorAll('[data-close-modal]').forEach(btn => {
-        btn.addEventListener('click', cerrarModalVer);
-    });
-
-    modalVer?.addEventListener('click', (e) => {
-        if (e.target === modalVer) cerrarModalVer();
-    });
-
-    // Cerrar modal al hacer clic en cancelar o en la cruz
-    modalConsulta?.querySelectorAll('[data-close-modal]').forEach(btn => {
-        btn.addEventListener('click', cerrarModalConsulta);
-    });
-
-    // Cerrar modal al hacer clic fuera del modal container
-    modalConsulta?.addEventListener('click', (e) => {
-        if (e.target === modalConsulta) cerrarModalConsulta();
-    });
-
-    // Interceptar submit
-    formConsulta?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Validar con FormValidator del sistema
-        if (typeof FormValidator !== 'undefined') {
-            const validation = FormValidator.validate(formConsulta);
-            if (!validation.valid) {
-                FormValidator.showErrors(validation.errors);
-                return;
-            }
-        }
-
-        const submitBtn = formConsulta.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
-
-        try {
-            const formData = new FormData(formConsulta);
-            const response = await fetch(formConsulta.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Cerrar modal
-                cerrarModalConsulta();
-
-                // Proceso exitoso con CadaToast (colores verdes, uni-fila, 5s expiración)
-                if (typeof CadaToast !== 'undefined') {
-                    CadaToast.success(result.message || 'Consulta médica guardada correctamente.', () => {
-                        window.location.href = window.location.pathname + '?tab=tab-consulta';
-                    });
-                } else {
-                    window.location.href = window.location.pathname + '?tab=tab-consulta';
-                }
-            } else {
-                // Si hay errores de validación específicos del backend, marcamos los inputs
-                if (result.errors) {
-                    const errorsList = [];
-                    Object.entries(result.errors).forEach(([field, msgs]) => {
-                        const input = formConsulta.querySelector(`[name="${field}"]`) || document.getElementById('input-' + field);
-                        if (input) {
-                            FormValidator.markError(input);
-                            input.addEventListener('focus', function clearOnFocus() {
-                                FormValidator.clearMark(input);
-                                input.removeEventListener('focus', clearOnFocus);
-                            });
-                        }
-                        if (Array.isArray(msgs)) {
-                            msgs.forEach(m => errorsList.push(m));
-                        } else {
-                            errorsList.push(msgs);
-                        }
-                    });
-
-                    if (typeof CadaModal !== 'undefined') {
-                        CadaModal.alert({
-                            title: 'Campos Incompletos',
-                            text: `Por favor revisa lo siguiente:<br><br>${errorsList.map(e => `• ${e}`).join('<br>')}`,
-                            type: 'warning',
-                            confirmText: 'Corregir ahora'
-                        });
-                    } else {
-                        alert('Campos incompletos: ' + errorsList.join('\n'));
-                    }
-                } else {
-                    if (typeof CadaModal !== 'undefined') {
-                        CadaModal.alert({
-                            title: 'Error',
-                            text: result.message || 'Ocurrió un error al guardar la consulta.',
-                            type: 'danger',
-                            confirmText: 'Cerrar'
-                        });
-                    } else {
-                        alert(result.message || 'Ocurrió un error al guardar la consulta.');
-                    }
-                }
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            }
-        } catch (error) {
-            if (typeof CadaModal !== 'undefined') {
-                CadaModal.alert({
-                    title: 'Error de conexión',
-                    text: 'No se pudo conectar con el servidor. Intente nuevamente.',
-                    type: 'danger',
-                    confirmText: 'Cerrar'
-                });
-            } else {
-                alert('No se pudo conectar con el servidor. Intente nuevamente.');
-            }
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
-        }
-    });
-
-    // Confirmación de eliminación
-    document.querySelectorAll('.btn-delete-consulta').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const form = e.currentTarget.closest('form');
-            if (typeof CadaModal !== 'undefined') {
-                CadaModal.confirm({
-                    title: 'Eliminar Consulta Médica',
-                    text: '¿Estás seguro de que deseas eliminar esta consulta médica?',
-                    type: 'danger',
-                    confirmText: 'Sí, eliminar'
-                }).then(confirmed => {
-                    if (confirmed) form.submit();
-                });
-            } else {
-                if (confirm('¿Estás seguro de que deseas eliminar esta consulta médica?')) {
-                    form.submit();
-                }
-            }
-        });
-    });
-});
-</script>

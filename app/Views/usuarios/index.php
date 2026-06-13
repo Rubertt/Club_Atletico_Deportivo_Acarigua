@@ -67,7 +67,7 @@
             <div class="responsive-row-col" style="text-align: right;">
                 <span class="responsive-col-label" style="text-align: right;">Acciones</span>
                 <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <a href="<?= e(url("/admin/usuarios/{$p['usuario_id']}/perfil")) ?>" class="btn btn-sm btn-outline" title="Ver Perfil">
+                    <a href="<?= e(url("/admin/usuarios/{$p['usuario_id']}/perfil")) ?>" class="btn-view-premium" title="Ver Perfil">
                         <i class="ph ph-eye"></i>
                     </a>
                     <form method="POST" action="<?= e(url("/admin/usuarios/{$p['usuario_id']}/restablecer")) ?>" style="display:inline;" class="form-restablecer-usuario">
@@ -78,7 +78,7 @@
                     </form>
                     <form method="POST" action="<?= e(url("/admin/usuarios/{$p['usuario_id']}/eliminar")) ?>" style="display:inline;" class="form-eliminar-usuario">
                         <?= csrf_field() ?>
-                        <button type="button" class="btn btn-sm btn-ghost btn-eliminar-usuario" style="color: var(--color-danger);" title="Eliminar">
+                        <button type="button" class="btn-delete-premium btn-eliminar-usuario" title="Eliminar">
                             <i class="ph ph-trash"></i>
                         </button>
                     </form>

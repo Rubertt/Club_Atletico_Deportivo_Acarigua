@@ -29,6 +29,7 @@ final class ConsultaMedicaService
                 'fecha_suceso'           => $data['fecha_suceso'],
                 'fecha_alta_estimada'    => $data['fecha_alta_estimada'] ?: null,
                 'estatus_disponibilidad' => $data['estatus_disponibilidad'],
+                'creado_en'              => $data['creado_en'],
             ]);
 
             $this->sincronizarEstatusAtleta((int) $data['atleta_id']);
@@ -116,10 +117,10 @@ final class ConsultaMedicaService
 
         if ($masReciente) {
             $estatusDisponibilidad = (int) $masReciente['estatus_disponibilidad'];
-            if (in_array($estatusDisponibilidad, [1, 3], true)) {
-                $atletaModel->update($atletaId, ['estatus' => 2]); // Lesionado
-            } elseif ($estatusDisponibilidad === 2) {
-                $atletaModel->update($atletaId, ['estatus' => 1]); // Activo / Disponible
+            if ($estatusDisponibilidad === 0) {
+                $atletaModel->update($atletaId, ['estatus' => 2]); // Lesionado (No Apto)
+            } elseif ($estatusDisponibilidad === 1) {
+                $atletaModel->update($atletaId, ['estatus' => 1]); // Activo / Disponible (Apto)
             }
         } else {
             // Si no quedan consultas médicas para este atleta, restablecer a Activo (1)

@@ -132,8 +132,8 @@
                         <td><?= e($m['porcentaje_grasa'] ? $m['porcentaje_grasa'] . '%' : '—') ?></td>
                         <td><?= e($m['porcentaje_musculatura'] ? $m['porcentaje_musculatura'] . '%' : '—') ?></td>
                         <td style="text-align: right; padding-right: 24px;">
-                            <button class="btn btn-sm btn-ghost btn-delete-medida" data-id="<?= $m['medidas_id'] ?>">
-                                <i class="ph ph-trash" style="color: var(--color-danger);"></i>
+                            <button class="btn-delete-premium btn-delete-medida" data-id="<?= $m['medidas_id'] ?>">
+                                <i class="ph ph-trash"></i>
                             </button>
                         </td>
                     </tr>

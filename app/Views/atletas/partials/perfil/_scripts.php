@@ -34,9 +34,8 @@
                 if (targetId === 'tab-antropometria' && chartAntro) {
                     setTimeout(() => chartAntro.resize(), 50);
                 }
-                if (targetId === 'tab-pruebas') {
-                    if (chartRadar) setTimeout(() => chartRadar.resize(), 50);
-                    if (chartRadarNac) setTimeout(() => chartRadarNac.resize(), 50);
+                if (targetId === 'tab-pruebas' && chartRadar) {
+                    setTimeout(() => chartRadar.resize(), 50);
                 }
                 if (targetId === 'tab-asistencia' && typeof chartDona !== 'undefined' && chartDona) {
                     setTimeout(() => chartDona.resize(), 50);
@@ -571,7 +570,100 @@
             chartAntro.setOption(optionAntro);
         }
 
+        // 1.8 Modal de Pruebas Físicas
+        const modalPrueba = document.getElementById('modal-prueba');
+        const formPrueba = document.getElementById('form-prueba');
 
+        function abrirModalPrueba() {
+            if (modalPrueba) {
+                modalPrueba.style.display = 'flex';
+            }
+        }
+
+        function cerrarModalPrueba() {
+            if (modalPrueba) modalPrueba.style.display = 'none';
+        }
+
+        document.getElementById('btn-nueva-prueba')?.addEventListener('click', abrirModalPrueba);
+
+        formPrueba?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validar con FormValidator
+            const validation = FormValidator.validate(formPrueba, validarPruebaCustom);
+            if (!validation.valid) {
+                FormValidator.showErrors(validation.errors);
+                return;
+            }
+
+            const submitBtn = formPrueba.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
+
+            try {
+                const formData = new FormData(formPrueba);
+                const response = await fetch(formPrueba.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                const text = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    console.error("Invalid JSON:", text);
+                    throw new Error("El servidor no devolvió una respuesta válida.");
+                }
+
+                if (result.success) {
+                    window.location.href = window.location.pathname + '?tab=tab-pruebas';
+                } else {
+                    if (result.errors) {
+                        const errorsList = [];
+                        Object.entries(result.errors).forEach(([field, msgs]) => {
+                            const input = formPrueba.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                FormValidator.markError(input);
+                                input.addEventListener('focus', function clearOnFocus() {
+                                    FormValidator.clearMark(input);
+                                    input.removeEventListener('focus', clearOnFocus);
+                                });
+                            }
+                            if (Array.isArray(msgs)) {
+                                msgs.forEach(m => errorsList.push(m));
+                            } else {
+                                errorsList.push(msgs);
+                            }
+                        });
+                        FormValidator.showErrors(errorsList);
+                    } else {
+                        CadaModal.alert({
+                            title: 'Error',
+                            text: result.message || 'Error al guardar los resultados.',
+                            type: 'danger'
+                        });
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            } catch (error) {
+                CadaModal.alert({
+                    title: 'Error',
+                    text: error.message || 'Error de conexión con el servidor. Inténtalo de nuevo.',
+                    type: 'danger'
+                });
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        modalPrueba?.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', cerrarModalPrueba);
+        });
 
         // 3. Gráfica Real Radar de Pruebas Físicas (Ya implementada arriba)
 
@@ -753,15 +845,15 @@
                     if (result.success) {
                         modal.style.display = 'none';
 
-                        if (typeof CadaToast !== 'undefined') {
-                            CadaToast.success(result.message || 'Cambios guardados correctamente.', () => {
-                                const currentTab = new URLSearchParams(window.location.search).get('tab') || 'tab-general';
-                                window.location.href = window.location.pathname + '?tab=' + currentTab;
-                            });
-                        } else {
+                        CadaModal.alert({
+                            title: '¡Éxito!',
+                            text: result.message || 'Cambios guardados correctamente.',
+                            type: 'success',
+                            confirmText: 'Aceptar'
+                        }).then(() => {
                             const currentTab = new URLSearchParams(window.location.search).get('tab') || 'tab-general';
                             window.location.href = window.location.pathname + '?tab=' + currentTab;
-                        }
+                        });
                     } else {
                         // Si hay errores de validación específicos del backend, marcamos los inputs
                         if (result.errors) {
@@ -883,11 +975,9 @@
             cargarEstados(selectPais.value);
         }
 
-        // 3. Gráfica Real Radar de Pruebas Físicas (Internacional y Nacional)
+        // 3. Gráfica Real Radar de Pruebas Físicas
         var chartRadar = null;
-        var chartRadarNac = null;
         const chartRadarDOM = document.getElementById('chart-radar-pruebas');
-        const chartRadarNacDOM = document.getElementById('chart-radar-pruebas-nacional');
         const historialPruebasRadar = <?= json_encode($pruebas_historial ?? []) ?>;
 
         if (chartRadarDOM && typeof echarts !== 'undefined') {
@@ -983,106 +1073,148 @@
             chartRadar.setOption(optionRadar);
         }
 
-        if (chartRadarNacDOM && typeof echarts !== 'undefined') {
-            chartRadarNac = echarts.init(chartRadarNacDOM);
-
-            let radarNacDataSeries = [];
-            const coloresNac = [
-                { line: '#0EA5E9', fill: 'rgba(14, 165, 233, 0.4)' },
-                { line: '#10B981', fill: 'rgba(16, 185, 129, 0.3)' } // Verde para la prueba anterior nacional
-            ];
-
-            if (historialPruebasRadar.length > 0) {
-                // Última prueba (índice 0)
-                const p1 = historialPruebasRadar[0];
-                let d1 = 'Manual';
-                if (p1.fecha_evento) d1 = new Date(p1.fecha_evento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-                radarNacDataSeries.push({
-                    value: [
-                        p1.test_de_fuerza_nac || 0,
-                        p1.test_resistencia_nac || 0,
-                        p1.test_velocidad_nac || 0,
-                        p1.test_coordinacion_nac || 0,
-                        p1.test_de_reaccion_nac || 0
-                    ],
-                    name: 'Última: ' + d1,
-                    itemStyle: { color: coloresNac[0].line },
-                    areaStyle: { color: coloresNac[0].fill },
-                    symbol: 'circle',
-                    symbolSize: 6
-                });
-
-                // Penúltima prueba (índice 1)
-                if (historialPruebasRadar.length > 1) {
-                    const p2 = historialPruebasRadar[1];
-                    let d2 = 'Manual';
-                    if (p2.fecha_evento) d2 = new Date(p2.fecha_evento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-                    radarNacDataSeries.push({
-                        value: [
-                            p2.test_de_fuerza_nac || 0,
-                            p2.test_resistencia_nac || 0,
-                            p2.test_velocidad_nac || 0,
-                            p2.test_coordinacion_nac || 0,
-                            p2.test_de_reaccion_nac || 0
-                        ],
-                        name: 'Anterior: ' + d2,
-                        itemStyle: { color: coloresNac[1].line },
-                        lineStyle: { type: 'dashed' },
-                        areaStyle: { color: coloresNac[1].fill },
-                        symbol: 'circle',
-                        symbolSize: 6
-                    });
-                }
-            } else {
-                radarNacDataSeries.push({
-                    value: [0, 0, 0, 0, 0],
-                    name: 'Sin Evaluaciones',
-                    itemStyle: { color: 'var(--color-text-muted)' },
-                    areaStyle: { color: 'rgba(150, 150, 150, 0.1)' }
-                });
-            }
-
-            const optionRadarNac = {
-                tooltip: { trigger: 'item' },
-                legend: { 
-                    data: radarNacDataSeries.map(s => s.name), 
-                    bottom: 0,
-                    textStyle: { fontSize: 11, color: chartTextMuted }
-                },
-                radar: {
-                    indicator: [
-                        { name: 'Fuerza', max: 100 },
-                        { name: 'Resistencia', max: 100 },
-                        { name: 'Velocidad', max: 100 },
-                        { name: 'Coordinación', max: 100 },
-                        { name: 'Reacción', max: 100 }
-                    ],
-                    radius: '60%',
-                    axisName: { color: chartTextMuted, fontWeight: 'bold' },
-                    axisLine: { lineStyle: { color: chartBorderColor } },
-                    splitLine: { lineStyle: { color: chartBorderColor } },
-                    splitArea: {
-                        areaStyle: {
-                            color: ['rgba(255, 255, 255, 0.05)', 'rgba(200, 200, 200, 0.05)']
-                        }
-                    }
-                },
-                series: [{
-                    name: 'Rendimiento FUTVE',
-                    type: 'radar',
-                    data: radarNacDataSeries
-                }]
-            };
-            chartRadarNac.setOption(optionRadarNac);
-        }
-
         window.addEventListener('resize', () => {
             if (chartAntro) chartAntro.resize();
             if (chartRadar) chartRadar.resize();
-            if (chartRadarNac) chartRadarNac.resize();
         });
 
+        // 1.8.5 Modal de Edición de Pruebas Físicas
+        const modalPruebaEditar = document.getElementById('modal-prueba-editar');
+        const formPruebaEditar = document.getElementById('form-prueba-editar');
 
+        function cerrarModalPruebaEditar() {
+            if (modalPruebaEditar) modalPruebaEditar.style.display = 'none';
+        }
+
+        document.querySelectorAll('.btn-editar-prueba').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const fecha = btn.getAttribute('data-fecha');
+                const entrenadorId = btn.getAttribute('data-entrenador-id');
+                const fuerza = btn.getAttribute('data-fuerza');
+                const resistencia = btn.getAttribute('data-resistencia');
+                const velocidad = btn.getAttribute('data-velocidad');
+                const coordinacion = btn.getAttribute('data-coordinacion');
+                const reaccion = btn.getAttribute('data-reaccion');
+
+                // Llenar campos
+                document.getElementById('edit-prueba-fecha').value = fecha ? fecha.substring(0, 10) : '';
+                document.getElementById('edit-prueba-entrenador').value = entrenadorId || '';
+                document.getElementById('edit-prueba-fuerza').value = fuerza || '';
+                document.getElementById('edit-prueba-resistencia').value = resistencia || '';
+                document.getElementById('edit-prueba-velocidad').value = velocidad || '';
+                document.getElementById('edit-prueba-coordinacion').value = coordinacion || '';
+                document.getElementById('edit-prueba-reaccion').value = reaccion || '';
+
+                // Ajustar acción de form dinámicamente
+                formPruebaEditar.action = `<?= url("/admin/resultados-pruebas") ?>/${id}/editar`;
+
+                if (modalPruebaEditar) modalPruebaEditar.style.display = 'flex';
+            });
+        });
+
+        formPruebaEditar?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validar con FormValidator
+            const validation = FormValidator.validate(formPruebaEditar, validarPruebaCustom);
+            if (!validation.valid) {
+                FormValidator.showErrors(validation.errors);
+                return;
+            }
+
+            const submitBtn = formPruebaEditar.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
+
+            try {
+                const formData = new FormData(formPruebaEditar);
+                const response = await fetch(formPruebaEditar.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = window.location.pathname + '?tab=tab-pruebas';
+                } else {
+                    if (result.errors) {
+                        const errorsList = [];
+                        Object.entries(result.errors).forEach(([field, msgs]) => {
+                            const input = formPruebaEditar.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                FormValidator.markError(input);
+                                input.addEventListener('focus', function clearOnFocus() {
+                                    FormValidator.clearMark(input);
+                                    input.removeEventListener('focus', clearOnFocus);
+                                });
+                            }
+                            if (Array.isArray(msgs)) {
+                                msgs.forEach(m => errorsList.push(m));
+                            } else {
+                                errorsList.push(msgs);
+                            }
+                        });
+                        FormValidator.showErrors(errorsList);
+                    } else {
+                        CadaModal.alert({
+                            title: 'Error',
+                            text: result.message || 'Error al actualizar la prueba.',
+                            type: 'danger'
+                        });
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            } catch (error) {
+                CadaModal.alert({
+                    title: 'Error',
+                    text: 'Error de conexión con el servidor. Inténtalo de nuevo.',
+                    type: 'danger'
+                });
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        modalPruebaEditar?.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', cerrarModalPruebaEditar);
+        });
+
+        // 1.8.6 Eliminación de Pruebas Físicas con CadaModal
+        document.querySelectorAll('.btn-eliminar-prueba').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const atletaId = "<?= $atleta['atleta_id'] ?>";
+
+                CadaModal.confirm({
+                    title: '¿Eliminar Prueba Física?',
+                    text: '¿Estás seguro de eliminar este registro de pruebas físicas? Esta acción no se puede deshacer.',
+                    type: 'danger',
+                    confirmText: 'Sí, Eliminar',
+                    cancelText: 'Cancelar'
+                }).then((confirmed) => {
+                    if (confirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `<?= url('/admin/resultados-pruebas') ?>/${id}/eliminar?atleta_id=${atletaId}&redirect=${encodeURIComponent(window.location.pathname + '?tab=tab-pruebas')}`;
+
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_csrf';
+                        csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+
+                        form.appendChild(csrf);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
 
         // 5. Asistencia: Calendario Mensual y Gráfico de Dona
         const historialAsistenciasData = <?= json_encode($asistencias_historial ?? []) ?>;
@@ -1096,15 +1228,11 @@
             let countPresente = 0;
             let countAusente = 0;
             let countJustificado = 0;
-            let countPartido = 0;
             
             historialAsistenciasData.forEach(a => {
-                const tipo = parseInt(a.tipo_actividad);
                 const estatus = parseInt(a.estatus);
                 
-                if (tipo === 0 && estatus === 1) { // Partido y presente
-                    countPartido++;
-                } else if (estatus === 1) {
+                if (estatus === 1) {
                     countPresente++;
                 } else if (estatus === 2) {
                     countJustificado++;
@@ -1136,7 +1264,6 @@
                         labelLine: { show: false },
                         data: total === 0 ? [{ value: 1, name: 'Sin registros', itemStyle: { color: chartBorderColor }, label: { show: true, position: 'center', fontSize: 14, color: chartTextMuted, fontWeight: 'bold' }, emphasis: { label: { color: chartTextMuted } } }] : [
                             { value: countPresente, name: 'Presente', itemStyle: { color: '#10B981' } },
-                            { value: countPartido, name: 'Partido', itemStyle: { color: '#2563EB' } },
                             { value: countJustificado, name: 'Justificado', itemStyle: { color: '#F59E0B' } },
                             { value: countAusente, name: 'Ausente', itemStyle: { color: '#EF4444' } }
                         ].filter(d => d.value > 0)
@@ -1212,8 +1339,7 @@
                         const estatus = parseInt(r.estatus);
                         const tipo = parseInt(r.tipo_actividad);
                         
-                        if (tipo === 0 && estatus === 1) dot.classList.add('partido');
-                        else if (estatus === 1) dot.classList.add('presente');
+                        if (estatus === 1) dot.classList.add('presente');
                         else if (estatus === 2) dot.classList.add('justificado');
                         else if (estatus === 0) dot.classList.add('ausente');
                         
@@ -1320,7 +1446,7 @@
         // —— Validaciones de Cédula y Widgets ———————————————————————————————————————————
         const CEDULA_REGEX = /^[VE]-\d{6,10}$/i;
         const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
-        const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,5}$/i;
+        const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}$/i;
 
         function formatCedulaNumber(digits) {
             return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -1357,14 +1483,16 @@
             const folioInputs = isAthlete ? document.getElementById('folio_inputs') : null;
             const fYear = isAthlete ? document.getElementById('folio_year') : null;
             const fActa = isAthlete ? document.getElementById('folio_acta') : null;
+            const fFolio = isAthlete ? document.getElementById('folio_folio') : null;
 
             function sync() {
                 let val = '';
                 if (prefixEl.value === 'N' && folioInputs) {
                     let y = fYear.value.replace(/\D/g, '').substring(0, 4);
-                    let a = fActa.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
-                    fYear.value = y; fActa.value = a;
-                    val = (y || a) ? `${y}-${a}` : '';
+                    let a = fActa.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
+                    let f = fFolio.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+                    fYear.value = y; fActa.value = a; fFolio.value = f;
+                    val = (y || a || f) ? `${y}-${a}-${f}` : '';
                 } else if (prefixEl.value === 'P') {
                     let raw = numberEl.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
                     let digitsOnly = raw.replace(/\./g, '');
@@ -1393,7 +1521,7 @@
                     if (folioInputs) {
                         folioInputs.style.display = 'flex';
                         if (!isInit) {
-                            fYear.value = ''; fActa.value = '';
+                            fYear.value = ''; fActa.value = ''; fFolio.value = '';
                             fYear.focus();
                         }
                     } else {
@@ -1437,6 +1565,7 @@
                         let parts = num.split('-');
                         if (fYear) fYear.value = parts[0] || '';
                         if (fActa) fActa.value = parts[1] || '';
+                        if (fFolio) fFolio.value = parts[2] || '';
                     }
                 } else {
                     let cleanNum = num.replace(/[^A-Z0-9]/gi, '').toUpperCase();
@@ -1453,6 +1582,7 @@
             if (folioInputs) {
                 fYear.addEventListener('input', sync);
                 fActa.addEventListener('input', sync);
+                fFolio?.addEventListener('input', sync);
             }
 
             prefixEl.addEventListener('change', () => {
@@ -1640,7 +1770,50 @@
             return errors;
         }
 
+        function validarPruebaCustom(form) {
+            const errors = [];
+            const fechaInput = form.querySelector('[name="fecha_evaluacion"]');
+            if (fechaInput) {
+                const fechaVal = fechaInput.value;
+                if (fechaVal) {
+                    const selectedDate = new Date(fechaVal + 'T00:00:00');
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    if (selectedDate > today) {
+                        errors.push({
+                            element: fechaInput,
+                            message: 'La fecha de evaluación no puede ser en el futuro'
+                        });
+                    }
+                }
+            }
 
+            // Validar que al menos un test esté lleno
+            const campos = ['test_de_fuerza', 'test_resistencia', 'test_velocidad', 'test_coordinacion', 'test_de_reaccion'];
+            let filledCount = 0;
+            campos.forEach(campo => {
+                const input = form.querySelector(`[name="${campo}"]`);
+                if (input && input.value && input.value.trim() !== '') {
+                    filledCount++;
+                }
+            });
+
+            if (filledCount === 0) {
+                const firstInput = form.querySelector('[name="test_de_fuerza"]');
+                errors.push({
+                    element: firstInput,
+                    message: 'Debe ingresar al menos un resultado de test (Fuerza, Resistencia, Velocidad, Coordinación o Reacción)'
+                });
+                campos.forEach(campo => {
+                    const input = form.querySelector(`[name="${campo}"]`);
+                    if (input) {
+                        FormValidator.markError(input);
+                    }
+                });
+            }
+
+            return errors;
+        }
 
         // —— Actualización Dinámica de Asteriscos ——————————————————————————————————————
         function updateRequiredLabels() {
@@ -1687,9 +1860,413 @@
             updateRequiredLabels();
         }
 
+        // —— Consulta Médica Modales y Métodos ———————————————————————————————————————————
+        const modalConsulta = document.getElementById('modal-consulta-medica');
+        const formConsulta = document.getElementById('form-consulta-medica');
+        const baseActionConsulta = "<?= e(url("/admin/atletas/{$atleta['atleta_id']}/consultas-medicas")) ?>";
+        const modalVer = document.getElementById('modal-ver-consulta');
+        let estadoOriginal = null;
+
+        function getMinAltaDate(sucesoStr) {
+            if (!sucesoStr) return '';
+            const parts = sucesoStr.split('-');
+            if (parts.length !== 3) return '';
+            const date = new Date(parts[0], parts[1] - 1, parts[2]);
+            date.setDate(date.getDate() + 1);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function abrirModalVer(data) {
+            if (!modalVer) return;
+            document.getElementById('detail-id').textContent = data.id;
+            document.getElementById('detail-tipo').textContent = data.tipo;
+            const estatusEl = document.getElementById('detail-estatus');
+            estatusEl.textContent = data.estatus;
+            estatusEl.className = 'badge badge-' + data.estatusClass;
+            document.getElementById('detail-fecha-suceso').textContent = data.fechaSuceso;
+            document.getElementById('detail-fecha-alta').textContent = data.fechaAlta;
+            document.getElementById('detail-diagnostico').textContent = data.diagnostico;
+            document.getElementById('detail-registrado').textContent = data.registrado;
+
+            const desc = data.descripcion && data.descripcion !== '—' && data.descripcion.trim() !== '' ? data.descripcion : '';
+            const descEl = document.getElementById('detail-descripcion');
+            if (desc) {
+                descEl.textContent = desc;
+                descEl.style.fontStyle = 'normal';
+                descEl.style.color = 'var(--color-text)';
+            } else {
+                descEl.textContent = 'Sin descripción ni síntomas adicionales registrados.';
+                descEl.style.fontStyle = 'italic';
+                descEl.style.color = 'var(--color-text-muted)';
+            }
+
+            const trat = data.tratamiento && data.tratamiento !== '—' && data.tratamiento.trim() !== '' ? data.tratamiento : '';
+            const tratEl = document.getElementById('detail-tratamiento');
+            if (trat) {
+                tratEl.textContent = trat;
+                tratEl.style.fontStyle = 'normal';
+                tratEl.style.color = 'var(--color-text)';
+            } else {
+                tratEl.textContent = 'Sin tratamiento indicado registrado.';
+                tratEl.style.fontStyle = 'italic';
+                tratEl.style.color = 'var(--color-text-muted)';
+            }
+
+            modalVer.style.display = 'flex';
+        }
+
+        function abrirModalConsulta(modo = 'agregar', data = {}) {
+            if (!modalConsulta) return;
+            const title = document.getElementById('title-consulta');
+            const submitText = document.getElementById('submit-text-consulta');
+
+            if (modo === 'editar') {
+                title.textContent = 'Editar Consulta Médica';
+                submitText.innerHTML = '<i class="ph ph-floppy-disk"></i> Guardar Cambios';
+                formConsulta.action = baseActionConsulta + '/' + data.id + '/editar';
+                document.getElementById('input-tipo-consulta').value = data.tipo;
+                document.getElementById('input-fecha-suceso').value = data.fecha_suceso;
+                document.getElementById('input-fecha-alta').value = data.fecha_alta;
+                document.getElementById('input-estatus-disp').value = data.estatus;
+                document.getElementById('input-diagnostico').value = data.diagnostico;
+                document.getElementById('input-descripcion').value = data.descripcion;
+                document.getElementById('input-tratamiento').value = data.tratamiento;
+
+                const inputCreadoEn = document.getElementById('input-creado-en');
+                if (inputCreadoEn) {
+                    inputCreadoEn.value = data.creado_en || '';
+                }
+
+                estadoOriginal = String(data.estatus); // Guardar estado original
+            } else {
+                title.textContent = 'Registrar Consulta Médica';
+                submitText.innerHTML = '<i class="ph ph-plus"></i> Registrar';
+                formConsulta.action = baseActionConsulta;
+                formConsulta.reset();
+
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('input-fecha-suceso').value = hoy;
+
+                // Visualizar la fecha de consulta actual (fecha/hora de la PC)
+                const inputCreadoEn = document.getElementById('input-creado-en');
+                if (inputCreadoEn) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    inputCreadoEn.value = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                }
+
+                estadoOriginal = null;
+            }
+
+            // Sincronizar el min de fecha-alta
+            const sucesoVal = document.getElementById('input-fecha-suceso').value;
+            if (sucesoVal) {
+                const minAlta = getMinAltaDate(sucesoVal);
+                if (minAlta) {
+                    document.getElementById('input-fecha-alta').setAttribute('min', minAlta);
+                }
+            } else {
+                document.getElementById('input-fecha-alta').removeAttribute('min');
+            }
+
+            const errorEl = document.getElementById('consulta-error');
+            if (errorEl) errorEl.style.display = 'none';
+            modalConsulta.style.display = 'flex';
+        }
+
+        document.getElementById('btn-agregar-consulta')?.addEventListener('click', () => abrirModalConsulta('agregar'));
+
+        document.querySelectorAll('.btn-editar-consulta').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget;
+                abrirModalConsulta('editar', {
+                    id: target.getAttribute('data-id'),
+                    tipo: target.getAttribute('data-tipo'),
+                    fecha_suceso: target.getAttribute('data-fecha-suceso'),
+                    fecha_alta: target.getAttribute('data-fecha-alta'),
+                    estatus: target.getAttribute('data-estatus'),
+                    creado_en: target.getAttribute('data-creado-en'),
+                    diagnostico: target.getAttribute('data-diagnostico'),
+                    descripcion: target.getAttribute('data-descripcion'),
+                    tratamiento: target.getAttribute('data-tratamiento')
+                });
+            });
+        });
+
+        document.querySelectorAll('.btn-ver-consulta').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget;
+                abrirModalVer({
+                    id: target.getAttribute('data-id'),
+                    tipo: target.getAttribute('data-tipo-lbl'),
+                    estatus: target.getAttribute('data-estatus-lbl'),
+                    estatusClass: target.getAttribute('data-estatus-class'),
+                    fechaSuceso: target.getAttribute('data-fecha-suceso'),
+                    fechaAlta: target.getAttribute('data-fecha-alta'),
+                    diagnostico: target.getAttribute('data-diagnostico'),
+                    descripcion: target.getAttribute('data-descripcion'),
+                    tratamiento: target.getAttribute('data-tratamiento'),
+                    registrado: target.getAttribute('data-registrado')
+                });
+            });
+        });
+
+        const inputSuceso = document.getElementById('input-fecha-suceso');
+        const inputAlta = document.getElementById('input-fecha-alta');
+
+        function actualizarMinAlta() {
+            if (inputSuceso && inputAlta) {
+                const sucesoVal = inputSuceso.value;
+                if (sucesoVal) {
+                    const minAlta = getMinAltaDate(sucesoVal);
+                    if (minAlta) {
+                        inputAlta.setAttribute('min', minAlta);
+                        if (inputAlta.value && inputAlta.value < minAlta) {
+                            inputAlta.value = minAlta;
+                        }
+                    }
+                } else {
+                    inputAlta.removeAttribute('min');
+                }
+            }
+        }
+
+        inputSuceso?.addEventListener('change', actualizarMinAlta);
+        inputSuceso?.addEventListener('input', actualizarMinAlta);
+
+        function restrictDateInput(input) {
+            if (!input) return;
+            input.addEventListener('blur', (e) => {
+                const min = e.target.getAttribute('min');
+                const max = e.target.getAttribute('max');
+                let val = e.target.value;
+                if (val) {
+                    const parts = val.split('-');
+                    if (parts[0] && parts[0].length > 4) {
+                        parts[0] = parts[0].substring(0, 4);
+                        val = parts.join('-');
+                        e.target.value = val;
+                    }
+                    if (min && val < min) e.target.value = min;
+                    else if (max && val > max) e.target.value = max;
+                }
+            });
+        }
+        restrictDateInput(inputSuceso);
+        restrictDateInput(inputAlta);
+
+        // Submit Consulta
+        formConsulta?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validar con FormValidator si tiene reglas
+            const validation = FormValidator.validate(formConsulta);
+            if (!validation.valid) {
+                FormValidator.showErrors(validation.errors);
+                return;
+            }
+
+            const submitBtn = formConsulta.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Guardando...';
+
+            try {
+                const response = await fetch(formConsulta.action, {
+                    method: 'POST',
+                    body: new FormData(formConsulta),
+                    headers: { 'Accept': 'application/json' }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    modalConsulta.style.display = 'none';
+                    if (typeof CadaToast !== 'undefined') {
+                        CadaToast.success(result.message || 'Consulta médica guardada.');
+                    }
+                    
+                    const estatusNuevo = document.getElementById('input-estatus-disp').value;
+                    if (estadoOriginal === '0' && estatusNuevo === '1') {
+                        CadaModal.alert({
+                            title: 'Recomendación',
+                            text: 'Se recomienda hacer un chequeo antropométrico en este atleta, y realizarle pruebas físicas, para estimar los posibles efectos adversos luego de su inactividad.',
+                            type: 'warning',
+                            confirmText: 'Entendido'
+                        }).then(() => {
+                            window.location.href = window.location.pathname + '?tab=tab-consulta';
+                        });
+                    } else {
+                        window.location.href = window.location.pathname + '?tab=tab-consulta';
+                    }
+                } else {
+                    if (result.errors) {
+                        const errorsList = [];
+                        let limiteAlcanzado = false;
+                        Object.entries(result.errors).forEach(([field, msgs]) => {
+                            const msgText = Array.isArray(msgs) ? msgs.join(' ') : String(msgs);
+                            if (msgText.includes('Límite de registro por fecha de suceso alcanzado') || field === 'limite') {
+                                limiteAlcanzado = true;
+                            }
+                            const input = formConsulta.querySelector(`[name="${field}"]`) || document.getElementById('input-' + field);
+                            if (input) {
+                                FormValidator.markError(input);
+                                input.addEventListener('focus', function clearOnFocus() {
+                                    FormValidator.clearMark(input);
+                                    input.removeEventListener('focus', clearOnFocus);
+                                });
+                            }
+                            if (Array.isArray(msgs)) msgs.forEach(m => errorsList.push(m));
+                            else errorsList.push(msgs);
+                        });
+
+                        if (limiteAlcanzado) {
+                            CadaModal.alert({
+                                title: 'Límite de registro por fecha de suceso alcanzado',
+                                text: 'Se ha alcanzado el límite máximo de 3 consultas médicas registradas para el mismo atleta en la misma fecha de suceso.',
+                                type: 'warning',
+                                confirmText: 'Entendido'
+                            });
+                        } else {
+                            CadaModal.alert({
+                                title: 'Campos Incompletos',
+                                text: `Por favor revisa lo siguiente:<br><br>${errorsList.map(err => `• ${err}`).join('<br>')}`,
+                                type: 'warning',
+                                confirmText: 'Corregir ahora'
+                            });
+                        }
+                    } else {
+                        CadaModal.alert({ title: 'Error', text: result.message || 'Ocurrió un error.', type: 'danger' });
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            } catch (err) {
+                console.error(err);
+                CadaModal.alert({ title: 'Error de conexión', text: 'Intente nuevamente.', type: 'danger' });
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // Eliminar Consulta
+        document.querySelectorAll('.btn-delete-consulta').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget.closest('form');
+                if (!form) return;
+                const confirmed = await CadaModal.confirm({
+                    title: 'Eliminar Consulta Médica',
+                    text: '¿Estás seguro de que deseas eliminar esta consulta médica?',
+                    type: 'danger',
+                    confirmText: 'Sí, eliminar'
+                });
+                if (confirmed) {
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: new FormData(form),
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            if (typeof CadaToast !== 'undefined') {
+                                CadaToast.success(result.message || 'Consulta médica eliminada.');
+                            }
+                            window.location.href = window.location.pathname + '?tab=tab-consulta';
+                        } else {
+                            CadaModal.alert({ title: 'Error', text: result.message || 'No se pudo eliminar.', type: 'danger' });
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        form.submit();
+                    }
+                }
+            });
+        });
+
+        modalConsulta?.addEventListener('click', (e) => {
+            if (e.target === modalConsulta) modalConsulta.style.display = 'none';
+        });
+        modalVer?.addEventListener('click', (e) => {
+            if (e.target === modalVer) modalVer.style.display = 'none';
+        });
+
         paginateTable('tabla-asistencias', 5);
         paginateTable('tabla-antropometria', 5);
         paginateTable('tabla-pruebas', 5);
+
+        // —— Botones de Ayuda en Modales [?] ———————————————————————————————————————————
+        document.getElementById('btn-help-basico')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Datos Básicos',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-representante')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Editar Representante',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-direccion')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Dirección Detallada',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-ficha-medica')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Ficha Médica',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-discapacidad')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Agregar Discapacidad',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-medicion')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Nueva Medición',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-medicion-editar')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Editar Medición',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
+            );
+        });
+
+        document.getElementById('btn-help-prueba')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Registrar Prueba Física',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>',
+                'Ingrese los resultados de las pruebas (escala 1-100). Si no tiene un evento creado, se generará uno automáticamente para la fecha indicada.'
+            );
+        });
+
+        document.getElementById('btn-help-prueba-editar')?.addEventListener('click', () => {
+            FormValidator.showHelp(
+                'Guía: Editar Prueba Física',
+                '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>',
+                'Ingrese los resultados de las pruebas (escala 1-100). Si no tiene un evento creado, se generará uno automáticamente para la fecha indicada.'
+            );
+        });
 
     });
 </script>

@@ -106,16 +106,16 @@
                 </div>
 
                 <div class="sesion-row-card__actions">
-                    <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Detalles">
+                    <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'])) ?>" class="btn-view-premium" title="Ver Detalles">
                         <i class="ph ph-eye"></i>
                     </a>
-                    <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/editar')) ?>" class="btn btn-sm btn-outline" title="Pase de Asistencia / Editar">
+                    <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/editar')) ?>" class="btn-edit-premium" title="Pase de Asistencia / Editar">
                         <i class="ph ph-pencil-simple"></i>
                     </a>
                     <form action="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/eliminar')) ?>" method="POST" style="display:inline;">
                         <?= csrf_field() ?>
-                        <button type="button" class="btn btn-sm btn-outline btn-delete-convocatoria" title="Eliminar Convocatoria" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
-                            <i class="ph ph-trash" style="color: var(--color-danger);"></i>
+                        <button type="button" class="btn-delete-premium btn-delete-convocatoria" title="Eliminar Convocatoria" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
+                            <i class="ph ph-trash"></i>
                         </button>
                     </form>
                 </div>

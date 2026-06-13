@@ -12,6 +12,20 @@
                 #tab-pruebas .perfil-table-header {
                     font-size: 15.6px !important;
                 }
+            <!-- Tab: Pruebas Físicas -->
+            <style>
+                #tab-pruebas {
+                    font-size: 1.2rem;
+                }
+                #tab-pruebas h3 {
+                    font-size: 20px !important;
+                }
+                #tab-pruebas h4 {
+                    font-size: 18px !important;
+                }
+                #tab-pruebas .perfil-table-header {
+                    font-size: 15.6px !important;
+                }
                 #tab-pruebas .perfil-col-label {
                     font-size: 13.2px !important;
                 }
@@ -19,7 +33,6 @@
                     font-size: 15.6px !important;
                 }
             </style>
-            <div id="tab-pruebas" class="tab-content" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-chart-line-up"></i> Rendimiento Físico</h3>
                 </div>
@@ -28,7 +41,7 @@
                     <!-- Gráfico Internacional -->
                     <div style="height: 350px; background: var(--color-bg-alt); border-radius: var(--radius); border: 1px solid var(--color-border); padding: 16px; display: flex; flex-direction: column;">
                         <h4 style="margin-top: 0; margin-bottom: 12px; text-align: center; font-size: 17px;"><i class="ph ph-globe"></i> Comparación Internacional (Élite)</h4>
-                        <div id="chart-radar-pruebas" style="flex: 1; width: 100%;"></div>
+                        <div id="chart-radar-pruebas" style="flex: 1; width: 100%;" data-historial="<?= e(json_encode($pruebas_historial ?? [])) ?>"></div>
                     </div>
                     
                     <!-- Gráfico Nacional -->
@@ -283,4 +296,3 @@
                             </div>
                         <?php endforeach; endif; ?>
                 </div>
-             </div>

@@ -292,8 +292,14 @@ final class MedidasAntropometricasController extends Controller
         
         try {
             (new MedidaAntropometrica())->delete($id);
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => true, 'message' => 'Medición eliminada correctamente.']);
+            }
             flash('success', 'Medición eliminada correctamente.');
         } catch (\Throwable $e) {
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => false, 'message' => 'No se pudo eliminar la medición.'], 500);
+            }
             flash('error', 'No se pudo eliminar la medición.');
         }
 

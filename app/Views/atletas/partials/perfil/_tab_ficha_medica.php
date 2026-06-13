@@ -7,7 +7,7 @@
                 ?>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-first-aid"></i> Información Médica</h3>
-                    <?php if (can('admin') || can('medico')): ?>
+                    <?php if (can('admin')): ?>
                         <button type="button" class="btn btn-outline btn-sm" id="btn-editar-ficha"
                             style="<?= !$tieneData ? 'display: none;' : '' ?>">
                             <i class="ph ph-pencil-simple"></i> Editar
@@ -78,7 +78,7 @@
                             style="font-size: 48px; color: var(--color-text-muted); opacity: 0.4;"></i>
                         <p style="color: var(--color-text-muted); margin-top: 12px; margin-bottom: 16px;">No se ha
                             registrado ficha médica para este atleta.</p>
-                        <?php if (can('admin') || can('medico')): ?>
+                        <?php if (can('admin')): ?>
                             <?php $isDis = in_array((int)($atleta['estatus'] ?? 1), [0, 3], true); ?>
                             <button type="button" class="btn btn-primary btn-sm" id="btn-crear-ficha"
                                 <?= $isDis ? 'disabled style="cursor: not-allowed; opacity: 0.6;" title="No disponible para atletas inactivos o suspendidos"' : '' ?>>
@@ -93,7 +93,7 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                         <h4 style="margin: 0;"><i class="ph ph-wheelchair"></i> Discapacidades</h4>
-                        <?php if (can('admin') || can('medico')): ?>
+                        <?php if (can('admin')): ?>
                             <?php $isDis = in_array((int)($atleta['estatus'] ?? 1), [0, 3], true); ?>
                             <button type="button" class="btn btn-outline btn-sm" id="btn-agregar-discapacidad"
                                 <?= $isDis ? 'disabled style="cursor: not-allowed; opacity: 0.6;" title="No disponible para atletas inactivos o suspendidos"' : '' ?>>
@@ -102,63 +102,54 @@
                         <?php endif; ?>
                     </div>
 
-                    <?php if (!empty($atleta['discapacidades']) && count($atleta['discapacidades']) > 0): 
-                        $gridCols = (can('admin') || can('medico')) ? '2fr 2fr 1.5fr 2fr 1fr' : '2.2fr 2.2fr 1.8fr 2.2fr';
-                    ?>
-                        <div class="perfil-table-wrap">
-                            <div class="perfil-table-header" style="grid-template-columns: <?= $gridCols ?>;">
-                                <div>Tipo</div>
-                                <div>Nro. Carnet</div>
-                                <div>Porcentaje</div>
-                                <div>Fecha Registro</div>
-                                <?php if (can('admin') || can('medico')): ?>
-                                    <div>Acción</div>
-                                <?php endif; ?>
-                            </div>
-                            <?php foreach ($atleta['discapacidades'] as $disc): ?>
-                                <div class="perfil-table-row" style="grid-template-columns: <?= $gridCols ?>;">
-                                    <div class="perfil-row-col">
-                                        <span class="perfil-col-label">Tipo</span>
-                                        <span><?= e($disc['nombre_tipo'] ?? 'Sin tipo') ?></span>
-                                    </div>
-                                    <div class="perfil-row-col">
-                                        <span class="perfil-col-label">Nro. Carnet</span>
-                                        <span><?= !empty($disc['nro_carnet']) ? e($disc['nro_carnet']) : '<span class="text-muted">Sin carnet</span>' ?></span>
-                                    </div>
-                                    <div class="perfil-row-col">
-                                        <span class="perfil-col-label">Porcentaje</span>
-                                        <span><?= isset($disc['porcentaje_discapacidad']) ? e($disc['porcentaje_discapacidad']) . '%' : '—' ?></span>
-                                    </div>
-                                    <div class="perfil-row-col">
-                                        <span class="perfil-col-label">Fecha Registro</span>
-                                        <span><?= !empty($disc['fecha_registro']) ? e(date('d/m/Y', strtotime($disc['fecha_registro']))) : '—' ?></span>
-                                    </div>
-                                    <?php if (can('admin') || can('medico')): ?>
-                                        <div class="perfil-row-col">
-                                            <span class="perfil-col-label">Acción</span>
-                                            <div style="display: flex; gap: 8px;">
-                                                <button type="button" class="btn-icon btn-editar-discapacidad" title="Editar"
-                                                    style="color:var(--color-primary); background:none; border:none; cursor:pointer; font-size:16px; padding: 0;"
-                                                    data-id="<?= e($disc['discapacidad_id']) ?>"
-                                                    data-tipo="<?= e($disc['tipo_discapacidad_id']) ?>"
-                                                    data-carnet="<?= e($disc['nro_carnet'] ?? '') ?>"
-                                                    data-porcentaje="<?= e($disc['porcentaje_discapacidad'] ?? '') ?>">
-                                                    <i class="ph ph-pencil-simple"></i>
-                                                </button>
-                                                <form class="form-delete-disc" method="POST"
-                                                    action="<?= e(url("/admin/ficha-medica/{$atleta['atleta_id']}/discapacidad/{$disc['discapacidad_id']}/eliminar")) ?>"
-                                                    style="display:inline;">
-                                                    <?= csrf_field() ?>
-                                                    <button type="button" class="btn-icon btn-delete-disc" title="Eliminar"
-                                                        style="color:var(--color-danger); background:none; border:none; cursor:pointer; font-size:16px; padding: 0;">
-                                                        <i class="ph ph-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
+                    <?php if (!empty($atleta['discapacidades']) && count($atleta['discapacidades']) > 0): ?>
+                        <div class="table-responsive" style="overflow-x: auto;">
+                            <table class="data-table" style="min-width: 600px; margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Nro. Carnet</th>
+                                        <th>Porcentaje</th>
+                                        <th>Fecha Registro</th>
+                                        <?php if (can('admin')): ?>
+                                            <th style="width:60px;">Acción</th><?php endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($atleta['discapacidades'] as $disc): ?>
+                                        <tr>
+                                            <td><?= e($disc['nombre_tipo'] ?? 'Sin tipo') ?></td>
+                                            <td><?= !empty($disc['nro_carnet']) ? e($disc['nro_carnet']) : '<span class="text-muted">Sin carnet</span>' ?>
+                                            </td>
+                                            <td><?= isset($disc['porcentaje_discapacidad']) ? e($disc['porcentaje_discapacidad']) . '%' : '—' ?>
+                                            </td>
+                                            <td><?= !empty($disc['fecha_registro']) ? e(date('d/m/Y', strtotime($disc['fecha_registro']))) : '—' ?>
+                                            </td>
+                                            <?php if (can('admin')): ?>
+                                                <td>
+                                                    <div style="display: flex; gap: 8px;">
+                                                        <button type="button" class="btn-edit-premium btn-editar-discapacidad" title="Editar"
+                                                            data-id="<?= e($disc['discapacidad_id']) ?>"
+                                                            data-tipo="<?= e($disc['tipo_discapacidad_id']) ?>"
+                                                            data-carnet="<?= e($disc['nro_carnet'] ?? '') ?>"
+                                                            data-porcentaje="<?= e($disc['porcentaje_discapacidad'] ?? '') ?>">
+                                                            <i class="ph ph-pencil-simple"></i>
+                                                        </button>
+                                                        <form class="form-delete-disc" method="POST"
+                                                            action="<?= e(url("/admin/ficha-medica/{$atleta['atleta_id']}/discapacidad/{$disc['discapacidad_id']}/eliminar")) ?>"
+                                                            style="display:inline;">
+                                                            <?= csrf_field() ?>
+                                                            <button type="button" class="btn-delete-premium btn-delete-disc" title="Eliminar">
+                                                                <i class="ph ph-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     <?php else: ?>
                         <div
@@ -181,7 +172,7 @@
                     <div class="modal-body">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div class="form-group">
-                                <label class="form-label" data-tooltip="Grupo sanguíneo y factor RH del atleta. Crucial en caso de emergencias." data-tooltip-pos="top">Grupo Sanguíneo</label>
+                                <label class="form-label">Grupo Sanguíneo</label>
                                 <select name="grupo_sanguineo" class="form-control">
                                     <option value="">— Seleccionar —</option>
                                     <?php foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $gs): ?>
@@ -190,33 +181,33 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label" data-tooltip="Sustancias, medicamentos o alimentos a los que el atleta sea alérgico. Deje en blanco si no tiene." data-tooltip-pos="top">Alergias</label>
+                                <label class="form-label">Alergias</label>
                                 <input type="text" name="alergias" class="form-control"
                                     value="<?= e($atleta['alergias'] ?? '') ?>" placeholder="Ej: Penicilina, Maní...">
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label" data-tooltip="Enfermedades hereditarias o condiciones de salud relevantes en la familia del atleta." data-tooltip-pos="top">Antecedentes Familiares</label>
+                            <label class="form-label">Antecedentes Familiares</label>
                             <textarea name="antecedentes_familiares" class="form-control" rows="2"
                                 placeholder="Enfermedades hereditarias relevantes..."><?= e($atleta['antecedentes_familiares'] ?? '') ?></textarea>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label" data-tooltip="Cirujías, fracturas o lesiones previas importantes que haya sufrido el atleta." data-tooltip-pos="top">Antecedentes Quirúrgicos / Lesiones Previas</label>
+                            <label class="form-label">Antecedentes Quirúrgicos / Lesiones Previas</label>
                             <textarea name="antecedentes_quirurgicos" class="form-control" rows="2"
                                 placeholder="Operaciones o fracturas importantes..."><?= e($atleta['antecedentes_quirurgicos'] ?? '') ?></textarea>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
-                                <label class="form-label" data-tooltip="Diagnósticos médicos activos (ej: asma, diabetes) que el atleta tenga actualmente." data-tooltip-pos="top">Condición Crónica</label>
+                                <label class="form-label">Condición Crónica</label>
                                 <input type="text" name="condicion_cronica" class="form-control"
                                     value="<?= e($atleta['condicion_cronica'] ?? '') ?>"
                                     placeholder="Ej: Asma, Diabetes...">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" data-tooltip="Medicamentos que el atleta toma regularmente. Deje en blanco si no toma ninguno." data-tooltip-pos="top">Medicación Actual</label>
+                                <label class="form-label">Medicación Actual</label>
                                 <input type="text" name="medicacion_actual" class="form-control"
                                     value="<?= e($atleta['medicacion_actual'] ?? '') ?>"
                                     placeholder="Medicamentos regulares...">
@@ -225,7 +216,10 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-                        <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Guardar Cambios</button>
+                        <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Guardar</button>
+                        <button type="button" class="btn-help" id="btn-help-ficha-medica" title="¿Cómo llenar esta sección?">
+                            <i class="ph ph-question"></i>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -243,7 +237,7 @@
                     <?= csrf_field() ?>
                     <div class="modal-body">
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label" data-tooltip="Clasificación de la discapacidad según el carnet nacional oficial." data-tooltip-pos="top"><span class="required">*</span> Tipo de Discapacidad</label>
+                            <label class="form-label"><span class="required">*</span> Tipo de Discapacidad</label>
                             <select name="tipo_discapacidad_id" id="input-tipo-disc" class="form-control" required>
                                 <option value="">— Seleccionar —</option>
                                 <?php foreach ($tipos_discapacidades ?? [] as $tipo): ?>
@@ -253,12 +247,12 @@
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label" data-tooltip="Código único de carnet de discapacidad. No puede repetirse en el sistema." data-tooltip-pos="top"><span class="required">*</span> Nro. de Carnet</label>
+                            <label class="form-label"><span class="required">*</span> Nro. de Carnet</label>
                             <input type="text" name="nro_carnet" id="input-carnet-disc" class="form-control"
                                 placeholder="Ej: V-12345678-D" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" data-tooltip="Grado o porcentaje de discapacidad diagnosticado (número entero entre 1 y 100)." data-tooltip-pos="top"><span class="required">*</span> Porcentaje de Discapacidad</label>
+                            <label class="form-label"><span class="required">*</span> Porcentaje de Discapacidad</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <input type="number" name="porcentaje_discapacidad" id="input-porcentaje-disc"
                                     class="form-control" min="1" max="100" placeholder="Ej: 50" required>
@@ -269,7 +263,10 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
                         <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> <span
-                                id="submit-text-discapacidad">Guardar Cambios</span></button>
+                                id="submit-text-discapacidad">Agregar</span></button>
+                        <button type="button" class="btn-help" id="btn-help-discapacidad" title="¿Cómo llenar esta sección?">
+                            <i class="ph ph-question"></i>
+                        </button>
                     </div>
                 </form>
             </div>

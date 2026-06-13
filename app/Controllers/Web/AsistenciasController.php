@@ -10,6 +10,7 @@ use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
+use App\Models\Asistencia;
 use App\Models\Atleta;
 use App\Models\Categoria;
 use App\Models\Usuario;
@@ -25,44 +26,11 @@ final class AsistenciasController extends Controller
         $filters = [
             'usuario_id' => $request->query('usuario_id'),
             'categoria_id' => $request->query('categoria_id'),
-            'tipo_actividad' => $request->query('tipo_actividad'),
+            'tipo_actividad' => '1',
         ];
 
-        $where = ["a.tipo_actividad IN ('0', '1', 'Entrenamiento', 'Partido')"];
-        $params = [];
-
-        if ($filters['usuario_id'] !== null && $filters['usuario_id'] !== '') {
-            $where[] = "a.usuario_id = :usuario_id";
-            $params['usuario_id'] = (int) $filters['usuario_id'];
-        }
-
-        if ($filters['tipo_actividad'] !== null && $filters['tipo_actividad'] !== '') {
-            $where[] = "(a.tipo_actividad = :tipo_actividad OR (a.tipo_actividad = '1' AND :tipo_actividad = '1') OR (a.tipo_actividad = '0' AND :tipo_actividad = '0') OR (a.tipo_actividad = 'Entrenamiento' AND :tipo_actividad = '1') OR (a.tipo_actividad = 'Partido' AND :tipo_actividad = '0'))";
-            $params['tipo_actividad'] = $filters['tipo_actividad'];
-        }
-
-        if ($filters['categoria_id'] !== null && $filters['categoria_id'] !== '') {
-            $where[] = "EXISTS (SELECT 1 FROM asig_categorias ac2 WHERE ac2.asignacion_id = a.asignacion_id AND ac2.categoria_id = :categoria_id)";
-            $params['categoria_id'] = (int) $filters['categoria_id'];
-        }
-
-        $whereClause = implode(" AND ", $where);
-        
-        $sql = "SELECT a.actividad_id AS evento_id, a.tipo_actividad AS tipo_evento, a.fecha AS fecha_evento,
-                    CONCAT(u.nombre, ' ', u.apellido) AS entrenador,
-                    (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria,
-                    (SELECT COUNT(*) FROM asistencias ast WHERE ast.actividad_id = a.actividad_id) AS total,
-                    (SELECT COUNT(*) FROM asistencias ast WHERE ast.actividad_id = a.actividad_id AND ast.estatus = 1) AS presentes
-             FROM actividades a
-             LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
-             WHERE {$whereClause}
-             ORDER BY a.fecha DESC, a.actividad_id DESC
-             LIMIT 50";
-
-        $db = Database::connection();
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
-        $eventos = $stmt->fetchAll();
+        // Se obtienen los datos ya filtrados directamente desde el modelo
+        $eventos = (new Asistencia())->obtenerEntrenamientos($filters);
 
         $categorias = (new Categoria())->activas();
         $enlistadores = (new Usuario())->query(
