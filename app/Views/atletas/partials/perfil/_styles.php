@@ -227,7 +227,7 @@
         background: var(--color-bg);
         border: 1px solid var(--color-border);
         border-radius: var(--radius);
-        overflow: hidden;
+        overflow-x: auto;
         margin-bottom: 24px;
         box-shadow: var(--shadow-sm);
     }
@@ -252,6 +252,12 @@
         align-items: center;
         transition: background 0.2s;
         background: var(--color-surface);
+    }
+
+    @media (min-width: 769px) {
+        .perfil-table-header, .perfil-table-row {
+            min-width: 950px;
+        }
     }
 
     .perfil-table-row:hover {
@@ -292,5 +298,13 @@
         .perfil-col-label {
             display: block;
         }
+    }
+
+    /* Prevent action buttons from shrinking */
+    .btn-icon-premium,
+    .btn-edit-premium,
+    .btn-delete-premium,
+    .btn-view-premium {
+        flex-shrink: 0 !important;
     }
 </style>

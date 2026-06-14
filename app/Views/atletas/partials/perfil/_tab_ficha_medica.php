@@ -1,10 +1,9 @@
-            <!-- Tab: Ficha Médica -->
-            <div id="tab-ficha" class="tab-content" style="display: none;">
-                <?php
-                $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) ||
-                    !empty($atleta['antecedentes_familiares']) || !empty($atleta['antecedentes_quirurgicos']) ||
-                    !empty($atleta['condicion_cronica']) || !empty($atleta['medicacion_actual']);
-                ?>
+<!-- Tab: Ficha Médica -->
+<?php
+$tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) ||
+    !empty($atleta['antecedentes_familiares']) || !empty($atleta['antecedentes_quirurgicos']) ||
+    !empty($atleta['condicion_cronica']) || !empty($atleta['medicacion_actual']);
+?>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-first-aid"></i> Información Médica</h3>
                     <?php if (can('admin')): ?>
