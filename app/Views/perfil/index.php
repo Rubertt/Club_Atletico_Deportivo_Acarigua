@@ -63,7 +63,7 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 28px;">
-                    <label class="form-label">Foto de Perfil</label>
+                    <label class="form-label" data-tooltip="Sube una foto cuadrada (formato JPG, PNG o WebP) para identificar tu cuenta en el sistema." data-tooltip-pos="top">Foto de Perfil</label>
                     <div class="af-file-upload">
                         <input type="file" name="foto" id="perfil-foto-input" class="af-file-input" accept="image/jpeg,image/png,image/webp">
                         <label for="perfil-foto-input" class="af-file-label <?= !empty($item['foto']) ? 'has-file' : '' ?>" id="foto-label">
@@ -87,11 +87,11 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                 </div>
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Correo electrónico</label>
+                        <label class="form-label" data-tooltip="Tu dirección de correo electrónico principal. Se utilizará para iniciar sesión y recibir notificaciones." data-tooltip-pos="top"><span class="required">*</span> Correo electrónico</label>
                         <input type="email" id="perfil_correo" name="correo" class="form-control" required maxlength="50" value="<?= e($get('correo', '')) ?>" placeholder="ejemplo@correo.com">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Teléfono</label>
+                        <label class="form-label" data-tooltip="Número telefónico móvil de contacto de 11 dígitos, seleccionando el prefijo de tu operadora." data-tooltip-pos="top"><span class="required">*</span> Teléfono</label>
                         <?php
                             $telVal   = $get('telefono', '');
                             $telPref  = '0412';
@@ -123,13 +123,13 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                 </div>
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Estado</label>
+                        <label class="form-label" data-tooltip="El estado federal de Venezuela donde resides actualmente." data-tooltip-pos="top"><span class="required">*</span> Estado</label>
                         <select id="perfil_estado" class="form-control" data-current="<?= (int)($item['estado_id'] ?? 0) ?>" required>
                             <option value="">— Seleccione —</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Municipio</label>
+                        <label class="form-label" data-tooltip="El municipio geográfico correspondiente al estado seleccionado." data-tooltip-pos="top"><span class="required">*</span> Municipio</label>
                         <select id="perfil_municipio" class="form-control" data-current="<?= (int)($item['municipio_id'] ?? 0) ?>" required>
                             <option value="">— Seleccione —</option>
                         </select>
@@ -137,13 +137,13 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                 </div>
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Parroquia</label>
+                        <label class="form-label" data-tooltip="La parroquia política-territorial correspondiente al municipio seleccionado." data-tooltip-pos="top"><span class="required">*</span> Parroquia</label>
                         <select id="perfil_parroquia" name="parroquia_id" class="form-control" data-current="<?= (int)($item['parroquias_id'] ?? 0) ?>" required>
                             <option value="">— Seleccione —</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Tipo de vivienda</label>
+                        <label class="form-label" data-tooltip="El tipo de infraestructura o vivienda donde resides (casa, apartamento, etc.)." data-tooltip-pos="top"><span class="required">*</span> Tipo de vivienda</label>
                         <select id="perfil_tipo_vivienda" name="tipo_vivienda" class="form-control" required>
                             <option value="">— Seleccione —</option>
                             <option value="casa" <?= $get('tipo_vivienda', '') === 'casa' ? 'selected' : '' ?>>Casa</option>
@@ -154,11 +154,11 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                 </div>
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Localidad (Barrio / Urbanización)</label>
+                        <label class="form-label" data-tooltip="Nombre del sector, barrio, caserío o urbanización de residencia." data-tooltip-pos="top"><span class="required">*</span> Localidad (Barrio / Urbanización)</label>
                         <input type="text" id="perfil_localidad" name="localidad" class="form-control" value="<?= e($get('localidad', '')) ?>" maxlength="100" placeholder="Ej: Urb. Villas del Pilar, Barrio San Jose" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><span class="required">*</span> Dirección Exacta</label>
+                        <label class="form-label" data-tooltip="Detalles finales del domicilio, como número de calle, avenida, número de casa u otros puntos de referencia." data-tooltip-pos="top"><span class="required">*</span> Dirección Exacta</label>
                         <input type="text" id="perfil_ubicacion_vivienda" name="ubicacion_vivienda" class="form-control" value="<?= e($get('ubicacion_vivienda', '')) ?>" maxlength="100" placeholder="Ej: Calle 15A, Casa 412" required>
                     </div>
                 </div>
@@ -190,13 +190,13 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                 </div>
 
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label class="form-label"><span class="required">*</span> Contraseña Actual</label>
+                    <label class="form-label" data-tooltip="Escribe tu contraseña actual para autorizar la actualización de tus credenciales de seguridad." data-tooltip-pos="top"><span class="required">*</span> Contraseña Actual</label>
                     <input type="password" name="current_password" class="form-control" required>
                 </div>
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label">Nueva Contraseña</label>
+                        <label class="form-label" data-tooltip="Debe tener al menos 8 caracteres y contener como mínimo una letra, un número y un símbolo especial para ser segura." data-tooltip-pos="top">Nueva Contraseña</label>
                         <input type="password" id="new_password" name="new_password" class="form-control" minlength="8" pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}" title="Debe tener al menos 8 caracteres, una letra, un número y un símbolo especial">
                         <ul class="pwd-rules" style="list-style: none; padding: 0; margin: 8px 0 0 0; font-size: 13px; color: var(--color-text-muted);">
                             <li id="rule-len" style="margin-bottom: 4px;"><i class="ph ph-x-circle" style="color: var(--color-danger); margin-right: 4px;"></i> Mínimo 8 caracteres</li>
@@ -206,7 +206,7 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                         </ul>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Confirmar Nueva Contraseña</label>
+                        <label class="form-label" data-tooltip="Escribe nuevamente la nueva contraseña seleccionada para evitar errores tipográficos." data-tooltip-pos="top">Confirmar Nueva Contraseña</label>
                         <input type="password" id="perfil_password_confirm" name="new_password_confirm" class="form-control">
                     </div>
                 </div>
@@ -235,7 +235,7 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label">Pregunta de Seguridad 1</label>
+                        <label class="form-label" data-tooltip="Primera pregunta secreta que se te formulará si necesitas recuperar el acceso a tu cuenta." data-tooltip-pos="top">Pregunta de Seguridad 1</label>
                         <select id="seg_pregunta_1" name="pregunta_1" class="form-control">
                             <option value="">— Seleccione —</option>
                             <?php foreach ($preguntas as $p): ?>
@@ -244,14 +244,14 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Respuesta 1</label>
+                        <label class="form-label" data-tooltip="Respuesta secreta a la primera pregunta seleccionada. Debe tener al menos 3 caracteres." data-tooltip-pos="top">Respuesta 1</label>
                         <input type="text" name="respuesta_1" class="form-control" autocomplete="off">
                     </div>
                 </div>
 
                 <div class="af-grid af-grid--2" style="margin-top: 12px;">
                     <div class="form-group">
-                        <label class="form-label">Pregunta de Seguridad 2</label>
+                        <label class="form-label" data-tooltip="Segunda pregunta secreta. Debe ser diferente a la primera pregunta seleccionada." data-tooltip-pos="top">Pregunta de Seguridad 2</label>
                         <select id="seg_pregunta_2" name="pregunta_2" class="form-control">
                             <option value="">— Seleccione —</option>
                             <?php foreach ($preguntas as $p): ?>
@@ -260,7 +260,7 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Respuesta 2</label>
+                        <label class="form-label" data-tooltip="Respuesta secreta a la segunda pregunta seleccionada. Debe tener al menos 3 caracteres." data-tooltip-pos="top">Respuesta 2</label>
                         <input type="text" name="respuesta_2" class="form-control" autocomplete="off">
                     </div>
                 </div>

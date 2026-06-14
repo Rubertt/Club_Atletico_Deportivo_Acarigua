@@ -177,7 +177,7 @@ try {
     $log("  🔐 USUARIOS DISPONIBLES");
     $log("     superusuario@gmail.com / administrador@gmail.com / entrenador@gmail.com");
     $log("     directivo@gmail.com / medico@gmail.com");
-    $log("     Contraseña   : rol.123");
+    $log("     Contraseña   : prueba.123");
     $log('');
     exit(0);
 } catch (Throwable $e) {

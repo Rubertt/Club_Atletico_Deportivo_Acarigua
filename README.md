@@ -164,7 +164,7 @@ El proyecto incluye un stack de contenedores Docker listo para producción o des
 
 ## 🔑 Credenciales de Prueba y Demostración
 
-El instalador inicializa la base de datos con cuentas de prueba listas para evaluar cada rol (Contraseña para todas las cuentas: `12345678`):
+El instalador inicializa la base de datos con cuentas de prueba listas para evaluar cada rol (Contraseña para todas las cuentas: `prueba.123`):
 
 - **Súper Usuario:** `superusuario@gmail.com`
 - **Administrador:** `administrador@gmail.com`
