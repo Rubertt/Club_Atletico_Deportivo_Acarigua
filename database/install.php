@@ -175,8 +175,9 @@ try {
     $log("  Usuarios      : $users");
     $log('');
     $log("  🔐 USUARIOS DISPONIBLES");
-    $log("     admin@gmail.com / directivo@gmail.com / entrenador@gmail.com / medico@gmail.com");
-    $log("     Contraseña   : 12345678");
+    $log("     superusuario@gmail.com / administrador@gmail.com / entrenador@gmail.com");
+    $log("     directivo@gmail.com / medico@gmail.com");
+    $log("     Contraseña   : rol.123");
     $log('');
     exit(0);
 } catch (Throwable $e) {

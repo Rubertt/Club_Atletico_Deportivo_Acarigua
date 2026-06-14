@@ -88,8 +88,14 @@ final class ConfiguracionController extends Controller
             }
         }
 
+        $sessionTimeChanged = (config_db('tiempo_sesion') !== $dataToUpdate['tiempo_sesion']);
+
         if (Configuracion::updateMany($dataToUpdate)) {
-            flash('success', 'Configuración actualizada exitosamente. El cambio en el tiempo de expiración se aplicará a partir del próximo inicio de sesión.');
+            if ($sessionTimeChanged) {
+                flash('success', 'Configuración actualizada exitosamente. El cambio en el tiempo de expiración se aplicará a partir del próximo inicio de sesión.');
+            } else {
+                flash('success', 'Configuración actualizada exitosamente.');
+            }
         } else {
             flash('error', 'Ocurrió un error al guardar la configuración.');
         }

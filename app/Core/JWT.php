@@ -26,7 +26,7 @@ final class JWT
         return implode('.', $segments);
     }
 
-    public static function decode(string $jwt, ?string $secret = null): array
+    public static function decode(string $jwt, ?string $secret = null, int $gracePeriod = 0): array
     {
         $secret ??= (string) config('auth.jwt.secret');
 
@@ -54,7 +54,7 @@ final class JWT
         }
 
         $now = time();
-        if (isset($payload['exp']) && $now >= (int) $payload['exp']) {
+        if (isset($payload['exp']) && $now >= ((int) $payload['exp'] + $gracePeriod)) {
             throw new RuntimeException('Token expirado.');
         }
         if (isset($payload['nbf']) && $now < (int) $payload['nbf']) {

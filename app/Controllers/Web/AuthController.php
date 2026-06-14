@@ -315,7 +315,9 @@ final class AuthController extends Controller
 
     public function keepAlive(Request $request): Response
     {
-        $user = Auth::user();
+        // Usamos userWithGrace para permitir renovar tokens recién expirados
+        // (dentro de un período de gracia de 3 minutos)
+        $user = Auth::userWithGrace(180);
         if (!$user) {
             return $this->json(['success' => false, 'message' => 'Sesión expirada.'], 401);
         }
