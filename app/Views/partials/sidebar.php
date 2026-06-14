@@ -116,5 +116,13 @@
                 </ul>
             </li>
         <?php endif; ?>
+
+        <!-- Manuales de Ayuda (visible para todos) -->
+        <li>
+            <a href="<?= e(url('/admin/manual')) ?>" class="<?= $active === 'manuales' ? 'active' : '' ?>">
+                <span class="icon"><i class="ph ph-book-open-text"></i></span>
+                <span class="nav-text">Manuales de Ayuda</span>
+            </a>
+        </li>
     </ul>
 </aside>

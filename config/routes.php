@@ -168,6 +168,7 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
     $r->get('/perfil', [PerfilController::class, 'index']);
     $r->post('/perfil', [PerfilController::class, 'updatePerfil'], [CsrfMiddleware::class]);
     $r->post('/perfil/seguridad', [PerfilController::class, 'updateSeguridad'], [CsrfMiddleware::class]);
+    $r->get('/manual', [PerfilController::class, 'descargarManual']);
 
     // Configuración (admin + super_user + medico)
     $r->get('/configuracion', [ConfiguracionController::class, 'index'], [[RoleMiddleware::class, ['admin', 'super_user', 'medico']]]);

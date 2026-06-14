@@ -105,6 +105,7 @@ $breadcrumb = $breadcrumb ?? [$title];
                                 <a href="<?= e(url('/admin/usuarios')) ?>"><i class="ph ph-identification-card"></i> Gestión de Usuarios</a>
                                 <a href="<?= e(url('/admin/configuracion')) ?>"><i class="ph ph-gear"></i> Ajustes Generales</a>
                             <?php endif; ?>
+                            <a href="<?= e(url('/admin/manual')) ?>"><i class="ph ph-book-open-text"></i> Manuales de Ayuda</a>
                             <hr>
                             
                             <a href="<?= e(url('/logout')) ?>"
