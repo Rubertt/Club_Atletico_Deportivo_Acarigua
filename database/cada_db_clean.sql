@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-05-2026 a las 23:17:53
+-- Tiempo de generación: 14-06-2026 a las 16:43:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -29,14 +29,16 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `actividades` (
   `actividad_id` bigint(20) UNSIGNED NOT NULL,
-  `tipo_actividad` tinyint(4) NOT NULL COMMENT 'ej: partid=0, entrenamiento=1, ',
+  `asignacion_id` int(10) UNSIGNED DEFAULT NULL,
+  `tipo_actividad` tinyint(3) UNSIGNED NOT NULL COMMENT 'ej: partid=0, entrenamiento=1, ',
   `fecha` date NOT NULL,
   `usuario_id` int(10) UNSIGNED NOT NULL,
   `hora_inicio` time DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
   `ubicacion` varchar(100) DEFAULT '''Cancha uptp''',
-  `clima` tinyint(4) DEFAULT NULL,
-  `estatus` tinyint(4) DEFAULT 1 COMMENT '0: Cancelado, 1: Programado, 2: Finalizado',
+  `terreno` tinyint(3) UNSIGNED DEFAULT NULL,
+  `clima` tinyint(3) UNSIGNED DEFAULT NULL,
+  `estatus` tinyint(3) UNSIGNED DEFAULT 1 COMMENT '0: Cancelado, 1: Programado, 2: Finalizado',
   `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
   `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -85,7 +87,7 @@ CREATE TABLE `atletas` (
   `apellido` varchar(30) NOT NULL,
   `fecha_nac` date NOT NULL,
   `sexo` char(1) NOT NULL,
-  `cedula` varchar(12) DEFAULT NULL,
+  `cedula` varchar(17) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL,
   `pierna_dominante` enum('derecha','izquierda','ambidiestro','') DEFAULT NULL,
   `direccion_id` bigint(20) UNSIGNED NOT NULL,
@@ -95,6 +97,36 @@ CREATE TABLE `atletas` (
   `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
   `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Disparadores `atletas`
+--
+DELIMITER $$
+CREATE TRIGGER `antes_actualizar_atleta` BEFORE UPDATE ON `atletas` FOR EACH ROW BEGIN
+    IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' AND (OLD.cedula IS NULL OR NEW.cedula <> OLD.cedula) THEN
+        IF EXISTS (SELECT 1 FROM representantes WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de representantes.';
+        END IF;
+        IF EXISTS (SELECT 1 FROM usuarios WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de usuarios.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `antes_insertar_atleta` BEFORE INSERT ON `atletas` FOR EACH ROW BEGIN
+    IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' THEN
+        IF EXISTS (SELECT 1 FROM representantes WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de representantes.';
+        END IF;
+        IF EXISTS (SELECT 1 FROM usuarios WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de usuarios.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -133,15 +165,54 @@ CREATE TABLE `configuraciones` (
 --
 
 INSERT INTO `configuraciones` (`configuracion_id`, `clave`, `valor`, `descripcion`, `actualizado_en`) VALUES
-(1, 'tiempo_sesion', '120', 'Tiempo de expiración de sesión en minutos', '2026-05-30 19:32:48'),
-(2, 'mision', 'El Club Atlético Deportivo Acarigua, pretende la formación de atletas profesionales, altamente capacitados; física, motriz y cognitivamente en el balón pies, proactivos y capaces de aportar valores agregados a través de los Principios Cristianos que gerencien su desarrollo humanístico para la excelencia de su carrera futbolística.', 'Misión de la comunidad/club', '2026-05-28 07:56:15'),
-(3, 'vision', 'Ser una institución competitiva con fundamentos cristianos, profesionalmente capacitada para ejercer una academia modelo de impacto para la sociedad venezolana, inspirando a los atletas en su desarrollo integral, en el ámbito deportivo y recreativo, validando su potencial e identidad para proporcionarles un nivel de seguridad a cada uno de ellos.', 'Visión de la comunidad/club', '2026-05-28 07:56:15'),
-(4, 'correo_contacto', 'clubatleticodeportivoacarigua@gmail.com', 'Correo electrónico oficial del club', '2026-05-09 03:51:59'),
-(5, 'google_maps_url', 'https://www.google.com/maps/place/Estadio+de+F%C3%BAtbol+%22Tecnol%C3%B3gico%22/@9.5461005,-69.1884635,692m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8e7dc3d930fe4093:0xb91420c522a2bf52!8m2!3d9.5461005!4d-69.1884635!16s%2Fg%2F11clvlb06l?entry=ttu&g_ep=EgoyMDI2MDUyMC4wIKXMDSoASAFQAw%3D%3D', 'URL de ubicación en Google Maps', '2026-05-24 04:04:05'),
-(6, 'facebook_url', 'https://www.facebook.com/p/CLUB-atl%C3%A9tico-Deportivo-acarigua-100086449924024/', 'Enlace al perfil de Facebook', '2026-05-24 04:05:37'),
-(7, 'instagram_url', 'https://www.instagram.com/deportivoacarigua_oficial/', 'Enlace al perfil de Instagram', '2026-05-24 04:13:45'),
-(8, 'telefono_whatsapp', '+584121556442', 'Número de contacto con WhatsApp', '2026-05-24 04:14:47'),
-(9, 'requisitos_inscripcion', 'Requisitos para la inscripción:\r\n- Mínimo 6 años de edad.\r\n- Copia de cédula del representante.\r\n- Copia de cédula del niño o partida de nacimiento si no tiene cédula.\r\n- Carta de residencia.\r\n- 5$ la inscripción al BCV.\r\n\r\n\r\nHorario de entrenamiento: Lunes a Viernes de 4:00 PM a 6:00 PM.', 'Requisitos para la inscripción de atletas', '2026-05-24 04:15:35');
+(1, 'tiempo_sesion', '120', 'Tiempo de expiración de sesión en minutos', '2026-06-14 14:41:39'),
+(2, 'mision', 'El Club Atlético Deportivo Acarigua, pretende la formación de atletas profesionales, altamente capacitados; física, motriz y cognitivamente en el balón pies, proactivos y capaces de aportar valores agregados a través de los Principios Cristianos que gerencien su desarrollo humanístico para la excelencia de su carrera futbolística.', 'Misión de la comunidad/club', '2026-06-14 14:41:39'),
+(3, 'vision', 'Ser una institución competitiva con fundamentos cristianos, profesionalmente capacitada para ejercer una academia modelo de impacto para la sociedad venezolana, inspirando a los atletas en su desarrollo integral, en el ámbito deportivo y recreativo, validando su potencial e identidad para proporcionarles un nivel de seguridad a cada uno de ellos.', 'Visión de la comunidad/club', '2026-06-14 14:41:39'),
+(4, 'correo_contacto', 'clubatleticodeportivoacarigua@gmail.com', 'Correo electrónico oficial del club', '2026-06-14 14:41:39'),
+(5, 'google_maps_url', 'https://www.google.com/maps/place/Estadio+de+F%C3%BAtbol+%22Tecnol%C3%B3gico%22/@9.5461005,-69.1884635,692m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8e7dc3d930fe4093:0xb91420c522a2bf52!8m2!3d9.5461005!4d-69.1884635!16s%2Fg%2F11clvlb06l?entry=ttu&g_ep=EgoyMDI2MDUyMC4wIKXMDSoASAFQAw%3D%3D', 'URL de ubicación en Google Maps', '2026-06-14 14:41:39'),
+(6, 'facebook_url', 'https://www.facebook.com/p/CLUB-atl%C3%A9tico-Deportivo-acarigua-100086449924024/', 'Enlace al perfil de Facebook', '2026-06-14 14:41:39'),
+(7, 'instagram_url', 'https://www.instagram.com/deportivoacarigua_oficial/', 'Enlace al perfil de Instagram', '2026-06-14 14:41:39'),
+(8, 'telefono_whatsapp', '+584121556442', 'Número de contacto con WhatsApp', '2026-06-14 14:41:39'),
+(9, 'requisitos_inscripcion', 'Requisitos para la inscripción:\r\n- Mínimo 6 años de edad.\r\n- Copia de cédula del representante.\r\n- Copia de cédula del niño o partida de nacimiento si no tiene cédula.\r\n- Carta de residencia.\r\n- 5$ la inscripción al BCV.\r\n\r\nHorario de entrenamiento: Lunes a Viernes de 4:00 PM a 6:00 PM.', 'Requisitos para la inscripción de atletas', '2026-06-14 14:41:39'),
+(10, 'filas_por_pagina', '15', 'Cantidad de filas por página en las tablas y listas del sistema', '2026-06-14 14:41:39'),
+(11, 'edad_minima_atleta', '6', 'Edad mínima permitida para registrar un atleta', '2026-06-14 14:41:39');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `consulta_medica`
+--
+
+CREATE TABLE `consulta_medica` (
+  `consulta_id` int(10) UNSIGNED NOT NULL,
+  `atleta_id` int(10) UNSIGNED NOT NULL,
+  `usuario_id` int(10) UNSIGNED NOT NULL,
+  `tipo_consulta` tinyint(3) UNSIGNED NOT NULL,
+  `descripcion` varchar(255) DEFAULT NULL,
+  `diagnostico` varchar(255) NOT NULL,
+  `tratamiento_indicado` varchar(255) DEFAULT NULL,
+  `fecha_suceso` date NOT NULL,
+  `fecha_alta_estimada` date DEFAULT NULL,
+  `estatus_disponibilidad` tinyint(3) UNSIGNED DEFAULT NULL,
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `convocatorias`
+--
+
+CREATE TABLE `convocatorias` (
+  `convocatoria_id` bigint(20) UNSIGNED NOT NULL,
+  `actividad_id` bigint(20) UNSIGNED NOT NULL,
+  `atleta_id` int(10) UNSIGNED NOT NULL,
+  `estatus` tinyint(3) UNSIGNED NOT NULL COMMENT '1=convocado, 2=no convocado',
+  `asistencia` tinyint(3) UNSIGNED DEFAULT NULL COMMENT '3=asistio, 4=no asistio',
+  `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1840,13 +1911,42 @@ CREATE TABLE `representantes` (
   `nombre` varchar(30) NOT NULL,
   `apellido` varchar(30) NOT NULL,
   `telefono` varchar(15) NOT NULL,
-  `cedula` varchar(12) NOT NULL,
+  `cedula` varchar(17) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `tipo_relacion` enum('abuelo/a','padres','tio/a','hermano/a','primo/a','representante') NOT NULL,
-  `direccion_id` bigint(20) UNSIGNED NOT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `creado_en` timestamp NOT NULL DEFAULT current_timestamp(),
   `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Disparadores `representantes`
+--
+DELIMITER $$
+CREATE TRIGGER `antes_actualizar_representante` BEFORE UPDATE ON `representantes` FOR EACH ROW BEGIN
+    IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' AND (OLD.cedula IS NULL OR NEW.cedula <> OLD.cedula) THEN
+        IF EXISTS (SELECT 1 FROM atletas WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de atletas.';
+        END IF;
+        IF EXISTS (SELECT 1 FROM usuarios WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de usuarios.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `antes_insertar_representante` BEFORE INSERT ON `representantes` FOR EACH ROW BEGIN
+    IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' THEN
+        IF EXISTS (SELECT 1 FROM atletas WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de atletas.';
+        END IF;
+        IF EXISTS (SELECT 1 FROM usuarios WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de usuarios.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -1902,7 +2002,8 @@ INSERT INTO `roles_usuarios` (`rol_id`, `nombre_rol`, `descripcion`, `fecha_crea
 (1, 'super_usuario', NULL, '2026-05-04 18:02:24'),
 (2, 'administrador', NULL, '2026-05-04 18:02:32'),
 (3, 'entrenador', NULL, '2026-05-04 18:02:38'),
-(4, 'directivo', NULL, '2026-06-02 00:00:00');
+(4, 'directivo', NULL, '2026-06-02 21:44:43'),
+(5, 'medico', NULL, '2026-06-04 19:02:55');
 
 -- --------------------------------------------------------
 
@@ -1947,7 +2048,7 @@ CREATE TABLE `usuarios` (
   `estatus` enum('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
   `nombre` varchar(30) NOT NULL,
   `apellido` varchar(30) NOT NULL,
-  `cedula` varchar(12) NOT NULL,
+  `cedula` varchar(17) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `telefono` varchar(15) NOT NULL,
   `fecha_nac` date NOT NULL,
   `direccion_id` bigint(20) UNSIGNED NOT NULL,
@@ -1962,9 +2063,41 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`usuario_id`, `correo`, `contrasena`, `token`, `rol_id`, `estatus`, `nombre`, `apellido`, `cedula`, `telefono`, `fecha_nac`, `direccion_id`, `foto`, `ultimo_acceso`, `creado_en`, `actualizado_en`) VALUES
-(1, 'superusuario@gmail.com', '$2y$12$HSO6Xx7/owcUhJiU3zYowu.hCNtSx8uID04P/2zYk76LopnYPV2Fe', NULL, 1, 'Activo', 'Super', 'Usuario', 'V-11.111.111', '', '0000-00-00', 1, NULL, '2026-05-30 21:16:56', '2026-05-09 03:17:04', '2026-05-30 21:16:56'),
-(2, 'administrador@gmail.com', '$2y$12$UoiVrtehmwgJBXkfwmKLTeECwsQkURRiYBJhjai2MR/hRJ2VFOWKu', NULL, 2, 'Activo', 'Administrador', 'Prueba', 'V-22.222.222', '', '0000-00-00', 1, NULL, '2026-05-28 13:11:13', '2026-05-09 03:17:04', '2026-05-30 21:16:29'),
-(3, 'entrenador@gmail.com', '$2y$12$60fSrhIfsWx0p2kzrWHzBuAqoD/CmHep0yEsYIjoFLEvU.J34alt6', NULL, 3, 'Activo', 'Entrenador', 'Prueba', 'V-33.333.333', '', '0000-00-00', 1, NULL, '2026-05-26 19:01:01', '2026-05-09 03:17:04', '2026-05-30 21:16:47');
+(1, 'superusuario@gmail.com', '$2a$12$bUl9IS71VdC/5ADpxX82we71NrP9ictnsxaL8XEp00uA5ggNlNiCG', NULL, 1, 'Activo', 'Super', 'Usuario', 'V-11.111.111', '04120000000', '1990-01-01', 1, NULL, NULL, '2026-06-14 14:41:39', '2026-06-14 14:41:39'),
+(2, 'directivo@gmail.com', '$2a$12$bUl9IS71VdC/5ADpxX82we71NrP9ictnsxaL8XEp00uA5ggNlNiCG', NULL, 4, 'Activo', 'Directivo', 'Prueba', 'V-22.222.222', '04120000001', '1985-06-15', 1, NULL, NULL, '2026-06-14 14:41:39', '2026-06-14 14:41:39'),
+(3, 'administrador@gmail.com', '$2a$12$bUl9IS71VdC/5ADpxX82we71NrP9ictnsxaL8XEp00uA5ggNlNiCG', NULL, 2, 'Activo', 'Administrador', 'Prueba', 'V-33.333.333', '04120000002', '1980-03-20', 1, NULL, NULL, '2026-06-14 14:41:39', '2026-06-14 14:41:39'),
+(4, 'entrenador@gmail.com', '$2a$12$bUl9IS71VdC/5ADpxX82we71NrP9ictnsxaL8XEp00uA5ggNlNiCG', NULL, 3, 'Activo', 'Entrenador', 'Prueba', 'V-44.444.444', '04120000003', '1990-08-10', 1, NULL, NULL, '2026-06-14 14:41:39', '2026-06-14 14:41:39'),
+(5, 'medico@gmail.com', '$2a$12$bUl9IS71VdC/5ADpxX82we71NrP9ictnsxaL8XEp00uA5ggNlNiCG', NULL, 5, 'Activo', 'Medico', 'Prueba', 'V-55.555.555', '04120000004', '1988-12-05', 1, NULL, NULL, '2026-06-14 14:41:39', '2026-06-14 14:41:39');
+
+--
+-- Disparadores `usuarios`
+--
+DELIMITER $$
+CREATE TRIGGER `antes_actualizar_usuario` BEFORE UPDATE ON `usuarios` FOR EACH ROW BEGIN
+    IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' AND (OLD.cedula IS NULL OR NEW.cedula <> OLD.cedula) THEN
+        IF EXISTS (SELECT 1 FROM atletas WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de atletas.';
+        END IF;
+        IF EXISTS (SELECT 1 FROM representantes WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de representantes.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `antes_insertar_usuario` BEFORE INSERT ON `usuarios` FOR EACH ROW BEGIN
+    IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' THEN
+        IF EXISTS (SELECT 1 FROM atletas WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de atletas.';
+        END IF;
+        IF EXISTS (SELECT 1 FROM representantes WHERE cedula = NEW.cedula) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El número de documento ya existe en la tabla de representantes.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 --
 -- Índices para tablas volcadas
@@ -1975,7 +2108,8 @@ INSERT INTO `usuarios` (`usuario_id`, `correo`, `contrasena`, `token`, `rol_id`,
 --
 ALTER TABLE `actividades`
   ADD PRIMARY KEY (`actividad_id`),
-  ADD KEY `usuario_id` (`usuario_id`);
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `asignacion_id` (`asignacion_id`);
 
 --
 -- Indices de la tabla `asig_categorias`
@@ -2001,6 +2135,7 @@ ALTER TABLE `asistencias`
 --
 ALTER TABLE `atletas`
   ADD PRIMARY KEY (`atleta_id`),
+  ADD UNIQUE KEY `cedula` (`cedula`),
   ADD KEY `direccion_id` (`direccion_id`),
   ADD KEY `representante_id` (`representante_id`);
 
@@ -2018,6 +2153,22 @@ ALTER TABLE `categorias`
 ALTER TABLE `configuraciones`
   ADD PRIMARY KEY (`configuracion_id`),
   ADD UNIQUE KEY `clave` (`clave`);
+
+--
+-- Indices de la tabla `consulta_medica`
+--
+ALTER TABLE `consulta_medica`
+  ADD PRIMARY KEY (`consulta_id`),
+  ADD KEY `atleta_id` (`atleta_id`),
+  ADD KEY `usuario_id` (`usuario_id`);
+
+--
+-- Indices de la tabla `convocatorias`
+--
+ALTER TABLE `convocatorias`
+  ADD PRIMARY KEY (`convocatoria_id`),
+  ADD KEY `actividad_id` (`actividad_id`),
+  ADD KEY `atleta_id` (`atleta_id`);
 
 --
 -- Indices de la tabla `direcciones`
@@ -2087,7 +2238,8 @@ ALTER TABLE `preguntas_seguridad`
 --
 ALTER TABLE `representantes`
   ADD PRIMARY KEY (`representante_id`),
-  ADD KEY `fk_tutor_direccion` (`direccion_id`);
+  ADD UNIQUE KEY `cedula` (`cedula`),
+  ADD UNIQUE KEY `cedula_2` (`cedula`);
 
 --
 -- Indices de la tabla `respuestas_seguridad`
@@ -2165,7 +2317,19 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `configuraciones`
 --
 ALTER TABLE `configuraciones`
-  MODIFY `configuracion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `configuracion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT de la tabla `consulta_medica`
+--
+ALTER TABLE `consulta_medica`
+  MODIFY `consulta_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `convocatorias`
+--
+ALTER TABLE `convocatorias`
+  MODIFY `convocatoria_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
@@ -2243,7 +2407,7 @@ ALTER TABLE `resultados_pruebas`
 -- AUTO_INCREMENT de la tabla `roles_usuarios`
 --
 ALTER TABLE `roles_usuarios`
-  MODIFY `rol_id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `rol_id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `tipos_discapacidades`
@@ -2255,7 +2419,7 @@ ALTER TABLE `tipos_discapacidades`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `usuario_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `usuario_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas
@@ -2265,7 +2429,8 @@ ALTER TABLE `usuarios`
 -- Filtros para la tabla `actividades`
 --
 ALTER TABLE `actividades`
-  ADD CONSTRAINT `actividades_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `actividades_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `actividades_ibfk_2` FOREIGN KEY (`asignacion_id`) REFERENCES `asig_categorias` (`asignacion_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `asig_categorias`
@@ -2295,6 +2460,20 @@ ALTER TABLE `atletas`
 --
 ALTER TABLE `categorias`
   ADD CONSTRAINT `categorias_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `consulta_medica`
+--
+ALTER TABLE `consulta_medica`
+  ADD CONSTRAINT `consulta_medica_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`usuario_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `consulta_medica_ibfk_2` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `convocatorias`
+--
+ALTER TABLE `convocatorias`
+  ADD CONSTRAINT `convocatorias_ibfk_1` FOREIGN KEY (`actividad_id`) REFERENCES `actividades` (`actividad_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `convocatorias_ibfk_2` FOREIGN KEY (`atleta_id`) REFERENCES `atletas` (`atleta_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `direcciones`
@@ -2332,12 +2511,6 @@ ALTER TABLE `municipios`
 --
 ALTER TABLE `parroquias`
   ADD CONSTRAINT `parroquias_ibfk_1` FOREIGN KEY (`municipio_id`) REFERENCES `municipios` (`municipio_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
-
---
--- Filtros para la tabla `representantes`
---
-ALTER TABLE `representantes`
-  ADD CONSTRAINT `representantes_ibfk_1` FOREIGN KEY (`direccion_id`) REFERENCES `direcciones` (`direccion_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `respuestas_seguridad`

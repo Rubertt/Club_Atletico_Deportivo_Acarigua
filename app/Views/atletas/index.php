@@ -64,132 +64,189 @@
     </div>
 
     <div style="display: flex; gap: 8px;">
-        <button type="submit" class="btn btn-outline"><i class="ph ph-funnel"></i> Filtrar</button>
-        <a href="<?= e(url('/admin/atletas')) ?>" class="btn btn-ghost" title="Limpiar filtros"><i class="ph ph-x"></i></a>
+        <a href="<?= e(url('/admin/atletas')) ?>" class="btn btn-outline" title="Limpiar filtros" style="height: 44px; display: inline-flex; align-items: center; justify-content: center;"><i class="ph ph-trash"></i> Limpiar</a>
     </div>
 </form>
 
-<div class="data-table-wrap card" style="padding: 0; overflow: hidden;">
-    <table class="data-table" style="margin: 0; border: none;">
-        <thead style="background: var(--color-bg-alt);">
-            <tr>
-                <th style="width:52px; padding-left: 24px;"></th>
-                <th>Atleta</th>
-                <th>Categoría</th>
-                <th>Edad</th>
-                <th>Estatus</th>
-                <th style="width:160px; text-align: right; padding-right: 24px;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
+<div class="data-table-wrap card" style="padding: 0; border: none; border-radius: 0; border-top: 1px solid var(--color-border);">
+    <!-- Cabeceras en PC -->
+    <div class="asig-headers-desktop" style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 10; font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
+        <div style="width: 320px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px;"></div>
+            <div>Atleta</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 120px; gap: 16px; flex: 1;">
+            <div>Categoría</div>
+            <div>Edad</div>
+            <div>Estatus</div>
+        </div>
+        <div style="width: 140px; text-align: right; flex-shrink: 0; padding-right: 12px;">Acciones</div>
+    </div>
+
+    <!-- Listado de atletas registrados -->
+    <div class="atletas-list-container">
         <?php if (empty($pag['data'])): ?>
-            <tr>
-                <td colspan="6" style="padding: 64px 24px; text-align: center;">
-                    <i class="ph ph-users text-muted" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
-                    <h3 class="text-muted" style="margin: 0 0 8px;">No hay atletas registrados</h3>
-                    <p class="text-muted" style="font-size: 14px; max-width: 400px; margin: 0 auto;">No se encontraron atletas con los filtros actuales o no hay datos registrados en el sistema.</p>
-                </td>
-            </tr>
+            <div style="padding: 64px 24px; text-align: center; background: var(--color-surface);">
+                <i class="ph ph-users text-muted" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
+                <h3 class="text-muted" style="margin: 0 0 8px;">No hay atletas registrados</h3>
+                <p class="text-muted" style="font-size: 14px; max-width: 400px; margin: 0 auto;">No se encontraron atletas con los filtros actuales o no hay datos registrados en el sistema.</p>
+            </div>
         <?php else: foreach ($pag['data'] as $a): ?>
-            <tr>
-                <td style="padding-left: 24px;">
+            <div class="asig-atleta-row">
+                <div class="asig-atleta-row__athlete">
                     <?php if (!empty($a['foto'])): ?>
-                        <div style="position: relative; width: 44px; height: 44px; padding: 2px; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-bg);">
+                        <div style="position: relative; width: 44px; height: 44px; padding: 2px; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-bg); flex-shrink: 0;">
                             <img src="<?= e(url($a['foto'])) ?>" class="avatar-thumb" alt="" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;">
                         </div>
                     <?php else: ?>
-                        <div class="avatar-placeholder" style="width: 44px; height: 44px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid var(--color-primary-light);">
+                        <div class="avatar-placeholder" style="width: 44px; height: 44px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid var(--color-primary-light); flex-shrink: 0;">
                             <?= e(mb_substr($a['nombre'], 0, 1) . mb_substr($a['apellido'], 0, 1)) ?>
                         </div>
                     <?php endif; ?>
-                </td>
-                <td>
-                    <div style="font-weight: 600; color: var(--color-text);"><?= e($a['nombre'] . ' ' . $a['apellido']) ?></div>
-                    <div style="font-size: 12px; color: var(--color-text-muted); margin-top: 2px;">C.I: <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Cédula' ?></div>
-                </td>
-                <td>
-                    <?php if (!empty($a['nombre_categoria'])): ?>
-                        <div style="font-weight: 600; color: var(--color-text);"><?= e($a['nombre_categoria']) ?></div>
-                        <div style="margin-top: 4px;">
-                            <?php if ((int)$a['asig_estatus'] === 1): ?>
-                                <span class="badge badge-success" style="font-size: 11px; padding: 2px 8px; border-radius: 12px;">Vigente</span>
-                            <?php else: ?>
-                                <span class="badge badge-danger" style="font-size: 11px; padding: 2px 8px; border-radius: 12px;">Vencido</span>
-                            <?php endif; ?>
+                    <div class="asig-atleta-row__name-wrap">
+                        <div class="asig-atleta-row__name">
+                            <?= e($a['nombre'] . ' ' . $a['apellido']) ?>
                         </div>
-                    <?php else: ?>
-                        <span class="text-muted" style="font-size: 13px; font-style: italic;">Sin Asignación</span>
-                    <?php endif; ?>
-                </td>
+                        <div class="asig-atleta-row__meta">
+                            <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Cédula' ?>
+                        </div>
+                    </div>
+                </div>
 
-                <td>
-                    <?php 
-                        $edad = 0;
-                        if (!empty($a['fecha_nac'])) {
-                            $edad = (new \App\Models\ResultadoPrueba())->calcularEdad((string)$a['fecha_nac']);
-                        }
-                    ?>
-                    <span style="font-weight: 600; color: var(--color-text);"><?= $edad ?> años</span>
-                </td>
-
-                <td>
-                    <?php 
-                        $val = (int) $a['estatus'];
-                        [$label, $badge] = match ($val) {
-                            1 => ['Activo', 'success'],
-                            2 => ['Lesionado', 'warning'],
-                            0 => ['Suspendido', 'danger'],
-                            3 => ['Inactivo', 'outline'],
-                            default => ['Desconocido', 'primary']
-                        }; 
-                    ?>
-                    <span class="badge badge-<?= $badge ?>" style="padding: 6px 12px; border-radius: 20px;">
-                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle;"></span>
-                        <?= e($label) ?>
-                    </span>
-                </td>
-                <td style="text-align: right; padding-right: 24px;">
-                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                        <a href="<?= e(url('/admin/atletas/' . $a['atleta_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Perfil" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
-                            <i class="ph ph-eye"></i>
-                        </a>
-                        <a href="<?= e(url('/admin/reportes/atleta/' . $a['atleta_id'])) ?>" class="btn btn-sm btn-ghost" title="Reporte Individual" target="_blank" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
-                            <i class="ph ph-file-pdf"></i>
-                        </a>
-                        <?php if (can('admin')): ?>
-                            <form method="POST" action="<?= e(url('/admin/atletas/' . $a['atleta_id'] . '/eliminar')) ?>" style="display:inline;">
-                                <?= csrf_field() ?>
-                                <button type="button" class="btn btn-sm btn-ghost text-danger btn-eliminar-atleta" title="Eliminar Atleta" data-nombre="<?= e($a['nombre'] . ' ' . $a['apellido']) ?>" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
-                                    <i class="ph ph-trash"></i>
-                                </button>
-                            </form>
+                <div class="asig-atleta-row__inputs">
+                    <div class="asig-input-group">
+                        <span class="asig-input-label">Categoría</span>
+                        <?php if (!empty($a['nombre_categoria'])): ?>
+                            <div style="font-weight: 600; color: var(--color-text);"><?= e($a['nombre_categoria']) ?></div>
+                            <div style="margin-top: 4px;">
+                                <?php if ((int)$a['asig_estatus'] === 1): ?>
+                                    <span class="badge badge-success" style="font-size: 11px; padding: 2px 8px; border-radius: 12px;">Vigente</span>
+                                <?php else: ?>
+                                    <span class="badge badge-danger" style="font-size: 11px; padding: 2px 8px; border-radius: 12px;">Vencido</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted" style="font-size: 13px; font-style: italic;">Sin Asignación</span>
                         <?php endif; ?>
                     </div>
-                </td>
-            </tr>
+
+                    <div class="asig-input-group">
+                        <span class="asig-input-label">Edad</span>
+                        <?php 
+                            $edad = 0;
+                            if (!empty($a['fecha_nac'])) {
+                                $edad = (new \App\Models\ResultadoPrueba())->calcularEdad((string)$a['fecha_nac']);
+                            }
+                        ?>
+                        <span style="font-weight: 600; color: var(--color-text); font-size: 14px;"><?= $edad ?> años</span>
+                    </div>
+
+                    <div class="asig-input-group">
+                        <span class="asig-input-label">Estatus</span>
+                        <?php 
+                            $val = (int) $a['estatus'];
+                            [$label, $badge] = match ($val) {
+                                1 => ['Activo', 'success'],
+                                2 => ['Lesionado', 'warning'],
+                                0 => ['Suspendido', 'danger'],
+                                3 => ['Inactivo', 'outline'],
+                                default => ['Desconocido', 'primary']
+                            }; 
+                        ?>
+                        <span class="badge badge-<?= $badge ?>" style="padding: 6px 12px; border-radius: 20px; font-size: 12px; align-self: flex-start;">
+                            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: middle;"></span>
+                            <?= e($label) ?>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="asig-atleta-row__actions">
+                    <a href="<?= e(url('/admin/atletas/' . $a['atleta_id'])) ?>" class="btn-view-premium" title="Ver Perfil">
+                        <i class="ph ph-eye"></i>
+                    </a>
+                    <a href="<?= e(url('/admin/reportes/atleta/' . $a['atleta_id'])) ?>" class="btn-report-premium" title="Reporte Individual" target="_blank">
+                        <i class="ph ph-file-pdf"></i>
+                    </a>
+                    <?php if (can('admin')): ?>
+                        <form method="POST" action="<?= e(url('/admin/atletas/' . $a['atleta_id'] . '/eliminar')) ?>" style="display:inline;">
+                            <?= csrf_field() ?>
+                            <button type="button" class="btn-delete-premium btn-eliminar-atleta" title="Eliminar Atleta" data-nombre="<?= e($a['nombre'] . ' ' . $a['apellido']) ?>">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
         <?php endforeach; endif; ?>
-        </tbody>
-    </table>
+    </div>
 </div>
 
 
 
-<?php if (($pag['last_page'] ?? 1) > 1): ?>
+<div class="pagination-wrap">
+<?php
+$currentPage = (int) ($pag['page'] ?? 1);
+$totalPages = (int) ($pag['last_page'] ?? 1);
+if ($totalPages > 1):
+    $range = 1;
+    $pagesToShow = [];
+    for ($i = 1; $i <= $totalPages; $i++) {
+        if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
+            $pagesToShow[] = $i;
+        } else if (empty($pagesToShow) || end($pagesToShow) !== '...') {
+            $pagesToShow[] = '...';
+        }
+    }
+?>
     <div style="display: flex; justify-content: center; margin-top: 24px;">
         <ul class="pagination">
-            <?php for ($p = 1; $p <= $pag['last_page']; $p++):
-                $qs = array_filter(array_merge($filters, ['page' => $p]), fn($v) => $v !== null && $v !== ''); ?>
-                <li class="<?= $p === (int) $pag['page'] ? 'active' : '' ?>">
-                    <?php if ($p === (int) $pag['page']): ?>
-                        <span><?= $p ?></span>
-                    <?php else: ?>
-                        <a href="<?= e(url('/admin/atletas?' . http_build_query($qs))) ?>"><?= $p ?></a>
-                    <?php endif; ?>
-                </li>
-            <?php endfor; ?>
+            <!-- Botón << (Primero) -->
+            <?php if ($currentPage === 1): ?>
+                <li class="disabled"><span><i class="ph ph-caret-double-left"></i></span></li>
+            <?php else: 
+                $qsFirst = array_filter(array_merge($filters, ['page' => 1]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsFirst))) ?>"><i class="ph ph-caret-double-left"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Botón < (Anterior) -->
+            <?php if ($currentPage === 1): ?>
+                <li class="disabled"><span><i class="ph ph-caret-left"></i></span></li>
+            <?php else: 
+                $qsPrev = array_filter(array_merge($filters, ['page' => $currentPage - 1]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsPrev))) ?>"><i class="ph ph-caret-left"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Números de Página -->
+            <?php foreach ($pagesToShow as $p): ?>
+                <?php if ($p === '...'): ?>
+                    <li class="disabled"><span>...</span></li>
+                <?php elseif ($p === $currentPage): ?>
+                    <li class="active"><span><?= $p ?></span></li>
+                <?php else: 
+                    $qsPage = array_filter(array_merge($filters, ['page' => $p]), fn($v) => $v !== null && $v !== ''); ?>
+                    <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsPage))) ?>"><?= $p ?></a></li>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <!-- Botón > (Siguiente) -->
+            <?php if ($currentPage === $totalPages): ?>
+                <li class="disabled"><span><i class="ph ph-caret-right"></i></span></li>
+            <?php else: 
+                $qsNext = array_filter(array_merge($filters, ['page' => $currentPage + 1]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsNext))) ?>"><i class="ph ph-caret-right"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Botón >> (Último) -->
+            <?php if ($currentPage === $totalPages): ?>
+                <li class="disabled"><span><i class="ph ph-caret-double-right"></i></span></li>
+            <?php else: 
+                $qsLast = array_filter(array_merge($filters, ['page' => $totalPages]), fn($v) => $v !== null && $v !== ''); ?>
+                <li><a href="<?= e(url('/admin/atletas?' . http_build_query($qsLast))) ?>"><i class="ph ph-caret-double-right"></i></a></li>
+            <?php endif; ?>
         </ul>
     </div>
 <?php endif; ?>
+</div>
 
 <!-- Modal: Nueva Medición -->
 <div id="modal-medicion" class="modal-overlay" style="display:none;">
@@ -447,23 +504,111 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.btn-eliminar-atleta').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const form = btn.closest('form');
-            const nombre = btn.getAttribute('data-nombre');
+    const form = document.querySelector('.table-filters');
+    const paginationWrap = document.querySelector('.pagination-wrap');
+    if (form) {
+        const qInput = form.querySelector('#q');
+        const categoriaSelect = form.querySelector('#categoria_id');
+        const estatusSelect = form.querySelector('#estatus');
+        let debounceTimer;
 
-            CadaModal.confirm({
-                title: '¿Eliminar Atleta?',
-                text: `¿Estás seguro de que deseas eliminar permanentemente a <strong>${nombre}</strong>?<br><br><small style="color:var(--color-text-muted);">Nota: Si el atleta ya tiene registros de asistencia, pruebas físicas o historial antropométrico, la base de datos no permitirá borrarlo por integridad de datos, y se sugerirá desactivarlo en su lugar.</small>`,
-                type: 'danger',
-                confirmText: 'Sí, Eliminar',
-                cancelText: 'Cancelar'
-            }).then(confirmed => {
-                if (confirmed) {
-                    form.submit();
+        const performFilter = (page = 1) => {
+            const formData = new FormData(form);
+            formData.append('ajax', '1');
+            formData.append('page', page);
+            const queryString = new URLSearchParams(formData).toString();
+            
+            const navParams = new URLSearchParams(new FormData(form));
+            if (page > 1) {
+                navParams.append('page', page);
+            }
+            const newUrl = `${window.location.pathname}?${navParams.toString()}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+
+            fetch(`${window.location.pathname}?${queryString}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Actualizar listado
+                const oldList = document.querySelector('.atletas-list-container');
+                const newList = doc.querySelector('.atletas-list-container');
+                if (oldList && newList) {
+                    oldList.innerHTML = newList.innerHTML;
+                }
+                
+                // Actualizar stats-grid
+                const oldStats = document.querySelector('.stats-grid');
+                const newStats = doc.querySelector('.stats-grid');
+                if (oldStats && newStats) {
+                    oldStats.innerHTML = newStats.innerHTML;
+                }
+
+                // Actualizar pagination-wrap
+                const oldPagWrap = document.querySelector('.pagination-wrap');
+                const newPagWrap = doc.querySelector('.pagination-wrap');
+                if (oldPagWrap && newPagWrap) {
+                    oldPagWrap.innerHTML = newPagWrap.innerHTML;
+                }
+
+                // Re-vincular botones de eliminar
+                bindDeleteButtons();
+            })
+            .catch(err => console.error('Error al filtrar:', err));
+        };
+
+        if (categoriaSelect) categoriaSelect.addEventListener('change', () => performFilter(1));
+        if (estatusSelect) estatusSelect.addEventListener('change', () => performFilter(1));
+        if (qInput) {
+            qInput.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => performFilter(1), 300);
+            });
+            qInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        }
+        
+        form.addEventListener('submit', (e) => e.preventDefault());
+
+        // Interceptar clicks de paginación
+        if (paginationWrap) {
+            paginationWrap.addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (link) {
+                    e.preventDefault();
+                    const urlObj = new URL(link.href);
+                    const page = urlObj.searchParams.get('page') || 1;
+                    performFilter(page);
                 }
             });
+        }
+    }
+
+    function bindDeleteButtons() {
+        document.querySelectorAll('.btn-eliminar-atleta').forEach(btn => {
+            btn.onclick = () => {
+                const form = btn.closest('form');
+                const nombre = btn.getAttribute('data-nombre');
+
+                CadaModal.confirm({
+                    title: '¿Eliminar Atleta?',
+                    text: `¿Estás seguro de que deseas eliminar permanentemente a <strong>${nombre}</strong>?<br><br><small style="color:var(--color-text-muted);">Nota: Si el atleta ya tiene registros de asistencia, pruebas físicas o historial antropométrico, la base de datos no permitirá borrarlo por integridad de datos, y se sugerirá desactivarlo en su lugar.</small>`,
+                    type: 'danger',
+                    confirmText: 'Sí, Eliminar',
+                    cancelText: 'Cancelar'
+                }).then(confirmed => {
+                    if (confirmed) {
+                        form.submit();
+                    }
+                });
+            };
         });
-    });
+    }
+
+    bindDeleteButtons();
 });
 </script>

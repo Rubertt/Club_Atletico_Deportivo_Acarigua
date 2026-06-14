@@ -42,6 +42,19 @@ final class ResultadoPrueba extends Model
                 $row['test_velocidad'] = $puntajes['test_velocidad'];
                 $row['test_coordinacion'] = $puntajes['test_coordinacion'];
                 $row['test_de_reaccion'] = $puntajes['test_de_reaccion'];
+
+                $puntajesNac = $this->calcularPuntajesNacionales($row, (string)$row['fecha_nac']);
+                $row['test_de_fuerza_nac'] = $puntajesNac['test_de_fuerza'];
+                $row['test_resistencia_nac'] = $puntajesNac['test_resistencia'];
+                $row['test_velocidad_nac'] = $puntajesNac['test_velocidad'];
+                $row['test_coordinacion_nac'] = $puntajesNac['test_coordinacion'];
+                $row['test_de_reaccion_nac'] = $puntajesNac['test_de_reaccion'];
+            } else {
+                $row['test_de_fuerza_nac'] = null;
+                $row['test_resistencia_nac'] = null;
+                $row['test_velocidad_nac'] = null;
+                $row['test_coordinacion_nac'] = null;
+                $row['test_de_reaccion_nac'] = null;
             }
         }
         unset($row);
@@ -113,5 +126,137 @@ final class ResultadoPrueba extends Model
             'test_coordinacion' => $row['test_coordinacion'] !== null ? $this->calcularInversa((float)$row['test_coordinacion'], 22.50, 16.50, $factor) : null,
             'test_de_reaccion'  => $row['test_de_reaccion'] !== null ? $this->calcularInversa((float)$row['test_de_reaccion'], 450.0, 220.0, $factor) : null,
         ];
+    }
+
+    private function calcularPuntajesNacionales(array $row, string $fechaNac): array
+    {
+        $edad = $this->calcularEdad($fechaNac);
+        $factor = $this->obtenerFactorExigencia($edad);
+
+        return [
+            'test_de_fuerza'    => $row['test_de_fuerza_raw'] !== null ? $this->calcularDirecta((float)$row['test_de_fuerza_raw'], 20.0, 41.5, $factor) : null,
+            'test_resistencia'  => $row['test_resistencia_raw'] !== null ? $this->calcularDirecta((float)$row['test_resistencia_raw'], 600.0, 1880.0, $factor) : null,
+            'test_velocidad'    => $row['test_velocidad_raw'] !== null ? $this->calcularInversa((float)$row['test_velocidad_raw'], 5.20, 4.24, $factor) : null,
+            'test_coordinacion' => $row['test_coordinacion_raw'] !== null ? $this->calcularInversa((float)$row['test_coordinacion_raw'], 22.50, 17.10, $factor) : null,
+            'test_de_reaccion'  => $row['test_de_reaccion_raw'] !== null ? $this->calcularInversa((float)$row['test_de_reaccion_raw'], 450.0, 260.0, $factor) : null,
+        ];
+    }
+
+    /**
+     * Registra una sesión de pruebas físicas (actividad de tipo 2) y sus resultados correspondientes de forma transaccional.
+     *
+     * @param array $actividadData Datos para la tabla `actividades`
+     * @param array $resultadosData Array de resultados por atleta
+     * @return int El ID de la actividad creada
+     */
+    public function registrarLote(array $actividadData, array $resultadosData): int
+    {
+        $db = $this->db();
+        $db->beginTransaction();
+        try {
+            // 1. Insertar en actividades
+            $actividadModel = new Actividad();
+            $actividadId = $actividadModel->insert($actividadData);
+
+            // 2. Insertar cada resultado de prueba física
+            $stmt = $db->prepare(
+                'INSERT INTO resultados_pruebas (actividad_id, atleta_id, test_de_fuerza, test_resistencia, test_velocidad, test_coordinacion, test_de_reaccion)
+                 VALUES (:actividad_id, :atleta_id, :test_de_fuerza, :test_resistencia, :test_velocidad, :test_coordinacion, :test_de_reaccion)'
+            );
+
+            foreach ($resultadosData as $res) {
+                $stmt->execute([
+                    ':actividad_id'      => $actividadId,
+                    ':atleta_id'         => (int)$res['atleta_id'],
+                    ':test_de_fuerza'    => $res['test_de_fuerza'],
+                    ':test_resistencia'  => $res['test_resistencia'],
+                    ':test_velocidad'    => $res['test_velocidad'],
+                    ':test_coordinacion' => $res['test_coordinacion'],
+                    ':test_de_reaccion'  => $res['test_de_reaccion'],
+                ]);
+            }
+
+            $db->commit();
+            return $actividadId;
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Actualiza una sesión de pruebas físicas (actividad) y sus resultados de forma transaccional.
+     *
+     * @param int $actividadId ID de la actividad a actualizar
+     * @param array $actividadData Datos de la actividad
+     * @param array $resultadosData Datos de los resultados por atleta
+     */
+    public function actualizarLote(int $actividadId, array $actividadData, array $resultadosData): void
+    {
+        $db = $this->db();
+        $db->beginTransaction();
+        try {
+            // 1. Actualizar actividad
+            $actividadModel = new Actividad();
+            $actividadModel->update($actividadId, $actividadData);
+
+            // 2. Eliminar resultados anteriores de esta actividad
+            $stmtDel = $db->prepare('DELETE FROM resultados_pruebas WHERE actividad_id = ?');
+            $stmtDel->execute([$actividadId]);
+
+            // 3. Insertar nuevos resultados
+            $stmt = $db->prepare(
+                'INSERT INTO resultados_pruebas (actividad_id, atleta_id, test_de_fuerza, test_resistencia, test_velocidad, test_coordinacion, test_de_reaccion)
+                 VALUES (:actividad_id, :atleta_id, :test_de_fuerza, :test_resistencia, :test_velocidad, :test_coordinacion, :test_de_reaccion)'
+            );
+
+            foreach ($resultadosData as $res) {
+                $stmt->execute([
+                    ':actividad_id'      => $actividadId,
+                    ':atleta_id'         => (int)$res['atleta_id'],
+                    ':test_de_fuerza'    => $res['test_de_fuerza'],
+                    ':test_resistencia'  => $res['test_resistencia'],
+                    ':test_velocidad'    => $res['test_velocidad'],
+                    ':test_coordinacion' => $res['test_coordinacion'],
+                    ':test_de_reaccion'  => $res['test_de_reaccion'],
+                ]);
+            }
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Elimina una sesión de pruebas físicas (actividad) y todos sus resultados asociados de forma transaccional.
+     *
+     * @param int $actividadId ID de la actividad a eliminar
+     */
+    public function eliminarLote(int $actividadId): void
+    {
+        $db = $this->db();
+        $db->beginTransaction();
+        try {
+            // 1. Eliminar resultados
+            $stmtDel = $db->prepare('DELETE FROM resultados_pruebas WHERE actividad_id = ?');
+            $stmtDel->execute([$actividadId]);
+
+            // 2. Eliminar actividad
+            $actividadModel = new Actividad();
+            $actividadModel->delete($actividadId);
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
     }
 }

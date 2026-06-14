@@ -42,10 +42,46 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('base_path')) {
+    /**
+     * Prefijo de carpeta según el servidor (vacío en php -S, /cada con Alias Apache).
+     */
+    function base_path(): string
+    {
+        $base = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+        if ($base === '/' || $base === '.' || $base === '') {
+            return '';
+        }
+        return rtrim($base, '/');
+    }
+}
+
+if (!function_exists('base_url')) {
+    /**
+     * URL base de la app. Si APP_URL está vacío, usa el host de la petición actual (para dual server e IPs).
+     */
+    function base_url(): string
+    {
+        $configured = trim((string) ($_ENV['APP_URL'] ?? ''));
+
+        if ($configured === '') {
+            $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (isset($_SERVER['SERVER_PORT']) && (string) $_SERVER['SERVER_PORT'] === '443');
+            $scheme = $https ? 'https' : 'http';
+            $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $path   = base_path();
+
+            return rtrim($scheme . '://' . $host . $path, '/');
+        }
+
+        return rtrim($configured, '/');
+    }
+}
+
 if (!function_exists('url')) {
     function url(string $path = ''): string
     {
-        $base = rtrim((string) config('app.url'), '/');
+        $base = rtrim(base_url(), '/');
         $path = '/' . ltrim($path, '/');
         return $base . $path;
     }
@@ -200,4 +236,98 @@ if (!function_exists('errors')) {
         return $_SESSION['_errors'] ?? [];
     }
 }
+
+if (!function_exists('clean_cedula_dots')) {
+    /**
+     * Limpia los puntos y espacios de una cédula o pasaporte.
+     * Ejemplo: ' V-12.345.678 ' -> 'V-12345678'
+     */
+    function clean_cedula_dots(?string $cedula): ?string
+    {
+        if ($cedula === null) {
+            return null;
+        }
+        
+        $cedula = trim($cedula);
+        if ($cedula === '') {
+            return '';
+        }
+        
+        // Si contiene guión
+        if (str_contains($cedula, '-')) {
+            [$prefix, $num] = explode('-', $cedula, 2);
+            $prefixUpper = strtoupper(trim($prefix));
+            $numClean = trim($num);
+            if ($prefixUpper === 'V' || $prefixUpper === 'E' || $prefixUpper === 'P') {
+                return $prefixUpper . '-' . str_replace('.', '', $numClean);
+            }
+            return $prefixUpper . '-' . $numClean;
+        }
+        
+        // Si no contiene guión, pero empieza con una letra de prefijo (ej: V12345678 o V12.345.678)
+        $firstChar = strtoupper($cedula[0]);
+        if (in_array($firstChar, ['V', 'E', 'P', 'N'], true)) {
+            $num = substr($cedula, 1);
+            $numClean = trim($num);
+            if ($firstChar === 'V' || $firstChar === 'E' || $firstChar === 'P') {
+                return $firstChar . '-' . str_replace('.', '', $numClean);
+            }
+            return $firstChar . '-' . $numClean;
+        }
+        
+        return str_replace('.', '', $cedula);
+    }
+}
+
+if (!function_exists('format_cedula')) {
+    /**
+     * Formatea la cédula con puntos cada 3 dígitos para el frontend.
+     * Ejemplo: 'V-12345678' -> 'V-12.345.678'
+     */
+    function format_cedula(?string $cedula): string
+    {
+        if (empty($cedula)) {
+            return '';
+        }
+        
+        $cedula = trim($cedula);
+        
+        if (!str_contains($cedula, '-')) {
+            $firstChar = strtoupper($cedula[0]);
+            if (in_array($firstChar, ['V', 'E', 'P'], true)) {
+                $num = substr($cedula, 1);
+                $digits = str_replace('.', '', $num);
+                if (ctype_digit($digits)) {
+                    if ($firstChar === 'P') {
+                        return 'P-' . $digits;
+                    }
+                    return $firstChar . '-' . number_format((float)$digits, 0, '', '.');
+                }
+            } else {
+                $digits = str_replace('.', '', $cedula);
+                if (ctype_digit($digits)) {
+                    return number_format((float)$digits, 0, '', '.');
+                }
+            }
+            return $cedula;
+        }
+        
+        [$prefix, $num] = explode('-', $cedula, 2);
+        $prefixUpper = strtoupper(trim($prefix));
+        
+        if ($prefixUpper === 'V' || $prefixUpper === 'E' || $prefixUpper === 'P') {
+            $digits = str_replace('.', '', $num);
+            if (ctype_digit($digits)) {
+                if ($prefixUpper === 'P') {
+                    return 'P-' . $digits;
+                }
+                return $prefixUpper . '-' . number_format((float)$digits, 0, '', '.');
+            }
+        }
+        
+        return $cedula;
+    }
+}
+
+
 

@@ -1,60 +1,83 @@
             <!-- Tab: Antropometría -->
-            <div id="tab-antropometria" class="tab-content" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-ruler"></i> Evolución Física</h3>
                     <?php $isDis = in_array((int)($atleta['estatus'] ?? 1), [0, 3], true); ?>
-                    <button type="button" class="btn btn-primary btn-sm" id="btn-nueva-medicion"
-                        <?= $isDis ? 'disabled style="cursor: not-allowed; opacity: 0.6;" title="No disponible para atletas inactivos o suspendidos"' : '' ?>><i
-                            class="ph ph-plus"></i> Nueva Medición</button>
+                    <?php if (can('admin') || can('entrenador')): ?>
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-nueva-medicion"
+                            <?= $isDis ? 'disabled style="cursor: not-allowed; opacity: 0.6;" title="No disponible para atletas inactivos o suspendidos"' : '' ?>><i
+                                class="ph ph-plus"></i> Nueva Medición</button>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Mock Chart Container -->
                 <div style="height: 300px; background: var(--color-bg-alt); border-radius: var(--radius); border: 1px solid var(--color-border); margin-bottom: 24px; position: relative;"
-                    id="chart-antropometria">
+                    id="chart-antropometria" data-historial="<?= e(json_encode($medidas_historial ?? [])) ?>">
                     <!-- ECharts renders here -->
                 </div>
 
-                <div class="table-responsive" style="overflow-x: auto;">
-                    <table class="data-table" id="tabla-antropometria" style="min-width: 900px;">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Peso (kg)</th>
-                                <th>Altura (cm)</th>
-                                <th>% Grasa</th>
-                                <th>% Musc.</th>
-                                <th>Env. (cm)</th>
-                                <th>Pierna (cm)</th>
-                                <th>Torso (cm)</th>
-                                <th>IMC</th>
-                                <?php if (can('admin') || can('entrenador')): ?>
-                                    <th style="width: 110px; text-align: center;">Acciones</th>
-                                <?php endif; ?>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-medidas-body">
-                            <?php if (empty($medidas_historial)): ?>
-                                <tr>
-                                    <td colspan="<?= (can('admin') || can('entrenador')) ? 10 : 9 ?>"
-                                        style="text-align: center; padding: 32px; color: var(--color-text-muted);">No hay
-                                        mediciones registradas.</td>
-                                </tr>
-                            <?php else:
-                                foreach (array_reverse($medidas_historial) as $m): ?>
-                                    <tr>
-                                        <td><?= e(date('d/m/Y', strtotime($m['fecha_medicion']))) ?></td>
-                                        <td><?= e($m['peso'] ?? '—') ?></td>
-                                        <td><?= e($m['altura'] ?? '—') ?></td>
-                                        <td><?= !empty($m['porcentaje_grasa']) ? e($m['porcentaje_grasa']) . '%' : '—' ?></td>
-                                        <td><?= !empty($m['porcentaje_musculatura']) ? e($m['porcentaje_musculatura']) . '%' : '—' ?></td>
-                                        <td><?= e($m['envergadura'] ?? '—') ?></td>
-                                        <td><?= e($m['largo_de_pierna'] ?? '—') ?></td>
-                                        <td><?= e($m['largo_de_torso'] ?? '—') ?></td>
-                                        <td style="white-space: nowrap;">
+                <div class="perfil-table-wrap" id="tabla-antropometria">
+                    <?php 
+                        $hasActions = can('admin') || can('entrenador');
+                        $gridCols = $hasActions ? '1.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1.8fr 1fr' : '1.2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1.8fr';
+                    ?>
+                    <div class="perfil-table-header" style="grid-template-columns: <?= $gridCols ?>;">
+                        <div>Fecha</div>
+                        <div>Peso (kg)</div>
+                        <div>Altura (cm)</div>
+                        <div>% Grasa</div>
+                        <div>% Musc.</div>
+                        <div>Env. (cm)</div>
+                        <div>Pierna (cm)</div>
+                        <div>Torso (cm)</div>
+                        <div>IMC</div>
+                        <?php if ($hasActions): ?>
+                            <div style="text-align: center;">Acciones</div>
+                        <?php endif; ?>
+                    </div>
+                    <div id="tabla-medidas-body">
+                        <?php if (empty($medidas_historial)): ?>
+                            <div style="text-align: center; padding: 32px; color: var(--color-text-muted);">No hay mediciones registradas.</div>
+                        <?php else:
+                            foreach (array_reverse($medidas_historial) as $m): ?>
+                                <div class="perfil-table-row" style="grid-template-columns: <?= $gridCols ?>;">
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">Fecha</span>
+                                        <span><?= e(date('d/m/Y', strtotime($m['fecha_medicion']))) ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">Peso (kg)</span>
+                                        <span><?= e($m['peso'] ?? '—') ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">Altura (cm)</span>
+                                        <span><?= e($m['altura'] ?? '—') ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">% Grasa</span>
+                                        <span><?= !empty($m['porcentaje_grasa']) ? e($m['porcentaje_grasa']) . '%' : '—' ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">% Musc.</span>
+                                        <span><?= !empty($m['porcentaje_musculatura']) ? e($m['porcentaje_musculatura']) . '%' : '—' ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">Env. (cm)</span>
+                                        <span><?= e($m['envergadura'] ?? '—') ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">Pierna (cm)</span>
+                                        <span><?= e($m['largo_de_pierna'] ?? '—') ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">Torso (cm)</span>
+                                        <span><?= e($m['largo_de_torso'] ?? '—') ?></span>
+                                    </div>
+                                    <div class="perfil-row-col">
+                                        <span class="perfil-col-label">IMC</span>
+                                        <span>
                                             <?php 
                                             $peso = (float)($m['peso'] ?? 0);
                                             $altura = (float)($m['altura'] ?? 0);
-                                            // Estandarizado en cm
                                             $altura = $altura / 100;
                                             if ($peso > 0 && $altura > 0):
                                                 $imc = $peso / ($altura * $altura);
@@ -66,49 +89,46 @@
                                                 } elseif ($imc >= 25 && $imc < 30) {
                                                     $badgeClass = 'warning';
                                                     $label = 'Sobrepeso';
-                                                } elseif ($imc >= 30) {
+                                                    } elseif ($imc >= 30) {
                                                     $badgeClass = 'danger';
                                                     $label = 'Obesidad';
                                                 }
                                                 ?>
-                                                <span class="badge badge-<?= $badgeClass ?>"><?= number_format($imc, 1) ?>
-                                                    (<?= $label ?>)</span>
+                                                <span class="badge badge-<?= $badgeClass ?>"><?= number_format($imc, 1) ?> (<?= $label ?>)</span>
                                             <?php else: ?>
                                                 —
                                             <?php endif; ?>
-                                        </td>
-                                        <?php if (can('admin') || can('entrenador')): ?>
-                                            <td style="text-align: center;">
-                                                <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                                    <button type="button" class="btn-icon-premium btn-editar-medicion" 
-                                                        data-id="<?= $m['medidas_id'] ?>"
-                                                        data-fecha="<?= e($m['fecha_medicion']) ?>"
-                                                        data-peso="<?= e($m['peso']) ?>"
-                                                        data-altura="<?= e($m['altura']) ?>"
-                                                        data-grasa="<?= e($m['porcentaje_grasa']) ?>"
-                                                        data-musculo="<?= e($m['porcentaje_musculatura']) ?>"
-                                                        data-envergadura="<?= e($m['envergadura']) ?>"
-                                                        data-pierna="<?= e($m['largo_de_pierna']) ?>"
-                                                        data-torso="<?= e($m['largo_de_torso']) ?>"
-                                                        title="Editar medición"
-                                                        style="width: 28px; height: 28px; font-size: 14px;">
-                                                        <i class="ph ph-pencil-simple"></i>
-                                                    </button>
-                                                    <button type="button" class="btn-icon-premium btn-eliminar-medicion"
-                                                        data-id="<?= $m['medidas_id'] ?>"
-                                                        title="Eliminar medición"
-                                                        style="width: 28px; height: 28px; font-size: 14px; color: var(--color-danger); border-color: rgba(239, 68, 68, 0.2);">
-                                                        <i class="ph ph-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        <?php endif; ?>
-                                    </tr>
-                                <?php endforeach; endif; ?>
-                        </tbody>
-                    </table>
+                                        </span>
+                                    </div>
+                                    <?php if ($hasActions): ?>
+                                        <div class="perfil-row-col">
+                                            <span class="perfil-col-label">Acciones</span>
+                                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                                <button type="button" class="btn-edit-premium btn-editar-medicion" 
+                                                    data-id="<?= $m['medidas_id'] ?>"
+                                                    data-fecha="<?= e($m['fecha_medicion']) ?>"
+                                                    data-peso="<?= e($m['peso']) ?>"
+                                                    data-altura="<?= e($m['altura']) ?>"
+                                                    data-grasa="<?= e($m['porcentaje_grasa']) ?>"
+                                                    data-musculo="<?= e($m['porcentaje_musculatura']) ?>"
+                                                    data-envergadura="<?= e($m['envergadura']) ?>"
+                                                    data-pierna="<?= e($m['largo_de_pierna']) ?>"
+                                                    data-torso="<?= e($m['largo_de_torso']) ?>"
+                                                    title="Editar medición">
+                                                    <i class="ph ph-pencil-simple"></i>
+                                                </button>
+                                                <button type="button" class="btn-delete-premium btn-eliminar-medicion"
+                                                    data-id="<?= $m['medidas_id'] ?>"
+                                                    title="Eliminar medición">
+                                                    <i class="ph ph-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; endif; ?>
+                    </div>
                 </div>
-            </div>
 
             <!-- Modal: Nueva Medición -->
             <div id="modal-medicion" class="modal-overlay" style="display:none;">
@@ -173,10 +193,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-                        <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar Medición</button>
-                        <button type="button" class="btn-help" id="btn-help-medicion" title="¿Cómo llenar esta sección?">
-                            <i class="ph ph-question"></i>
-                        </button>
+                        <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Registrar Medición</button>
                     </div>
                 </form>
             </div>
@@ -237,9 +254,6 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
                         <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar Cambios</button>
-                        <button type="button" class="btn-help" id="btn-help-medicion-editar" title="¿Cómo llenar esta sección?">
-                            <i class="ph ph-question"></i>
-                        </button>
                     </div>
                 </form>
             </div>

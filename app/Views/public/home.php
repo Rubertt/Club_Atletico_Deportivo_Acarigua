@@ -60,39 +60,39 @@ document.addEventListener('DOMContentLoaded', () => {
 <section class="section" id="caracteristicas">
     <h2 class="section__title">Gestión deportiva integral</h2>
     <p class="section__subtitle">
-        Todas las herramientas necesarias para el seguimiento técnico, médico y antropométrico
-        del rendimiento de cada atleta.
+        Una solución moderna y robusta para el seguimiento técnico, médico, físico y administrativo 
+        del talento deportivo del club, potenciada con analíticas y control de seguridad avanzado.
     </p>
     <div class="feature-grid">
         <div class="feature-card">
             <div class="feature-card__icon">👥</div>
-            <h3>Gestión de Atletas</h3>
-            <p>Registro detallado con información personal, técnica, médica, foto, tutor y dirección completa.</p>
+            <h3>Atletas y Representantes</h3>
+            <p>Expediente digital completo con datos personales, tutor legal (obligatorio para menores) y dirección exacta con cascada geográfica de Venezuela.</p>
         </div>
         <div class="feature-card">
-            <div class="feature-card__icon">📏</div>
-            <h3>Antropometría</h3>
-            <p>Seguimiento de peso, altura, envergadura e índices de masa corporal con gráficos de evolución.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-card__icon">⚡</div>
-            <h3>Rendimiento Físico</h3>
-            <p>Tests de fuerza, resistencia, velocidad, coordinación y reacción con visualización en radar.</p>
+            <div class="feature-card__icon">📈</div>
+            <h3>Antropometría y ECharts</h3>
+            <p>Monitoreo físico (peso, talla, envergadura) y cálculo automático de IMC, visualizado en elegantes gráficos interactivos de evolución temporal.</p>
         </div>
         <div class="feature-card">
             <div class="feature-card__icon">🏥</div>
-            <h3>Ficha Médica</h3>
-            <p>Historial de salud, alergias, tipo sanguíneo, lesiones y condiciones relevantes.</p>
+            <h3>Control Clínico Completo</h3>
+            <p>Historial médico de salud y discapacidades (con paginación fija a 5 registros), además de control y registro de consultas y tratamientos.</p>
         </div>
         <div class="feature-card">
             <div class="feature-card__icon">📋</div>
-            <h3>Control de Asistencias</h3>
-            <p>Control de asistencia diario por categoría con observaciones y estadísticas por atleta.</p>
+            <h3>Asistencias y Convocatorias</h3>
+            <p>Pase de lista diario por categorías, planificación de convocatorias a partidos y entrenamientos, y análisis de asistencia del jugador.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-card__icon">🛡️</div>
+            <h3>Seguridad Multi-Rol (RBAC)</h3>
+            <p>Control de acceso seguro basado en 5 roles de usuario (Superusuario, Admin, Directivo, Entrenador y Médico) con protección CSRF y rate limit.</p>
         </div>
         <div class="feature-card">
             <div class="feature-card__icon">📄</div>
-            <h3>Reportes PDF</h3>
-            <p>Generación automática de fichas técnicas individuales con datos, métricas y gráficos.</p>
+            <h3>Reportes Oficiales</h3>
+            <p>Generación automatizada de fichas técnicas individuales en formato PDF (TCPDF) y reportes de plantel listos para impresión oficial.</p>
         </div>
     </div>
 </section>

@@ -64,3 +64,61 @@
         </tbody>
     </table>
 </div>
+
+<?php
+$currentPage = (int) ($pag['page'] ?? 1);
+$totalPages = (int) ($pag['last_page'] ?? 1);
+if ($totalPages > 1):
+    $range = 1;
+    $pagesToShow = [];
+    for ($i = 1; $i <= $totalPages; $i++) {
+        if ($i === 1 || $i === $totalPages || ($i >= $currentPage - $range && $i <= $currentPage + $range)) {
+            $pagesToShow[] = $i;
+        } else if (empty($pagesToShow) || end($pagesToShow) !== '...') {
+            $pagesToShow[] = '...';
+        }
+    }
+?>
+    <div style="display: flex; justify-content: center; margin-top: 24px;">
+        <ul class="pagination">
+            <!-- Botón << (Primero) -->
+            <?php if ($currentPage === 1): ?>
+                <li class="disabled"><span><i class="ph ph-caret-double-left"></i></span></li>
+            <?php else: ?>
+                <li><a href="<?= e(url('/admin/medidas?page=1')) ?>"><i class="ph ph-caret-double-left"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Botón < (Anterior) -->
+            <?php if ($currentPage === 1): ?>
+                <li class="disabled"><span><i class="ph ph-caret-left"></i></span></li>
+            <?php else: ?>
+                <li><a href="<?= e(url('/admin/medidas?page=' . ($currentPage - 1))) ?>"><i class="ph ph-caret-left"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Números de Página -->
+            <?php foreach ($pagesToShow as $p): ?>
+                <?php if ($p === '...'): ?>
+                    <li class="disabled"><span>...</span></li>
+                <?php elseif ($p === $currentPage): ?>
+                    <li class="active"><span><?= $p ?></span></li>
+                <?php else: ?>
+                    <li><a href="<?= e(url('/admin/medidas?page=' . $p)) ?>"><?= $p ?></a></li>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <!-- Botón > (Siguiente) -->
+            <?php if ($currentPage === $totalPages): ?>
+                <li class="disabled"><span><i class="ph ph-caret-right"></i></span></li>
+            <?php else: ?>
+                <li><a href="<?= e(url('/admin/medidas?page=' . ($currentPage + 1))) ?>"><i class="ph ph-caret-right"></i></a></li>
+            <?php endif; ?>
+
+            <!-- Botón >> (Último) -->
+            <?php if ($currentPage === $totalPages): ?>
+                <li class="disabled"><span><i class="ph ph-caret-double-right"></i></span></li>
+            <?php else: ?>
+                <li><a href="<?= e(url('/admin/medidas?page=' . $totalPages)) ?>"><i class="ph ph-caret-double-right"></i></a></li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php endif; ?>

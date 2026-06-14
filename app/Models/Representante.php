@@ -9,7 +9,7 @@ use App\Core\Model;
  * Modelo para la tabla `representante` de cada_db.
  *
  * Columnas: representante_id, nombre, apellido, telefono, cedula,
- *           tipo_relacion (enum), direccion_id, foto, created_at, updated_at
+ *           tipo_relacion (enum), created_at, updated_at
  */
 final class Representante extends Model
 {

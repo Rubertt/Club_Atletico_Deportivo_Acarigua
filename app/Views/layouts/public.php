@@ -38,6 +38,7 @@
     <?php endif; ?>
 
     <script src="<?= e(asset('js/core/toast.js')) ?>"></script>
+    <script src="<?= e(asset('js/core/tooltip.js')) ?>"></script>
     <script src="<?= e(asset('js/core/api.js')) ?>"></script>
     <?php if (!empty($scripts)): foreach ((array) $scripts as $s): ?>
         <script src="<?= e(asset($s)) ?>"></script>

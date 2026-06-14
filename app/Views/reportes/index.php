@@ -24,7 +24,7 @@ if (!function_exists('formatDocumento')) {
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 350px; gap: 24px; align-items: start;">
+<div class="reportes-grid">
     <!-- Main Content: Buscadores y Pestañas -->
     <div class="card" style="padding: 24px; min-height: 500px; min-width: 0;">
         
@@ -66,36 +66,42 @@ if (!function_exists('formatDocumento')) {
                 </div>
             </div>
 
-            <!-- Tabla de Atletas -->
-            <div class="data-table-wrap">
-                <table class="data-table" style="margin: 0; border: none;">
-                    <thead>
-                        <tr>
-                            <th style="padding-left: 12px;">Atleta</th>
-                            <th>Documento</th>
-                            <th>Categoría</th>
-                            <th>Estatus</th>
-                            <th style="width: 250px; text-align: right; padding-right: 12px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($atletas as $a): ?>
-                        <tr class="atleta-row" data-name="<?= e($a['nombre'] . ' ' . $a['apellido']) ?>" data-cedula="<?= e($a['cedula'] ?? '') ?>" data-categoria="<?= (int)$a['categoria_id'] ?>" data-estatus="<?= (int)$a['estatus'] ?>">
-                            <td style="padding-left: 12px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <?php if (!empty($a['foto'])): ?>
-                                        <img src="<?= e(url($a['foto'])) ?>" class="avatar-thumb" alt="" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
-                                    <?php else: ?>
-                                        <div class="avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px; background: var(--color-primary-light); color: var(--color-primary); flex-shrink: 0;">
-                                            <?= e(mb_substr($a['nombre'], 0, 1) . mb_substr($a['apellido'], 0, 1)) ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    <strong style="color: var(--color-text);"><?= e($a['nombre'] . ' ' . $a['apellido']) ?></strong>
-                                </div>
-                            </td>
-                            <td><span style="color: var(--color-text-muted); font-size: 13px;"><i class="ph ph-identification-card"></i> <?= e(formatDocumento($a['cedula'] ?? '')) ?></span></td>
-                            <td><span style="font-weight: 500; font-size: 13px;"><?= e($a['nombre_categoria'] ?? 'Sin Categoría') ?></span></td>
-                            <td>
+            <!-- Tabla de Atletas (Refactorizada) -->
+            <div class="responsive-table-wrap">
+                <div class="responsive-table-header" style="grid-template-columns: 2fr 1.2fr 1.2fr 1fr 1.5fr;">
+                    <div style="padding-left: 12px;">Atleta</div>
+                    <div>Documento</div>
+                    <div>Categoría</div>
+                    <div>Estatus</div>
+                    <div style="text-align: right; padding-right: 12px;">Acciones</div>
+                </div>
+                <div class="responsive-table-body">
+                <?php foreach ($atletas as $a): ?>
+                    <div class="responsive-table-row atleta-row" data-name="<?= e($a['nombre'] . ' ' . $a['apellido']) ?>" data-cedula="<?= e($a['cedula'] ?? '') ?>" data-categoria="<?= (int)$a['categoria_id'] ?>" data-estatus="<?= (int)$a['estatus'] ?>" style="grid-template-columns: 2fr 1.2fr 1.2fr 1fr 1.5fr;">
+                        <div class="responsive-row-col" style="padding-left: 12px;">
+                            <span class="responsive-col-label">Atleta</span>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <?php if (!empty($a['foto'])): ?>
+                                    <img src="<?= e(url($a['foto'])) ?>" class="avatar-thumb" alt="" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                <?php else: ?>
+                                    <div class="avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px; background: var(--color-primary-light); color: var(--color-primary); flex-shrink: 0;">
+                                        <?= e(mb_substr($a['nombre'], 0, 1) . mb_substr($a['apellido'], 0, 1)) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <strong style="color: var(--color-text);"><?= e($a['nombre'] . ' ' . $a['apellido']) ?></strong>
+                            </div>
+                        </div>
+                        <div class="responsive-row-col">
+                            <span class="responsive-col-label">Documento</span>
+                            <span style="color: var(--color-text-muted); font-size: 13px;"><i class="ph ph-identification-card"></i> <?= e(formatDocumento($a['cedula'] ?? '')) ?></span>
+                        </div>
+                        <div class="responsive-row-col">
+                            <span class="responsive-col-label">Categoría</span>
+                            <span style="font-weight: 500; font-size: 13px;"><?= e($a['nombre_categoria'] ?? 'Sin Categoría') ?></span>
+                        </div>
+                        <div class="responsive-row-col">
+                            <span class="responsive-col-label">Estatus</span>
+                            <div>
                                 <?php
                                 $estText = ESTATUS_ATLETA[(int)$a['estatus']] ?? 'Desconocido';
                                 $estBadge = match((int)$a['estatus']) {
@@ -106,25 +112,39 @@ if (!function_exists('formatDocumento')) {
                                 };
                                 ?>
                                 <span class="badge <?= $estBadge ?>"><?= e($estText) ?></span>
-                            </td>
-                            <td style="text-align: right; padding-right: 12px;">
-                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                                    <button type="button" class="btn btn-sm btn-ghost" onclick="openModalAsistAtleta(<?= (int)$a['atleta_id'] ?>, '<?= e(addslashes($a['nombre'] . ' ' . $a['apellido'])) ?>')" title="Imprimir Asistencia">
-                                        <i class="ph ph-calendar-check" style="font-size: 16px;"></i> Asistencia
-                                    </button>
-                                    <a href="<?= e(url("/admin/reportes/atleta/{$a['atleta_id']}")) ?>" class="btn btn-sm btn-outline" target="_blank" title="Imprimir Ficha Técnica">
-                                        <i class="ph ph-file-pdf"></i> Ficha
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($atletas)): ?>
-                        <tr class="no-results-row"><td colspan="5" class="text-center text-muted" style="padding:48px"><i class="ph ph-user-list text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>No hay atletas registrados.</td></tr>
-                    <?php endif; ?>
-                    <tr id="no-atletas-search" style="display: none;"><td colspan="5" class="text-center text-muted" style="padding:48px"><i class="ph ph-magnifying-glass text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>No se encontraron atletas con esos filtros.</td></tr>
-                    </tbody>
-                </table>
+                            </div>
+                        </div>
+                        <div class="responsive-row-col" style="text-align: right; padding-right: 12px;">
+                            <span class="responsive-col-label" style="text-align: right;">Acciones</span>
+                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                <button type="button" class="btn btn-sm btn-ghost" onclick="openModalAsistAtleta(<?= (int)$a['atleta_id'] ?>, '<?= e(addslashes($a['nombre'] . ' ' . $a['apellido'])) ?>')" title="Imprimir Asistencia">
+                                    <i class="ph ph-calendar-check" style="font-size: 16px;"></i>
+                                </button>
+                                <a href="<?= e(url("/admin/reportes/atleta/{$a['atleta_id']}")) ?>" class="btn btn-sm btn-outline" target="_blank" title="Imprimir Ficha Técnica">
+                                    <i class="ph ph-file-pdf"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline btn-share-report" data-url="<?= e(url("/admin/reportes/atleta/{$a['atleta_id']}")) ?>" data-filename="ficha_<?= preg_replace('/[^a-zA-Z0-9]/', '_', $a['nombre'] . '_' . $a['apellido']) ?>.pdf" title="Compartir Ficha Técnica">
+                                    <i class="ph ph-share-network"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (empty($atletas)): ?>
+                    <div class="responsive-table-row no-results-row" style="grid-template-columns: 1fr; justify-content: center; text-align: center; padding: 48px;">
+                        <div class="text-center text-muted">
+                            <i class="ph ph-user-list text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>
+                            No hay atletas registrados.
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <div id="no-atletas-search" class="responsive-table-row" style="display: none; grid-template-columns: 1fr; justify-content: center; text-align: center; padding: 48px;">
+                    <div class="text-center text-muted">
+                        <i class="ph ph-magnifying-glass text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>
+                        No se encontraron atletas con esos filtros.
+                    </div>
+                </div>
+                </div>
             </div>
             <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
         </div>
@@ -144,50 +164,60 @@ if (!function_exists('formatDocumento')) {
                         <option value="1">Superusuario</option>
                         <option value="2">Administrador</option>
                         <option value="3">Entrenador</option>
+                        <option value="4">Directivo</option>
+                        <option value="5">Médico</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Tabla de Usuarios -->
-            <div class="data-table-wrap">
-                <table class="data-table" style="margin: 0; border: none;">
-                    <thead>
-                        <tr>
-                            <th style="padding-left: 12px;">Usuario</th>
-                            <th>Documento</th>
-                            <th>Rol</th>
-                            <th>Estatus</th>
-                            <th style="width: 150px; text-align: right; padding-right: 12px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($usuarios as $u): ?>
-                        <tr class="usuario-row" data-name="<?= e($u['nombre'] . ' ' . $u['apellido']) ?>" data-cedula="<?= e($u['cedula'] ?? '') ?>" data-rol="<?= (int)$u['rol_id'] ?>">
-                            <td style="padding-left: 12px;">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <?php if (!empty($u['foto'])): ?>
-                                        <img src="<?= e(url($u['foto'])) ?>" class="avatar-thumb" alt="" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
-                                    <?php else: ?>
-                                        <div class="avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px; background: var(--color-primary-light); color: var(--color-primary); flex-shrink: 0;">
-                                            <?= e(mb_substr($u['nombre'], 0, 1) . mb_substr($u['apellido'], 0, 1)) ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    <strong style="color: var(--color-text);"><?= e($u['nombre'] . ' ' . $u['apellido']) ?></strong>
-                                </div>
-                            </td>
-                            <td><span style="color: var(--color-text-muted); font-size: 13px;"><i class="ph ph-identification-card"></i> <?= e(formatDocumento($u['cedula'] ?? '')) ?></span></td>
-                            <td>
+            <!-- Tabla de Usuarios (Refactorizada) -->
+            <div class="responsive-table-wrap">
+                <div class="responsive-table-header" style="grid-template-columns: 2fr 1.2fr 1.2fr 1fr 1fr;">
+                    <div style="padding-left: 12px;">Usuario</div>
+                    <div>Documento</div>
+                    <div>Rol</div>
+                    <div>Estatus</div>
+                    <div style="text-align: right; padding-right: 12px;">Acciones</div>
+                </div>
+                <div class="responsive-table-body">
+                <?php foreach ($usuarios as $u): ?>
+                    <div class="responsive-table-row usuario-row" data-name="<?= e($u['nombre'] . ' ' . $u['apellido']) ?>" data-cedula="<?= e($u['cedula'] ?? '') ?>" data-rol="<?= (int)$u['rol_id'] ?>" style="grid-template-columns: 2fr 1.2fr 1.2fr 1fr 1fr;">
+                        <div class="responsive-row-col" style="padding-left: 12px;">
+                            <span class="responsive-col-label">Usuario</span>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <?php if (!empty($u['foto'])): ?>
+                                    <img src="<?= e(url($u['foto'])) ?>" class="avatar-thumb" alt="" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                <?php else: ?>
+                                    <div class="avatar-placeholder" style="width: 32px; height: 32px; font-size: 12px; background: var(--color-primary-light); color: var(--color-primary); flex-shrink: 0;">
+                                        <?= e(mb_substr($u['nombre'], 0, 1) . mb_substr($u['apellido'], 0, 1)) ?>
+                                    </div>
+                                <?php endif; ?>
+                                <strong style="color: var(--color-text);"><?= e($u['nombre'] . ' ' . $u['apellido']) ?></strong>
+                            </div>
+                        </div>
+                        <div class="responsive-row-col">
+                            <span class="responsive-col-label">Documento</span>
+                            <span style="color: var(--color-text-muted); font-size: 13px;"><i class="ph ph-identification-card"></i> <?= e(formatDocumento($u['cedula'] ?? '')) ?></span>
+                        </div>
+                        <div class="responsive-row-col">
+                            <span class="responsive-col-label">Rol</span>
+                            <div>
                                 <?php
                                 $rolText = match((int)$u['rol_id']) {
                                     1 => 'Superusuario',
                                     2 => 'Administrador',
                                     3 => 'Entrenador',
+                                    4 => 'Directivo',
+                                    5 => 'Médico',
                                     default => 'Desconocido'
                                 };
                                 ?>
                                 <span style="font-weight: 500; font-size: 13px;"><?= e($rolText) ?></span>
-                            </td>
-                            <td>
+                            </div>
+                        </div>
+                        <div class="responsive-row-col">
+                            <span class="responsive-col-label">Estatus</span>
+                            <div>
                                 <?php
                                 $uEst = $u['estatus'] ?? 'Activo';
                                 $isActive = (strcasecmp((string)$uEst, 'activo') === 0 || $uEst === '1' || $uEst === 1);
@@ -195,20 +225,36 @@ if (!function_exists('formatDocumento')) {
                                 $uEstBadge = $isActive ? 'badge-success' : 'badge-secondary';
                                 ?>
                                 <span class="badge <?= $uEstBadge ?>"><?= e($uEstText) ?></span>
-                            </td>
-                            <td style="text-align: right; padding-right: 12px;">
+                            </div>
+                        </div>
+                        <div class="responsive-row-col" style="text-align: right; padding-right: 12px;">
+                            <span class="responsive-col-label" style="text-align: right;">Acciones</span>
+                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                 <a href="<?= e(url("/admin/reportes/usuario/{$u['usuario_id']}")) ?>" class="btn btn-sm btn-outline" target="_blank" title="Imprimir Ficha de Usuario">
-                                    <i class="ph ph-file-pdf"></i> Ficha
+                                    <i class="ph ph-file-pdf"></i>
                                 </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <?php if (empty($usuarios)): ?>
-                        <tr class="no-results-row"><td colspan="5" class="text-center text-muted" style="padding:48px"><i class="ph ph-user-list text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>No hay usuarios registrados.</td></tr>
-                    <?php endif; ?>
-                    <tr id="no-usuarios-search" style="display: none;"><td colspan="5" class="text-center text-muted" style="padding:48px"><i class="ph ph-magnifying-glass text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>No se encontraron usuarios con esos filtros.</td></tr>
-                    </tbody>
-                </table>
+                                <button type="button" class="btn btn-sm btn-outline btn-share-report" data-url="<?= e(url("/admin/reportes/usuario/{$u['usuario_id']}")) ?>" data-filename="ficha_usuario_<?= preg_replace('/[^a-zA-Z0-9]/', '_', $u['nombre'] . '_' . $u['apellido']) ?>.pdf" title="Compartir Ficha de Usuario">
+                                    <i class="ph ph-share-network"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (empty($usuarios)): ?>
+                    <div class="responsive-table-row no-results-row" style="grid-template-columns: 1fr; justify-content: center; text-align: center; padding: 48px;">
+                        <div class="text-center text-muted">
+                            <i class="ph ph-user-list text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>
+                            No hay usuarios registrados.
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <div id="no-usuarios-search" class="responsive-table-row" style="display: none; grid-template-columns: 1fr; justify-content: center; text-align: center; padding: 48px;">
+                    <div class="text-center text-muted">
+                        <i class="ph ph-magnifying-glass text-muted" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>
+                        No se encontraron usuarios con esos filtros.
+                    </div>
+                </div>
+                </div>
             </div>
             <div id="usuarios-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
         </div>
@@ -277,7 +323,7 @@ if (!function_exists('formatDocumento')) {
                     </select>
                 </div>
                 
-                <div id="date-range-fields" style="display:none; gap:12px; margin-top:16px;">
+                <div id="date-range-fields" class="form-responsive-row" style="display:none; margin-top:16px;">
                     <div class="form-group" style="flex:1">
                         <label class="form-label"><span class="required">*</span> Desde</label>
                         <input type="date" name="desde" id="r-desde" class="form-control" min="2019-01-01" max="<?= date('Y-m-d') ?>">
@@ -288,7 +334,7 @@ if (!function_exists('formatDocumento')) {
                     </div>
                 </div>
 
-                <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <div class="form-actions-btn-group" style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
                     <button type="button" class="btn btn-ghost" onclick="closeModalCat()">Cancelar</button>
                     <button type="submit" class="btn btn-primary"><i class="ph ph-file-pdf"></i> Generar PDF</button>
                 </div>
@@ -309,7 +355,7 @@ if (!function_exists('formatDocumento')) {
                 <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 16px;">
                     Seleccione el rango de fechas para el reporte de <strong id="asist-atleta-nombre"></strong>.
                 </p>
-                <div style="display:flex; gap:12px;">
+                <div class="form-responsive-row">
                     <div class="form-group" style="flex:1">
                         <label class="form-label">Desde</label>
                         <input type="date" name="desde" id="asist-desde" class="form-control" min="2019-01-01" max="<?= date('Y-m-d') ?>">
@@ -323,7 +369,7 @@ if (!function_exists('formatDocumento')) {
                     * Si se dejan en blanco, el reporte detallará el mes actual y resumirá el año.
                 </p>
 
-                <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                <div class="form-actions-btn-group" style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
                     <button type="button" class="btn btn-ghost" onclick="closeModalAsistAtleta()">Cancelar</button>
                     <button type="submit" class="btn btn-primary"><i class="ph ph-file-pdf"></i> Generar PDF</button>
                 </div>
@@ -357,7 +403,7 @@ const $filterEstAtleta = document.getElementById('filter-estatus-atleta');
 const $rowsAtletas = document.querySelectorAll('.atleta-row');
 const $noAtletasSearch = document.getElementById('no-atletas-search');
 
-const rowsPerPage = 15;
+const rowsPerPage = window.ROWS_PER_PAGE || 15;
 let currentAtletasPage = 1;
 
 function filterAtletas() {
@@ -480,25 +526,90 @@ function renderPagination(containerId, currentPage, totalPages, onPageChange) {
     const ul = document.createElement('ul');
     ul.className = 'pagination';
 
+    // << First page
+    const liFirst = document.createElement('li');
+    if (currentPage === 1) {
+        liFirst.className = 'disabled';
+        liFirst.innerHTML = '<span><i class="ph ph-caret-double-left"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-double-left"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(1); };
+        liFirst.appendChild(a);
+    }
+    ul.appendChild(liFirst);
+
+    // < Prev page
+    const liPrev = document.createElement('li');
+    if (currentPage === 1) {
+        liPrev.className = 'disabled';
+        liPrev.innerHTML = '<span><i class="ph ph-caret-left"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-left"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(currentPage - 1); };
+        liPrev.appendChild(a);
+    }
+    ul.appendChild(liPrev);
+
+    // Sliding window pages
+    const range = 1;
+    const pages = [];
     for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - range && i <= currentPage + range)) {
+            pages.push(i);
+        } else if (pages[pages.length - 1] !== '...') {
+            pages.push('...');
+        }
+    }
+
+    pages.forEach(p => {
         const li = document.createElement('li');
-        if (i === currentPage) {
+        if (p === '...') {
+            li.className = 'disabled';
+            li.innerHTML = '<span>...</span>';
+        } else if (p === currentPage) {
             li.className = 'active';
-            const span = document.createElement('span');
-            span.textContent = i;
-            li.appendChild(span);
+            li.innerHTML = `<span>${p}</span>`;
         } else {
             const a = document.createElement('a');
             a.href = '#';
-            a.textContent = i;
-            a.onclick = (e) => {
-                e.preventDefault();
-                onPageChange(i);
-            };
+            a.textContent = p;
+            a.onclick = (e) => { e.preventDefault(); onPageChange(p); };
             li.appendChild(a);
         }
         ul.appendChild(li);
+    });
+
+    // > Next page
+    const liNext = document.createElement('li');
+    if (currentPage === totalPages) {
+        liNext.className = 'disabled';
+        liNext.innerHTML = '<span><i class="ph ph-caret-right"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-right"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(currentPage + 1); };
+        liNext.appendChild(a);
     }
+    ul.appendChild(liNext);
+
+    // >> Last page
+    const liLast = document.createElement('li');
+    if (currentPage === totalPages) {
+        liLast.className = 'disabled';
+        liLast.innerHTML = '<span><i class="ph ph-caret-double-right"></i></span>';
+    } else {
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerHTML = '<i class="ph ph-caret-double-right"></i>';
+        a.onclick = (e) => { e.preventDefault(); onPageChange(totalPages); };
+        liLast.appendChild(a);
+    }
+    ul.appendChild(liLast);
 
     container.appendChild(ul);
 }
@@ -720,6 +831,47 @@ document.addEventListener('DOMContentLoaded', () => {
     filterAtletas();
     if ($searchUsuario) {
         filterUsuarios();
+    }
+});
+
+// Lógica para compartir reportes por WhatsApp en Centro de Reportes
+document.addEventListener('click', async function (e) {
+    const shareBtn = e.target.closest('.btn-share-report');
+    if (!shareBtn) return;
+    
+    const pdfUrl = shareBtn.getAttribute('data-url');
+    const filename = shareBtn.getAttribute('data-filename');
+    const originalText = shareBtn.innerHTML;
+    
+    shareBtn.disabled = true;
+    shareBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i>...';
+    
+    try {
+        const response = await fetch(pdfUrl);
+        if (!response.ok) throw new Error('No se pudo descargar el reporte PDF.');
+        
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: 'application/pdf' });
+        
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'Ficha CADA',
+                text: 'Te comparto el reporte del Club Atlético Deportivo Acarigua (CADA)'
+            });
+        } else {
+            const shareText = "Hola, te comparto el reporte de CADA: " + encodeURIComponent(window.location.origin + pdfUrl);
+            const whatsappUrl = "https://api.whatsapp.com/send?text=" + shareText;
+            window.open(whatsappUrl, '_blank');
+        }
+    } catch (error) {
+        console.error('Error al compartir:', error);
+        const shareText = "Hola, te comparto el reporte de CADA: " + encodeURIComponent(window.location.origin + pdfUrl);
+        const whatsappUrl = "https://api.whatsapp.com/send?text=" + shareText;
+        window.open(whatsappUrl, '_blank');
+    } finally {
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = originalText;
     }
 });
 </script>

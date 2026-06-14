@@ -57,19 +57,23 @@
                             <!-- Inputs para Partida -->
                             <div id="folio_inputs" style="display: <?= $cedPref === 'N' ? 'flex' : 'none' ?>; flex: 1; align-items: center;">
                                 <?php
-                                    $fYear = ''; $fActa = '';
+                                    $fYear = ''; $fActa = ''; $fFolio = '';
                                     if ($cedPref === 'N') {
                                         $fParts = explode('-', $cedNum);
-                                        if (count($fParts) >= 2) {
+                                        if (count($fParts) >= 3) {
+                                            $fYear = $fParts[0]; $fActa = $fParts[1]; $fFolio = $fParts[2];
+                                        } elseif (count($fParts) == 2) {
                                             $fYear = $fParts[0]; $fActa = $fParts[1];
                                         } else {
                                             $fYear = $cedNum;
                                         }
                                     }
                                 ?>
-                                <input type="text" id="folio_year" class="phone-number" style="width:55px; padding:0 4px; text-align:center;" placeholder="Año" maxlength="4" value="<?= e($fYear) ?>">
+                                <input type="text" id="folio_year" class="phone-number" style="width:50px; padding:0 4px; text-align:center;" placeholder="Año" maxlength="4" value="<?= e($fYear) ?>">
                                 <span class="phone-sep">-</span>
-                                <input type="text" id="folio_acta" class="phone-number" style="min-width:0; flex:1; padding:0 4px; text-align:center;" placeholder="Acta" maxlength="5" value="<?= e($fActa) ?>">
+                                <input type="text" id="folio_acta" class="phone-number" style="min-width:0; flex:1; padding:0 4px; text-align:center;" placeholder="Acta" maxlength="6" value="<?= e($fActa) ?>">
+                                <span class="phone-sep">-</span>
+                                <input type="text" id="folio_folio" class="phone-number" style="width:40px; padding:0 4px; text-align:center;" placeholder="Folio" maxlength="3" value="<?= e($fFolio) ?>">
                             </div>
                             
                             <input type="hidden" name="cedula" id="cedula" value="<?= e($cedVal) ?>">
@@ -107,8 +111,9 @@
                         <span class="field-error" id="telefono-error"></span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de 6 a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha de nacimiento</label>
-                        <input type="date" name="fecha_nacimiento" class="form-control" required value="<?= e($get('fecha_nac', $get('fecha_nacimiento', ''))) ?>" max="<?= date('Y-m-d', strtotime('-6 years')) ?>">
+                        <?php $edadMinimaReg = (int) config_db('edad_minima_atleta', 6); ?>
+                        <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de <?= $edadMinimaReg ?> a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha de nacimiento</label>
+                        <input type="date" name="fecha_nacimiento" class="form-control" required value="<?= e($get('fecha_nac', $get('fecha_nacimiento', ''))) ?>" max="<?= date('Y-m-d', strtotime('-' . $edadMinimaReg . ' years')) ?>">
                     </div>
                 </div>
 

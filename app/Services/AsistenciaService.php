@@ -24,7 +24,8 @@ final class AsistenciaService
         ?string $horaInicio = null,
         ?string $horaFin = null,
         ?string $ubicacion = null,
-        ?int $clima = null
+        ?int $clima = null,
+        ?int $terreno = null
     ): int {
         if (empty($detalles)) {
             throw new \RuntimeException('Debes marcar la asistencia de al menos un atleta.');
@@ -41,17 +42,31 @@ final class AsistenciaService
 
         // Validar duplicado para la misma categoría, fecha y tipo
         $db = Database::connection();
+        
+        // Obtener asignacion_id de la categoría
+        $stmtAsig = $db->prepare("SELECT asignacion_id FROM asig_categorias WHERE categoria_id = ? AND estatus = 1 LIMIT 1");
+        $stmtAsig->execute([$categoriaId]);
+        $asignacionId = $stmtAsig->fetchColumn();
+        $asignacionId = $asignacionId ? (int)$asignacionId : null;
+        if (!$asignacionId) {
+            $stmtAsig = $db->prepare("SELECT asignacion_id FROM asig_categorias WHERE categoria_id = ? LIMIT 1");
+            $stmtAsig->execute([$categoriaId]);
+            $asignacionId = $stmtAsig->fetchColumn();
+            $asignacionId = $asignacionId ? (int)$asignacionId : null;
+        }
+
         // Si el tipo es Partido (0) o Entrenamiento (1), no permitir que exista ninguno de los dos en esa fecha
         if ($tipoId === 0 || $tipoId === 1) {
             $stmt = $db->prepare("
                 SELECT a.actividad_id, a.tipo_actividad
                 FROM actividades a
-                JOIN asistencias ast ON a.actividad_id = ast.actividad_id
-                JOIN asig_categorias ac ON ast.atleta_id = ac.atleta_id
-                WHERE a.fecha = ? AND a.tipo_actividad IN (0, 1) AND ac.categoria_id = ?
+                LEFT JOIN asig_categorias ac ON a.asignacion_id = ac.asignacion_id
+                LEFT JOIN asistencias ast ON a.actividad_id = ast.actividad_id
+                LEFT JOIN asig_categorias ac2 ON ast.atleta_id = ac2.atleta_id
+                WHERE a.fecha = ? AND a.tipo_actividad IN (0, 1) AND (ac.categoria_id = ? OR ac2.categoria_id = ?)
                 LIMIT 1
             ");
-            $stmt->execute([$fechaEvento, $categoriaId]);
+            $stmt->execute([$fechaEvento, $categoriaId, $categoriaId]);
             $existing = $stmt->fetch();
             if ($existing) {
                 $existenteTipo = (int)$existing['tipo_actividad'] === 0 ? 'Partido' : 'Entrenamiento';
@@ -62,12 +77,13 @@ final class AsistenciaService
             $stmt = $db->prepare("
                 SELECT a.actividad_id 
                 FROM actividades a
-                JOIN asistencias ast ON a.actividad_id = ast.actividad_id
-                JOIN asig_categorias ac ON ast.atleta_id = ac.atleta_id
-                WHERE a.fecha = ? AND a.tipo_actividad = ? AND ac.categoria_id = ?
+                LEFT JOIN asig_categorias ac ON a.asignacion_id = ac.asignacion_id
+                LEFT JOIN asistencias ast ON a.actividad_id = ast.actividad_id
+                LEFT JOIN asig_categorias ac2 ON ast.atleta_id = ac2.atleta_id
+                WHERE a.fecha = ? AND a.tipo_actividad = ? AND (ac.categoria_id = ? OR ac2.categoria_id = ?)
                 LIMIT 1
             ");
-            $stmt->execute([$fechaEvento, $tipoId, $categoriaId]);
+            $stmt->execute([$fechaEvento, $tipoId, $categoriaId, $categoriaId]);
             if ($stmt->fetch()) {
                 throw new \RuntimeException("Ya existe un registro de $tipoEvento para esta categoría en la fecha seleccionada.");
             }
@@ -78,10 +94,12 @@ final class AsistenciaService
             $eventoId = (new Actividad())->insert([
                 'usuario_id'     => $entrenadorId,
                 'tipo_actividad' => $tipoId,
+                'asignacion_id'  => $asignacionId,
                 'fecha'          => $fechaEvento,
                 'hora_inicio'    => $horaInicio,
                 'hora_fin'       => $horaFin,
                 'ubicacion'      => $ubicacion ?: 'Cancha UPTP',
+                'terreno'        => $terreno,
                 'clima'          => $clima,
             ]);
 
@@ -119,7 +137,8 @@ final class AsistenciaService
         ?string $horaInicio = null,
         ?string $horaFin = null,
         ?string $ubicacion = null,
-        ?int $clima = null
+        ?int $clima = null,
+        ?int $terreno = null
     ): void {
         $tipoMap = [
             'Partido'         => 0,
@@ -139,6 +158,7 @@ final class AsistenciaService
                 'hora_inicio'    => $horaInicio,
                 'hora_fin'       => $horaFin,
                 'ubicacion'      => $ubicacion ?: 'Cancha UPTP',
+                'terreno'        => $terreno,
                 'clima'          => $clima,
             ]);
 

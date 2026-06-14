@@ -154,6 +154,47 @@ final class Auth
         return $row;
     }
 
+    /**
+     * Obtiene el usuario con un período de gracia para tokens recién expirados.
+     * Usado exclusivamente por keep-alive para renovar sesiones.
+     */
+    public static function userWithGrace(int $gracePeriodSeconds = 180): ?array
+    {
+        // Si ya resolvimos el usuario normal, retornarlo
+        if (self::$user !== null) {
+            return self::$user;
+        }
+
+        $name = (string) config('auth.cookie.name');
+        $token = $_COOKIE[$name] ?? null;
+        if (!$token) {
+            return null;
+        }
+
+        try {
+            $payload = JWT::decode($token, null, $gracePeriodSeconds);
+        } catch (Throwable) {
+            return null;
+        }
+
+        $db = Database::connection();
+        $stmt = $db->prepare(
+            'SELECT u.usuario_id, u.correo, u.rol_id, u.estatus, u.foto,
+                    u.nombre, u.apellido, u.cedula, r.nombre_rol
+             FROM usuarios u
+             JOIN roles_usuarios r ON r.rol_id = u.rol_id
+             WHERE u.usuario_id = :id AND u.estatus = "Activo"
+             LIMIT 1'
+        );
+        $stmt->execute([':id' => $payload['sub'] ?? '']);
+        $row = $stmt->fetch();
+        if (!$row) {
+            return null;
+        }
+        self::$user = $row;
+        return $row;
+    }
+
     public static function check(): bool
     {
         return self::user() !== null;
