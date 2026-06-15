@@ -47,6 +47,30 @@
     .profile-tabs .tab-btn i {
         font-size: 18px;
     }
+    
+    /* Loading styles for lazy tabs */
+    .lazy-loading-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 64px 24px;
+        color: var(--color-text-muted);
+        gap: 16px;
+        font-weight: 600;
+        text-align: center;
+    }
+    .lazy-loading-placeholder .spinner {
+        width: 36px;
+        height: 36px;
+        border: 4px solid var(--color-border);
+        border-top-color: var(--color-primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
 </style>
 <div class="page-header">
     <div>
@@ -60,6 +84,7 @@
     </div>
 </div>
 
+<div id="profile-container-wrapper">
 <div style="display:grid; grid-template-columns:300px 1fr; gap:24px;" class="show-layout">
     <!-- Panel Izquierdo (Resumen) -->
     <div style="display:flex; flex-direction:column; gap:24px;">
@@ -69,8 +94,8 @@
                     <i class="ph ph-pencil-simple"></i>
                 </button>
             <?php endif; ?>
-            <div style="position: relative; width: 180px; height: 180px; margin: 0 auto 20px; cursor: pointer; group"
-                id="btn-abrir-editar-foto" title="Cambiar Foto">
+            <div style="position: relative; width: 180px; height: 180px; margin: 0 auto 20px; <?= can('admin') ? 'cursor: pointer;' : '' ?> group"
+                <?= can('admin') ? 'id="btn-abrir-editar-foto" title="Cambiar Foto"' : '' ?>>
                 <div
                     style="position: absolute; inset: -5px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary) 0%, #ff4d4d 100%); opacity: 0.15; filter: blur(8px);">
                 </div>
@@ -79,25 +104,29 @@
                         class="hover-scale">
                         <img src="<?= e(url($atleta['foto'])) ?>"
                             style="width:100%; height:100%; border-radius:50%; object-fit:cover; display: block;">
-                        <div style="position: absolute; inset: 4px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.2s;"
-                            class="photo-overlay">
-                            <i class="ph ph-camera" style="font-size: 32px;"></i>
-                        </div>
+                        <?php if (can('admin')): ?>
+                            <div style="position: absolute; inset: 4px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white; opacity: 0; transition: opacity 0.2s;"
+                                class="photo-overlay">
+                                <i class="ph ph-camera" style="font-size: 32px;"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <div class="avatar-placeholder"
                         style="width:100%; height:100%; font-size:48px; background: var(--color-primary-light); color: var(--color-primary); border: 4px solid var(--color-bg); box-shadow: var(--shadow-md); position: relative;">
                         <?= e(mb_substr($atleta['nombre'], 0, 1) . mb_substr($atleta['apellido'], 0, 1)) ?>
-                        <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: var(--color-primary); opacity: 0; transition: opacity 0.2s;"
-                            class="photo-overlay">
-                            <i class="ph ph-camera" style="font-size: 32px;"></i>
-                        </div>
+                        <?php if (can('admin')): ?>
+                            <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: var(--color-primary); opacity: 0; transition: opacity 0.2s;"
+                                class="photo-overlay">
+                                <i class="ph ph-camera" style="font-size: 32px;"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
             <h2 style="margin:0 0 4px; font-family: var(--font-display);">
                 <?= e($atleta['nombre'] . ' ' . $atleta['apellido']) ?></h2>
-            <div style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 16px;">C.I: <?= !empty($atleta['cedula_formateada']) ? e($atleta['cedula_formateada']) : 'Sin Cédula' ?></div>
+            <div style="color: var(--color-text-muted); font-size: 14px; margin-bottom: 16px;"><?= !empty($atleta['cedula_formateada']) ? e($atleta['cedula_formateada']) : 'Sin Cédula' ?></div>
 
             <?php
             $estatusVal = (int) ($atleta['estatus'] ?? 1);
@@ -252,14 +281,12 @@
     <!-- Panel Derecho (Contenido Principal con Tabs) -->
     <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
         <div class="profile-tabs">
-            <button class="tab-btn active" data-target="tab-general"><i class="ph ph-user-list"></i> Datos
-                Generales</button>
+            <button class="tab-btn active" data-target="tab-general"><i class="ph ph-user-list"></i> Datos Generales</button>
             <button class="tab-btn" data-target="tab-ficha"><i class="ph ph-heartbeat"></i> Ficha Médica</button>
+            <button class="tab-btn" data-target="tab-consulta"><i class="ph ph-first-aid"></i> Consulta Médica</button>
             <button class="tab-btn" data-target="tab-antropometria"><i class="ph ph-ruler"></i> Antropometría</button>
-            <button class="tab-btn" data-target="tab-pruebas"><i class="ph ph-chart-line-up"></i> Pruebas
-                Físicas</button>
-            <button class="tab-btn" data-target="tab-asistencia"><i class="ph ph-calendar-check"></i>
-                Asistencia</button>
+            <button class="tab-btn" data-target="tab-pruebas"><i class="ph ph-chart-line-up"></i> Pruebas Físicas</button>
+            <button class="tab-btn" data-target="tab-asistencia"><i class="ph ph-calendar-check"></i> Asistencia</button>
         </div>
 
         <div style="padding: 32px; flex: 1;">
@@ -267,16 +294,44 @@
             <?php include __DIR__ . '/partials/perfil/_tab_general.php'; ?>
 
             <!-- Tab: Ficha Médica -->
-            <?php include __DIR__ . '/partials/perfil/_tab_ficha_medica.php'; ?>
+            <div id="tab-ficha" class="tab-content" style="display:none;" data-loaded="false" data-url="<?= e(url("/admin/atletas/{$atleta['atleta_id']}?tab_ajax=ficha")) ?>">
+                <div class="lazy-loading-placeholder">
+                    <div class="spinner"></div>
+                    <span>Cargando expediente médico...</span>
+                </div>
+            </div>
+
+            <!-- Tab: Consulta Médica -->
+            <div id="tab-consulta" class="tab-content" style="display:none;" data-loaded="false" data-url="<?= e(url("/admin/atletas/{$atleta['atleta_id']}?tab_ajax=consulta")) ?>">
+                <div class="lazy-loading-placeholder">
+                    <div class="spinner"></div>
+                    <span>Cargando historial de consultas...</span>
+                </div>
+            </div>
 
             <!-- Tab: Antropometría -->
-            <?php include __DIR__ . '/partials/perfil/_tab_antropometria.php'; ?>
+            <div id="tab-antropometria" class="tab-content" style="display:none;" data-loaded="false" data-url="<?= e(url("/admin/atletas/{$atleta['atleta_id']}?tab_ajax=antropometria")) ?>">
+                <div class="lazy-loading-placeholder">
+                    <div class="spinner"></div>
+                    <span>Cargando registros antropométricos...</span>
+                </div>
+            </div>
 
             <!-- Tab: Pruebas Físicas -->
-            <?php include __DIR__ . '/partials/perfil/_tab_pruebas.php'; ?>
+            <div id="tab-pruebas" class="tab-content" style="display:none;" data-loaded="false" data-url="<?= e(url("/admin/atletas/{$atleta['atleta_id']}?tab_ajax=pruebas")) ?>">
+                <div class="lazy-loading-placeholder">
+                    <div class="spinner"></div>
+                    <span>Cargando historial de pruebas físicas...</span>
+                </div>
+            </div>
 
             <!-- Tab: Asistencia -->
-            <?php include __DIR__ . '/partials/perfil/_tab_asistencia.php'; ?>
+            <div id="tab-asistencia" class="tab-content" style="display:none;" data-loaded="false" data-url="<?= e(url("/admin/atletas/{$atleta['atleta_id']}?tab_ajax=asistencia")) ?>">
+                <div class="lazy-loading-placeholder">
+                    <div class="spinner"></div>
+                    <span>Cargando historial de asistencias...</span>
+                </div>
+            </div>
         </div>
 
         <?php include __DIR__ . '/partials/perfil/_modals.php'; ?>
@@ -284,6 +339,7 @@
     </div>
 </div>
 </div>
+
 
 <?php include __DIR__ . '/partials/perfil/_styles.php'; ?>
 

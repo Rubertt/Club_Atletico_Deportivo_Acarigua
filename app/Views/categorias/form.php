@@ -30,7 +30,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
         <?= csrf_field() ?>
         
         <!-- Fila 1: Sexo, Edad Mínima, Edad Máxima -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <div class="form-row-3" style="margin-bottom: 24px;">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Género del grupo: Masculino, Femenino o Mixto. Bloqueado si el grupo ya tiene atletas registrados." data-tooltip-pos="top"><span class="required">*</span> Género <?= $hasAthletes ? ' <span class="text-muted" style="font-size:11px; font-weight:normal;">(Bloqueado)</span>' : '' ?></label>
                 <div style="position: relative;">
@@ -67,8 +67,8 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
             <input type="hidden" name="edad_max" value="<?= e($get('edad_max')) ?>">
         <?php endif; ?>
 
-        <!-- Fila 2: Nombre de Categoría (Readonly), Enlistador Responsable, Estatus (si es Edición) -->
-        <div style="display: grid; grid-template-columns: <?= $isEdit ? '1fr 1fr 1fr' : '1fr 1fr' ?>; gap: 24px; margin-bottom: 24px;">
+        <!-- Fila 2: Nombre de Categoría (Readonly), Entrenador Responsable, Estatus (si es Edición) -->
+        <div class="<?= $isEdit ? 'form-row-3' : 'form-row' ?>" style="margin-bottom: 24px;">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Nombre generado automáticamente según la edad máxima y el género seleccionados." data-tooltip-pos="top">Nombre de la Categoría</label>
                 <div style="position: relative;">
@@ -79,7 +79,7 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
                 </div>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Personal técnico a cargo de tomar las asistencias y registrar evaluaciones físicas en esta categoría." data-tooltip-pos="top"><span class="required">*</span> Enlistador</label>
+                <label class="form-label" data-tooltip="Personal técnico a cargo de tomar las asistencias y registrar evaluaciones físicas en esta categoría." data-tooltip-pos="top"><span class="required">*</span> Entrenador</label>
                 <div style="position: relative;">
                     <i class="ph ph-user-gear" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); z-index: 10;"></i>
                     <select name="usuario_id" class="form-control" style="padding-left: 40px;" required>
@@ -110,13 +110,10 @@ $hasAthletes = $isEdit && !empty($c['total_atletas']) && (int)$c['total_atletas'
             <?php endif; ?>
         </div>
 
-        <div style="background: var(--color-surface); margin: 32px -32px -32px; padding: 24px 32px; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
+        <div style="background: var(--color-surface); margin: 32px -32px -32px; padding: 24px 32px; border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; align-items: center; gap: 16px; flex-wrap: wrap;">
             <a href="<?= e(url('/admin/categorias')) ?>" class="btn btn-ghost">Cancelar</a>
             <button type="submit" class="btn btn-primary btn-lg" style="padding-left: 40px; padding-right: 40px;">
                 <i class="ph ph-floppy-disk"></i> <?= $isEdit ? 'Guardar Cambios' : 'Crear Categoría' ?>
-            </button>
-            <button type="button" class="btn-help" id="btn-help-categoria" title="¿Cómo llenar este formulario?" style="width: 44px; height: 44px;">
-                <i class="ph ph-question"></i>
             </button>
         </div>
     </form>
@@ -155,13 +152,6 @@ html.dark input[type="number"] {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Botón de ayuda [?]
-    document.getElementById('btn-help-categoria')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Guía: Registro de Categoría',
-            '<?= e(asset("img/ayuda/formulario_categoria.png")) ?>'
-        );
-    });
 
     const inputNombre = document.getElementById('nombre_categoria');
     const inputEdadMax = document.querySelector('input[name="edad_max"]');

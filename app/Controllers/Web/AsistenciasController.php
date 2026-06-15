@@ -10,6 +10,7 @@ use App\Core\Logger;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
+use App\Models\Asistencia;
 use App\Models\Atleta;
 use App\Models\Categoria;
 use App\Models\Usuario;
@@ -21,26 +22,39 @@ final class AsistenciasController extends Controller
     public function index(Request $request): Response
     {
         $hoy = date('Y-m-d');
-        $eventos = Database::connection()->query(
-            "SELECT a.actividad_id AS evento_id, a.tipo_actividad AS tipo_evento, a.fecha AS fecha_evento,
-                    CONCAT(u.nombre, ' ', u.apellido) AS entrenador,
-                    (SELECT c.nombre_categoria FROM asistencias ast2 JOIN asig_categorias ac ON ast2.atleta_id = ac.atleta_id JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ast2.actividad_id = a.actividad_id LIMIT 1) AS nombre_categoria,
-                    (SELECT COUNT(*) FROM asistencias ast WHERE ast.actividad_id = a.actividad_id) AS total,
-                    (SELECT COUNT(*) FROM asistencias ast WHERE ast.actividad_id = a.actividad_id AND ast.estatus = 1) AS presentes
-             FROM actividades a
-             LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
-             WHERE a.tipo_actividad IN ('0', '1', 'Entrenamiento', 'Partido')
-             ORDER BY a.fecha DESC, a.actividad_id DESC
-             LIMIT 50"
-        )->fetchAll();
+        
+        $filters = [
+            'usuario_id' => $request->query('usuario_id'),
+            'categoria_id' => $request->query('categoria_id'),
+            'tipo_actividad' => '1',
+        ];
 
-        return $this->view('asistencias.index', [
+        // Se obtienen los datos ya filtrados directamente desde el modelo
+        $eventos = (new Asistencia())->obtenerEntrenamientos($filters);
+
+        $categorias = (new Categoria())->activas();
+        $enlistadores = (new Usuario())->query(
+            "SELECT usuario_id, nombre, apellido FROM usuarios 
+             WHERE estatus = 'Activo' AND rol_id IN (" . ROL_ADMIN . ", " . ROL_ENTRENADOR . ", " . ROL_DIRECTIVO . ") 
+             ORDER BY apellido, nombre"
+        );
+
+        $viewData = [
             'title' => 'Asistencia',
             'active' => 'asistencias',
             'breadcrumb' => ['Inicio', 'Asistencia'],
             'eventos' => $eventos,
             'hoy' => $hoy,
-        ], 'admin');
+            'filters' => $filters,
+            'categorias' => $categorias,
+            'enlistadores' => $enlistadores,
+        ];
+
+        if ($request->query('ajax') || $request->input('ajax')) {
+            return Response::html($this->renderView('asistencias.index', $viewData));
+        }
+
+        return $this->view('asistencias.index', $viewData, 'admin');
     }
 
     public function crear(Request $request): Response
@@ -49,7 +63,7 @@ final class AsistenciasController extends Controller
         return $this->view('asistencias.crear', [
             'title' => 'Asistencia',
             'active' => 'asistencias',
-            'breadcrumb' => ['Inicio', 'Evaluaciones', 'Asistencia'],
+            'breadcrumb' => ['Inicio', 'Asistencia', 'Registrar'],
             'categorias' => $categorias,
         ], 'admin');
     }
@@ -57,17 +71,17 @@ final class AsistenciasController extends Controller
     public function guardar(Request $request): Response
     {
         $data = [
-            'tipo_evento' => $request->input('tipo_evento', 'Entrenamiento'),
+            'tipo_evento' => 'Entrenamiento',
             'fecha_evento' => (string) $request->input('fecha_evento', date('Y-m-d')),
             'entrenador_id' => (int) Auth::id(),
             'categoria_id' => (int) $request->input('categoria_id', 0),
             'ubicacion' => $request->input('ubicacion') ?: 'Cancha UPTP',
+            'terreno' => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima' => $request->input('clima') !== '' ? (int) $request->input('clima') : null,
             'hora_inicio' => $request->input('hora_inicio') ?: null,
             'hora_fin' => $request->input('hora_fin') ?: null,
         ];
         $v = Validator::make($data, [
-            'tipo_evento' => 'required',
             'fecha_evento' => 'required|date',
             'categoria_id' => 'required|integer',
         ]);
@@ -134,7 +148,8 @@ final class AsistenciasController extends Controller
                 $data['hora_inicio'],
                 $data['hora_fin'],
                 $data['ubicacion'],
-                $data['clima']
+                $data['clima'],
+                $data['terreno']
             );
             flash('success', 'Asistencia registrada correctamente.');
             return $this->redirect('/admin/asistencias');
@@ -153,7 +168,7 @@ final class AsistenciasController extends Controller
 
         $actividad = $db->prepare(
             "SELECT a.*, CONCAT(u.nombre, ' ', u.apellido) AS entrenador,
-             (SELECT c.nombre_categoria FROM asistencias ast2 JOIN asig_categorias ac ON ast2.atleta_id = ac.atleta_id JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ast2.actividad_id = a.actividad_id LIMIT 1) AS nombre_categoria
+             (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
              FROM actividades a
              LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
              WHERE a.actividad_id = ?"
@@ -179,6 +194,7 @@ final class AsistenciasController extends Controller
         return $this->view('asistencias.show', [
             'title' => 'Detalle de Asistencia',
             'active' => 'asistencias',
+            'breadcrumb' => ['Inicio', 'Asistencia', 'Detalle'],
             'actividad' => $actividad,
             'detalles' => $detalles
         ], 'admin');
@@ -190,7 +206,7 @@ final class AsistenciasController extends Controller
 
         $actividad = $db->prepare(
             "SELECT a.*,
-             (SELECT c.nombre_categoria FROM asistencias ast2 JOIN asig_categorias ac ON ast2.atleta_id = ac.atleta_id JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ast2.actividad_id = a.actividad_id LIMIT 1) AS nombre_categoria
+             (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
              FROM actividades a
              WHERE a.actividad_id = ?"
         );
@@ -225,6 +241,7 @@ final class AsistenciasController extends Controller
         return $this->view('asistencias.edit', [
             'title' => 'Editar Asistencia',
             'active' => 'asistencias',
+            'breadcrumb' => ['Inicio', 'Asistencia', 'Editar'],
             'actividad' => $actividad,
             'detalles' => $detalles,
         ], 'admin');
@@ -234,17 +251,17 @@ final class AsistenciasController extends Controller
     {
         $id = (int) $request->param('id');
         $data = [
-            'tipo_evento' => $request->input('tipo_evento', 'Entrenamiento'),
+            'tipo_evento' => 'Entrenamiento',
             'fecha_evento' => (string) $request->input('fecha_evento', date('Y-m-d')),
             'entrenador_id' => (int) Auth::id(),
             'ubicacion' => $request->input('ubicacion') ?: 'Cancha UPTP',
+            'terreno' => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima' => $request->input('clima') !== '' ? (int) $request->input('clima') : null,
             'hora_inicio' => $request->input('hora_inicio') ?: null,
             'hora_fin' => $request->input('hora_fin') ?: null,
         ];
 
         $v = Validator::make($data, [
-            'tipo_evento' => 'required',
             'fecha_evento' => 'required|date',
         ]);
 
@@ -310,7 +327,8 @@ final class AsistenciasController extends Controller
                 $data['hora_inicio'],
                 $data['hora_fin'],
                 $data['ubicacion'],
-                $data['clima']
+                $data['clima'],
+                $data['terreno']
             );
             flash('success', 'Asistencia actualizada correctamente.');
             return $this->redirect('/admin/asistencias');

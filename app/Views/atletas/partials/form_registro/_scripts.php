@@ -404,9 +404,9 @@ if (btnReset) {
 updateUI();
 
 // —— Cédula, Pasaporte y Acta de Nacimiento ——————————————————————————————————————————————
-const CEDULA_REGEX = /^[VE]-\d{6,10}$/i;
+const CEDULA_REGEX = /^[VE]-\d{6,8}$/i;
 const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
-const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,5}$/i;
+const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}$/i;
 
 function formatCedulaNumber(digits) {
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -421,13 +421,13 @@ function validarCedula(val) {
         // Si el pasaporte es puramente numérico, validar longitud
         const digitsOnly = val.substring(2).replace(/\./g, '');
         if (/^\d+$/.test(digitsOnly)) {
-            return digitsOnly.length >= 6 && digitsOnly.length <= 10;
+            return digitsOnly.length >= 6 && digitsOnly.length <= 8;
         }
         return PASAPORTE_REGEX.test(val);
     }
     const cleanVal = val.replace(/\./g, '');
     const digitsOnly = cleanVal.replace(/\D/g, '');
-    if (digitsOnly.length < 6 || digitsOnly.length > 10) {
+    if (digitsOnly.length < 6 || digitsOnly.length > 8) {
         return false;
     }
     return CEDULA_REGEX.test(cleanVal);
@@ -452,14 +452,16 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     const folioInputs = isAthlete ? document.getElementById('folio_inputs') : null;
     const fYear = isAthlete ? document.getElementById('folio_year') : null;
     const fActa = isAthlete ? document.getElementById('folio_acta') : null;
+    const fFolio = isAthlete ? document.getElementById('folio_folio') : null;
 
     function sync() {
         let val = '';
         if (prefixEl.value === 'N' && folioInputs) {
             let y = fYear.value.replace(/\D/g, '').substring(0, 4);
-            let a = fActa.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
-            fYear.value = y; fActa.value = a;
-            val = (y||a) ? `${y}-${a}` : '';
+            let a = fActa.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 6).toUpperCase();
+            let f = fFolio.value.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+            fYear.value = y; fActa.value = a; fFolio.value = f;
+            val = (y||a||f) ? `${y}-${a}-${f}` : '';
         } else if (prefixEl.value === 'P') {
             let raw = numberEl.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
             let digitsOnly = raw.replace(/\./g, '');
@@ -471,7 +473,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
                 val = raw;
             }
         } else {
-            let digits = numberEl.value.replace(/\D/g, '');
+            let digits = numberEl.value.replace(/\D/g, '').substring(0, 8);
             numberEl.value = formatCedulaNumber(digits);
             val = digits;
         }
@@ -499,11 +501,12 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
                 let parts = num.split('-');
                 if (fYear) fYear.value = parts[0] || '';
                 if (fActa) fActa.value = parts[1] || '';
+                if (fFolio) fFolio.value = parts[2] || '';
             }
         } else {
             let cleanNum = num.replace(/[^A-Z0-9]/gi, '').toUpperCase();
             if (prefix === 'V' || prefix === 'E' || (prefix === 'P' && /^\d+$/.test(cleanNum.replace(/\./g, '')))) {
-                numberEl.value = formatCedulaNumber(cleanNum.replace(/\D/g, ''));
+                numberEl.value = formatCedulaNumber(cleanNum.replace(/\D/g, '').substring(0, 8));
             } else {
                 numberEl.value = cleanNum;
             }
@@ -515,6 +518,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     if (folioInputs) {
         fYear.addEventListener('input', () => { sync(); clearError(errorKey); });
         fActa.addEventListener('input', () => { sync(); clearError(errorKey); });
+        fFolio?.addEventListener('input', () => { sync(); clearError(errorKey); });
     }
 
     prefixEl.addEventListener('change', () => {
@@ -524,7 +528,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
             numberEl.style.display = 'none';
             if (folioInputs) {
                 folioInputs.style.display = 'flex';
-                fYear.value = ''; fActa.value = '';
+                fYear.value = ''; fActa.value = ''; fFolio.value = '';
                 fYear.focus();
             } else {
                 numberEl.style.display = 'block';
@@ -540,7 +544,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
                 numberEl.maxLength = 15;
             } else {
                 numberEl.placeholder = "12.345.678";
-                numberEl.maxLength = 12; // Acomodar puntos ej: 12.345.678 (10 chars)
+                numberEl.maxLength = 10; // Acomodar puntos ej: 12.345.678 (10 chars)
             }
             numberEl.focus();
         }
@@ -552,7 +556,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
         const val = hiddenEl.value;
         if (val && !validarCedula(val)) {
             if (prefixEl.value === 'N') {
-                showError(errorKey, 'Completa Año y Acta (Formato Año-Acta)');
+                showError(errorKey, 'Completa Año, Acta y Folio (Formato Año-Acta-Folio)');
             } else if (prefixEl.value === 'P') {
                 showError(errorKey, 'Formato de Pasaporte inválido.');
             } else {
@@ -567,12 +571,14 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     if (folioInputs) {
         fYear.addEventListener('blur', blurHandler);
         fActa.addEventListener('blur', blurHandler);
+        fFolio?.addEventListener('blur', blurHandler);
     }
     
     numberEl.addEventListener('focus', () => clearError(errorKey));
     if (folioInputs) {
         fYear.addEventListener('focus', () => clearError(errorKey));
         fActa.addEventListener('focus', () => clearError(errorKey));
+        fFolio?.addEventListener('focus', () => clearError(errorKey));
     }
 }
 
@@ -736,11 +742,185 @@ if (dobEl) {
     updateDynamicRequirements();
 }
 
-// —— Botón de Ayuda [?] ——————————————————————————————————————————————————————
-document.getElementById('btn-help-atleta')?.addEventListener('click', () => {
-    FormValidator.showHelp(
-        'Guía: Registro de Atleta',
-        '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
-    );
-});
+// —— Lógica de Representante Existente ————————————————————————————————————————
+const selRepresentante = document.getElementById('sel-representante');
+if (selRepresentante) {
+    selRepresentante.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const isSelected = this.value !== '';
+
+        const tutorNombres = document.getElementById('tutor_nombres');
+        const tutorApellidos = document.getElementById('tutor_apellidos');
+        const tutorCedulaPref = document.getElementById('tutor_cedula_prefix');
+        const tutorCedulaNum = document.getElementById('tutor_cedula_number');
+        const tutorCedula = document.getElementById('tutor_cedula');
+        const tutorTelPref = document.getElementById('tutor_telefono_prefix');
+        const tutorTelNum = document.getElementById('tutor_telefono_number');
+        const tutorTel = document.getElementById('tutor_telefono');
+        const tutorRelacion = document.querySelector('select[name="tutor_relacion"]');
+
+        const fieldsToToggle = [tutorNombres, tutorApellidos, tutorCedulaPref, tutorCedulaNum, tutorTelPref, tutorTelNum, tutorRelacion];
+
+        if (isSelected) {
+            // Llenar campos
+            tutorNombres.value = opt.getAttribute('data-nombre') || '';
+            tutorApellidos.value = opt.getAttribute('data-apellido') || '';
+            
+            tutorCedulaPref.value = opt.getAttribute('data-cedula-prefix') || 'V';
+            tutorCedulaNum.value = formatCedulaNumber(opt.getAttribute('data-cedula-numero') || '');
+            tutorCedula.value = opt.getAttribute('data-cedula-completa') || '';
+            
+            const tel = opt.getAttribute('data-telefono') || '';
+            let repTelPref = '';
+            let repTelNum = '';
+            const prefixes = ['0412','0414','0416','0422','0424','0426','0255','0256'];
+            for (let i = 0; i < prefixes.length; i++) {
+                if (tel.startsWith(prefixes[i])) {
+                    repTelPref = prefixes[i];
+                    repTelNum = tel.substring(4);
+                    break;
+                }
+            }
+            tutorTelPref.value = repTelPref || '0412';
+            tutorTelNum.value = repTelNum;
+            tutorTel.value = tel;
+
+            tutorRelacion.value = opt.getAttribute('data-relacion') || '';
+
+            // Deshabilitar campos
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = true;
+                    el.style.backgroundColor = 'var(--color-bg-alt)';
+                    el.style.cursor = 'not-allowed';
+                    el.removeAttribute('required');
+                }
+            });
+        } else {
+            // Habilitar campos
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = false;
+                    el.value = '';
+                    el.style.backgroundColor = '';
+                    el.style.cursor = '';
+                }
+            });
+            tutorCedula.value = '';
+            tutorTel.value = '';
+            
+            // Re-aplicar requeridos dinámicos si es menor de edad
+            updateDynamicRequirements();
+        }
+    });
+
+    // Ejecutar después de un breve delay al cargar la página para mantener estado si ya está seleccionado
+    setTimeout(() => {
+        if (selRepresentante.value !== '') {
+            selRepresentante.dispatchEvent(new Event('change'));
+        }
+    }, 150);
+}
+
+// Helper para cascada asíncrona de dirección al elegir dirección existente
+function setCascadingDireccion(estadoId, municipioId, parroquiaId) {
+    const selEstado = document.getElementById('sel-estado');
+    const selMunicipio = document.getElementById('sel-municipio');
+    const selParroquia = document.getElementById('sel-parroquia');
+
+    selEstado.value = estadoId;
+    selMunicipio.dataset.current = municipioId;
+    selParroquia.dataset.current = parroquiaId;
+    
+    selMunicipio.disabled = false;
+    fetch('<?= e(url('/api/direcciones/municipios')) ?>/' + estadoId)
+        .then(res => res.json())
+        .then(data => {
+            selMunicipio.innerHTML = '<option value="">— Seleccione Municipio —</option>';
+            data.forEach(mun => {
+                let selected = (parseInt(selMunicipio.dataset.current) === parseInt(mun.municipio_id)) ? 'selected' : '';
+                selMunicipio.innerHTML += `<option value="${mun.municipio_id}" ${selected}>${mun.municipio}</option>`;
+            });
+            if (selMunicipio.value) {
+                selParroquia.disabled = false;
+                fetch('<?= e(url('/api/direcciones/parroquias')) ?>/' + selMunicipio.value)
+                    .then(res => res.json())
+                    .then(data2 => {
+                        selParroquia.innerHTML = '<option value="">— Seleccione Parroquia —</option>';
+                        data2.forEach(par => {
+                            let selected = (parseInt(selParroquia.dataset.current) === parseInt(par.parroquia_id)) ? 'selected' : '';
+                            selParroquia.innerHTML += `<option value="${par.parroquia_id}" ${selected}>${par.parroquia}</option>`;
+                        });
+                    });
+            }
+        })
+        .catch(console.error);
+}
+
+// —— Lógica de Dirección Existente ———————————————————————————————————————————
+const selDireccion = document.getElementById('sel-direccion');
+if (selDireccion) {
+    selDireccion.addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        const isSelected = this.value !== '';
+
+        const selEstado = document.getElementById('sel-estado');
+        const selMunicipio = document.getElementById('sel-municipio');
+        const selParroquia = document.getElementById('sel-parroquia');
+        const tipoVivienda = document.querySelector('select[name="tipo_vivienda"]');
+        const localidad = document.querySelector('input[name="localidad"]');
+        const ubicacionVivienda = document.querySelector('input[name="ubicacion_vivienda"]');
+
+        const fieldsToToggle = [selEstado, selMunicipio, selParroquia, tipoVivienda, localidad, ubicacionVivienda];
+
+        if (isSelected) {
+            // Llenar campos
+            const estadoId = opt.getAttribute('data-estado-id');
+            const municipioId = opt.getAttribute('data-municipio-id');
+            const parroquiaId = opt.getAttribute('data-parroquia-id');
+            
+            setCascadingDireccion(estadoId, municipioId, parroquiaId);
+
+            tipoVivienda.value = opt.getAttribute('data-tipo-vivienda') || '';
+            localidad.value = opt.getAttribute('data-localidad') || '';
+            ubicacionVivienda.value = opt.getAttribute('data-ubicacion-vivienda') || '';
+
+            // Deshabilitar campos y quitar required
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = true;
+                    el.style.backgroundColor = 'var(--color-bg-alt)';
+                    el.style.cursor = 'not-allowed';
+                    el.removeAttribute('required');
+                }
+            });
+        } else {
+            // Habilitar campos
+            fieldsToToggle.forEach(el => {
+                if (el) {
+                    el.disabled = false;
+                    el.style.backgroundColor = '';
+                    el.style.cursor = '';
+                    el.setAttribute('required', 'true');
+                }
+            });
+            // Limpiar campos
+            selEstado.value = '';
+            selMunicipio.innerHTML = '<option value="">— Seleccione Municipio —</option>';
+            selMunicipio.disabled = true;
+            selParroquia.innerHTML = '<option value="">— Seleccione Parroquia —</option>';
+            selParroquia.disabled = true;
+            tipoVivienda.value = '';
+            localidad.value = '';
+            ubicacionVivienda.value = '';
+        }
+    });
+
+    // Ejecutar después de un breve delay al cargar la página para mantener estado si ya está seleccionado
+    setTimeout(() => {
+        if (selDireccion.value !== '') {
+            selDireccion.dispatchEvent(new Event('change'));
+        }
+    }, 150);
+}
 </script>

@@ -34,6 +34,10 @@ $breadcrumb = $breadcrumb ?? [$title];
     <script src="<?= e(asset('js/core/theme.js')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/js/core/theme.js') ?>"></script>
     <script src="<?= e(asset('js/core/modal.js')) ?>"></script>
     <script src="<?= e(asset('js/core/form-validator.js')) ?>"></script>
+    <script>
+        window.ROWS_PER_PAGE = <?= (int) config_db('filas_por_pagina', 15) ?>;
+    </script>
+    <script src="<?= e(asset('js/core/pagination.js')) ?>?v=<?= filemtime(BASE_PATH . '/public/assets/js/core/pagination.js') ?>"></script>
 </head>
 <body class="admin-body">
     <div class="admin-layout" id="admin-layout">
@@ -54,8 +58,10 @@ $breadcrumb = $breadcrumb ?? [$title];
                             'Configuración' => url('/admin/configuracion'),
                             'Reportes' => url('/admin/reportes'),
                             'Asistencia' => url('/admin/asistencias'),
+                            'Pruebas físicas' => url('/admin/resultados-pruebas'),
                             'Antropometría' => url('/admin/medidas'),
                             'Mi Perfil' => url('/admin/perfil'),
+                            'Convocatorias' => url('/admin/convocatorias'),
                         ];
 
                         foreach ($breadcrumb as $index => $item) {
@@ -99,6 +105,7 @@ $breadcrumb = $breadcrumb ?? [$title];
                                 <a href="<?= e(url('/admin/usuarios')) ?>"><i class="ph ph-identification-card"></i> Gestión de Usuarios</a>
                                 <a href="<?= e(url('/admin/configuracion')) ?>"><i class="ph ph-gear"></i> Ajustes Generales</a>
                             <?php endif; ?>
+                            <a href="<?= e(url('/admin/manual')) ?>"><i class="ph ph-book-open-text"></i> Manuales de Ayuda</a>
                             <hr>
                             
                             <a href="<?= e(url('/logout')) ?>"
@@ -124,18 +131,34 @@ $breadcrumb = $breadcrumb ?? [$title];
     </div>
 
     <script src="<?= e(asset('js/core/toast.js')) ?>"></script>
+    <script src="<?= e(asset('js/core/tooltip.js')) ?>"></script>
     <script src="<?= e(asset('js/core/api.js')) ?>"></script>
     <script>
     (function () {
         // Toggle sidebar
-        document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
-            const layout = document.getElementById('admin-layout');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const adminLayout = document.getElementById('admin-layout');
+        const sidebar = document.querySelector('.sidebar');
+
+        sidebarToggle?.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (window.matchMedia('(max-width: 700px)').matches) {
-                layout.classList.toggle('is-mobile-open');
+                adminLayout?.classList.toggle('is-mobile-open');
             } else {
-                layout.classList.toggle('is-collapsed');
+                adminLayout?.classList.toggle('is-collapsed');
             }
         });
+
+        // Colapsar sidebar en móviles al hacer clic o tap fuera
+        const handleOutsideClick = (e) => {
+            if (window.matchMedia('(max-width: 700px)').matches && adminLayout?.classList.contains('is-mobile-open')) {
+                if (sidebar && !sidebar.contains(e.target) && sidebarToggle && !sidebarToggle.contains(e.target)) {
+                    adminLayout.classList.remove('is-mobile-open');
+                }
+            }
+        };
+        document.addEventListener('click', handleOutsideClick);
+        document.addEventListener('touchstart', handleOutsideClick, { passive: true });
 
         // Dropdown usuario
         const userMenu = document.getElementById('user-menu');

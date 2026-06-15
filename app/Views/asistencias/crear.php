@@ -16,7 +16,7 @@
 
     <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <!-- Fila 1: Campos requeridos -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 24px; align-items: end;">
+        <div class="form-header-grid">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Selecciona la categoría de atletas a evaluar" data-tooltip-pos="top"><span class="required">*</span> Categoría Deportiva</label>
                 <select id="sel-cat" name="categoria_id" class="form-control" required>
@@ -30,16 +30,7 @@
                 <label class="form-label" data-tooltip="Fecha en la que se realizó la actividad" data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
                 <input type="date" name="fecha_evento" class="form-control" required value="<?= e(old('fecha_evento', date('Y-m-d'))) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
             </div>
-            <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Tipo de actividad: Entrenamiento, Partido, etc." data-tooltip-pos="top"><span class="required">*</span> Tipo de Actividad</label>
-                <select name="tipo_evento" class="form-control" required>
-                    <option value="">— Seleccione —</option>
-                    <?php foreach (TIPO_EVENTO as $op): ?>
-                        <option value="<?= e($op) ?>" <?= old('tipo_evento') === $op ? 'selected' : '' ?>><?= e($op) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group" style="margin: 0;">
+            <div class="form-group form-header-toggle-group" style="margin: 0;">
                 <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
@@ -47,10 +38,19 @@
         </div>
 
         <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" style="display: none; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Lugar donde se lleva a cabo el evento" data-tooltip-pos="top">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e(old('ubicacion', 'Cancha UPTP')) ?>">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Terreno de juego donde se realiza la actividad" data-tooltip-pos="top">Terreno de Juego</label>
+                <select name="terreno" class="form-control">
+                    <option value="">— Seleccione —</option>
+                    <?php foreach (TERRENO_TIPO as $k => $v): ?>
+                        <option value="<?= $k ?>" <?= old('terreno') !== '' && (int)old('terreno') === $k ? 'selected' : '' ?>><?= e($v) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Estado del clima observado" data-tooltip-pos="top">Clima</label>
@@ -81,15 +81,13 @@
                 </div>
             </div>
             <div id="atletas-list-wrap" style="overflow: hidden;"></div>
+            <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 24px; gap: 12px;">
-            <button type="reset" class="btn btn-ghost" data-tooltip="Restablecer el formulario" data-tooltip-pos="top">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-lg" id="btn-save" data-tooltip="Guardar todos los registros de asistencia en la base de datos" data-tooltip-pos="top" style="padding: 12px 32px;">
+        <div class="form-actions-btn-group" style="margin-top: 24px;">
+            <a href="<?= e(url('/admin/asistencias')) ?>" class="btn btn-ghost" data-tooltip="Cancelar y volver al directorio" data-tooltip-pos="top">Cancelar</a>
+            <button type="submit" class="btn btn-primary" id="btn-save" data-tooltip="Guardar todos los registros de asistencia en la base de datos" data-tooltip-pos="top">
                 <i class="ph ph-check-circle"></i> Guardar Asistencia
-            </button>
-            <button type="button" class="btn-help" id="btn-help-asistencia" data-tooltip="Ver guía de ayuda con imágenes" data-tooltip-pos="top" title="¿Cómo registrar asistencia?" style="width: 44px; height: 44px;">
-                <i class="ph ph-question"></i>
             </button>
         </div>
     </div>
@@ -146,77 +144,6 @@
     box-sizing: border-box;
 }
 
-/* —— Estilos de Tooltip [data-tooltip] Scoped a la Vista ————————————————— */
-[data-tooltip] {
-    position: relative;
-    cursor: pointer;
-}
-[data-tooltip]::before,
-[data-tooltip]::after {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 999999;
-}
-[data-tooltip]::before {
-    content: attr(data-tooltip);
-    background: var(--color-surface-2, #1f2937);
-    color: var(--color-text, #f3f4f6);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 6px;
-    white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-    border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
-}
-[data-tooltip]::after {
-    content: '';
-    border: 5px solid transparent;
-}
-
-/* Tooltip Posición Superior (Predeterminado) */
-[data-tooltip]:not([data-tooltip-pos])::before,
-[data-tooltip][data-tooltip-pos="top"]::before {
-    bottom: 100%;
-    left: 50%;
-    transform: translate(-50%, 8px);
-}
-[data-tooltip]:not([data-tooltip-pos])::after,
-[data-tooltip][data-tooltip-pos="top"]::after {
-    bottom: 100%;
-    left: 50%;
-    transform: translate(-50%, 8px);
-    border-top-color: var(--color-surface-2, #1f2937);
-    margin-bottom: -10px;
-}
-[data-tooltip]:not([data-tooltip-pos]):hover::before,
-[data-tooltip]:not([data-tooltip-pos]):hover::after,
-[data-tooltip][data-tooltip-pos="top"]:hover::before,
-[data-tooltip][data-tooltip-pos="top"]:hover::after {
-    opacity: 1;
-    transform: translate(-50%, -6px);
-}
-
-/* Tooltip Posición Inferior */
-[data-tooltip][data-tooltip-pos="bottom"]::before {
-    top: 100%;
-    left: 50%;
-    transform: translate(-50%, -8px);
-}
-[data-tooltip][data-tooltip-pos="bottom"]::after {
-    top: 100%;
-    left: 50%;
-    transform: translate(-50%, -8px);
-    border-bottom-color: var(--color-surface-2, #1f2937);
-    margin-top: -10px;
-}
-[data-tooltip][data-tooltip-pos="bottom"]:hover::before,
-[data-tooltip][data-tooltip-pos="bottom"]:hover::after {
-    opacity: 1;
-    transform: translate(-50%, 6px);
-}
 </style>
 
 <script>
@@ -325,18 +252,15 @@
                 });
             });
 
+            CadaPagination({
+                rowSelector: '.asistencia-row',
+                containerId: 'atletas-pagination'
+            });
+
         } catch (e) {
             console.error(e);
             CadaModal.alert({ title: 'Error', text: 'No se pudo cargar la lista de atletas.', type: 'danger' });
         }
-    });
-
-    // Botón de ayuda [?]
-    document.getElementById('btn-help-asistencia')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Guía: Registro de Asistencia',
-            '<?= e(asset("img/ayuda/formulario_asistencia.png")) ?>'
-        );
     });
 
     // Validación estándar al submit con custom validation para hora de inicio/fin

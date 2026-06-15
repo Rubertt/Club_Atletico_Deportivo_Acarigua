@@ -1,21 +1,40 @@
-MIT License
+LICENCIA DE SOFTWARE - PROYECTO II UPTP
 
-Copyright (c) 2026 Elsio Sanchez
+Copyright (c) 2025 - 2026 
+Autores:
+- Colmenarez S. Luis A. (V-27.414.006)
+- Legón F. Robert A. (V-31.492.108)
+- Gómez C. Sergio J. (V-30.966.012)
+- Medina A. Gabriela N. (V-30.239.788)
+- Torrealba E. Albany P. (V-30.440.776)
+- Abreu A. José A. (V-31.558.506)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Título del Proyecto: 
+"Aplicación Web para la recopilación, monitoreo y análisis antropométrico del rendimiento deportivo"
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Comunidad Beneficiada: 
+Asociación Civil “Club Atlético Deportivo Acarigua” (RIF: J-503114630)
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Institución: 
+Universidad Politécnica Territorial de Portuguesa "Juan de Jesús Montilla" (UPTP)
+Docente: Elsio Sánchez | Tutor: Juan Carlos Esteller
+
+----------------------------------------------------------------------
+
+Este software incluye componentes de terceros bajo la siguiente licencia:
+Copyright (c) 2017-present PanJiaChen (MIT License)
+
+----------------------------------------------------------------------
+
+POR LA PRESENTE SE CONCEDE PERMISO:
+
+Se otorga permiso, sin cargo, a cualquier persona que obtenga una copia de este software y los archivos de documentación asociados (el "Software"), para utilizar el Software sin restricción, incluyendo, sin limitación, los derechos de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o entregar copias del Software a la comunidad beneficiaria, bajo las siguientes condiciones:
+
+1. El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del Software.
+
+2. EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIALIZACIÓN, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. 
+
+3. EN NINGÚN CASO LOS AUTORES O TITULARES DEL COPYRIGHT SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN DE CONTRATO, AGRAVIO O DE OTRO MODO, QUE SURJA DE, FUERA DE O EN CONEXIÓN CON EL SOFTWARE O EL USO U OTROS TRATOS EN EL SOFTWARE.
+
+----------------------------------------------------------------------
+FIN DE LA LICENCIA

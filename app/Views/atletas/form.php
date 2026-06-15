@@ -58,9 +58,6 @@ $get = fn(string $k, $default = '') => old($k, $a[$k] ?? $default);
                     <span><?= $isEdit ? 'Guardar Cambios' : 'Finalizar Registro' ?></span>
                     <i class="ph ph-check-circle"></i>
                 </button>
-                <button type="button" class="btn-help" id="btn-help-atleta" title="¿Cómo llenar este formulario?" style="width: 38px; height: 38px;">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
         </div>
     </form>

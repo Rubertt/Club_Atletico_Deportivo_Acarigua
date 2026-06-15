@@ -71,6 +71,90 @@ try {
     $pdo->exec($schema);
     $ok("Base de datos `$dbName` importada correctamente.");
 
+    // Crear triggers de unicidad global de cédulas
+    $step("Creando disparadores (triggers) de unicidad global para documentos de identidad...");
+    $triggersSql = "
+        DROP TRIGGER IF EXISTS antes_insertar_atleta;
+        CREATE TRIGGER antes_insertar_atleta BEFORE INSERT ON atletas FOR EACH ROW
+        BEGIN
+            IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' THEN
+                IF EXISTS (SELECT 1 FROM representantes WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de representantes.';
+                END IF;
+                IF EXISTS (SELECT 1 FROM usuarios WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de usuarios.';
+                END IF;
+            END IF;
+        END;
+
+        DROP TRIGGER IF EXISTS antes_actualizar_atleta;
+        CREATE TRIGGER antes_actualizar_atleta BEFORE UPDATE ON atletas FOR EACH ROW
+        BEGIN
+            IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' AND (OLD.cedula IS NULL OR NEW.cedula <> OLD.cedula) THEN
+                IF EXISTS (SELECT 1 FROM representantes WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de representantes.';
+                END IF;
+                IF EXISTS (SELECT 1 FROM usuarios WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de usuarios.';
+                END IF;
+            END IF;
+        END;
+
+        DROP TRIGGER IF EXISTS antes_insertar_representante;
+        CREATE TRIGGER antes_insertar_representante BEFORE INSERT ON representantes FOR EACH ROW
+        BEGIN
+            IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' THEN
+                IF EXISTS (SELECT 1 FROM atletas WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de atletas.';
+                END IF;
+                IF EXISTS (SELECT 1 FROM usuarios WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de usuarios.';
+                END IF;
+            END IF;
+        END;
+
+        DROP TRIGGER IF EXISTS antes_actualizar_representante;
+        CREATE TRIGGER antes_actualizar_representante BEFORE UPDATE ON representantes FOR EACH ROW
+        BEGIN
+            IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' AND (OLD.cedula IS NULL OR NEW.cedula <> OLD.cedula) THEN
+                IF EXISTS (SELECT 1 FROM atletas WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de atletas.';
+                END IF;
+                IF EXISTS (SELECT 1 FROM usuarios WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de usuarios.';
+                END IF;
+            END IF;
+        END;
+
+        DROP TRIGGER IF EXISTS antes_insertar_usuario;
+        CREATE TRIGGER antes_insertar_usuario BEFORE INSERT ON usuarios FOR EACH ROW
+        BEGIN
+            IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' THEN
+                IF EXISTS (SELECT 1 FROM atletas WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de atletas.';
+                END IF;
+                IF EXISTS (SELECT 1 FROM representantes WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de representantes.';
+                END IF;
+            END IF;
+        END;
+
+        DROP TRIGGER IF EXISTS antes_actualizar_usuario;
+        CREATE TRIGGER antes_actualizar_usuario BEFORE UPDATE ON usuarios FOR EACH ROW
+        BEGIN
+            IF NEW.cedula IS NOT NULL AND NEW.cedula <> '' AND (OLD.cedula IS NULL OR NEW.cedula <> OLD.cedula) THEN
+                IF EXISTS (SELECT 1 FROM atletas WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de atletas.';
+                END IF;
+                IF EXISTS (SELECT 1 FROM representantes WHERE cedula COLLATE utf8mb4_unicode_ci = NEW.cedula COLLATE utf8mb4_unicode_ci) THEN
+                    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: El documento de identidad ingresado ya existe en la tabla de representantes.';
+                END IF;
+            END IF;
+        END;
+    ";
+    $pdo->exec($triggersSql);
+    $ok("Disparadores de unicidad global creados con éxito.");
+
     // Estadísticas
     $step('Verificando instalación...');
     $tables = $pdo->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$dbName'")->fetchColumn();
@@ -91,8 +175,9 @@ try {
     $log("  Usuarios      : $users");
     $log('');
     $log("  🔐 USUARIOS DISPONIBLES");
-    $log("     admin@gmail.com / directivo@gmail.com / entrenador@gmail.com / medico@gmail.com");
-    $log("     Contraseña   : 12345678");
+    $log("     superusuario@gmail.com / administrador@gmail.com / entrenador@gmail.com");
+    $log("     directivo@gmail.com / medico@gmail.com");
+    $log("     Contraseña   : prueba.123");
     $log('');
     exit(0);
 } catch (Throwable $e) {

@@ -17,6 +17,7 @@
     --color-bg: #FFFFFF;
     --color-surface: #F8FAFC;
     --color-surface-2: #F1F5F9;
+    --color-bg-alt: #F1F5F9;
     --color-border: #E2E8F0;
     --color-sidebar-bg: #0F172A;
     --color-sidebar-text: #CBD5E1;
@@ -49,6 +50,7 @@ html.dark {
     --color-bg: #0B1220;
     --color-surface: #111827;
     --color-surface-2: #1F2937;
+    --color-bg-alt: #1F2937;
     --color-border: #374151;
     --color-sidebar-bg: #070B14;
     --color-sidebar-text: #CBD5E1;
@@ -83,17 +85,23 @@ body {
     width: 6px !important;
     height: 6px !important;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent !important;
 }
+
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(190, 18, 60, 0.5) !important; /* Rojo vinotinto semi-transparente */
+    background-color: rgba(190, 18, 60, 0.5) !important;
+    /* Rojo vinotinto semi-transparente */
     border-radius: 10px !important;
     border: 1px solid transparent !important;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-    background-color: #BE123C !important; /* Rojo vinotinto sólido en hover */
+    background-color: #BE123C !important;
+    /* Rojo vinotinto sólido en hover */
 }
+
 ::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
@@ -102,7 +110,10 @@ body {
 
 /* 2. Soporte Estándar (Firefox y otros navegadores no-Webkit) */
 @supports not selector(::-webkit-scrollbar) {
-    html, body, * {
+
+    html,
+    body,
+    * {
         scrollbar-width: thin;
         scrollbar-color: rgba(190, 18, 60, 0.5) transparent;
     }
@@ -202,6 +213,113 @@ img {
 .btn-lg {
     padding: 14px 28px;
     font-size: 16px;
+}
+
+/* Botones Premium Estandarizados */
+.btn-icon-premium,
+.btn-edit-premium {
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-icon-premium:hover,
+.btn-edit-premium:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.15);
+}
+.btn-icon-premium:active,
+.btn-edit-premium:active {
+    transform: scale(0.95);
+}
+
+.btn-delete-premium {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-danger);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-delete-premium:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+.btn-delete-premium:active {
+    transform: scale(0.95);
+}
+
+.btn-view-premium {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-view-premium:hover {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.15);
+}
+.btn-view-premium:active {
+    transform: scale(0.95);
+}
+
+.btn-report-premium {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    text-decoration: none;
+}
+.btn-report-premium:hover {
+    background: var(--color-primary);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.2);
+}
+.btn-report-premium:active {
+    transform: scale(0.95);
 }
 
 /* Forms */
@@ -613,51 +731,22 @@ body.error-page {
     margin-top: 4px;
 }
 
-/* ---------- Botón de Ayuda [?] para formularios ---------- */
-.btn-help {
-    width: 38px;
-    height: 38px;
-    border-radius: var(--radius-sm, 8px);
-    border: 2px solid var(--color-primary);
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-.btn-help:hover {
-    background: var(--color-primary);
-    color: #fff;
-    transform: scale(1.05);
-}
-.btn-help:active {
-    transform: scale(0.95);
-}
 
 /* ============================================================
    SISTEMA DE TOOLTIPS GLOBALES [data-tooltip]
    ============================================================ */
 [data-tooltip] {
-    position: relative;
     cursor: pointer;
 }
-[data-tooltip]::before,
-[data-tooltip]::after {
+
+/* ============================================================
+   GLOBAL TOOLTIP STYLING (JavaScript Manager)
+   ============================================================ */
+.global-tooltip {
     position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 999999;
-}
-[data-tooltip]::before {
-    content: attr(data-tooltip);
-    background: #1e293b; /* Fondo oscuro elegante en cualquier tema */
-    color: #f8fafc; /* Texto claro de alta legibilidad */
+    z-index: 10002; /* Floats over modal layout context */
+    background: #1e293b;
+    color: #f8fafc;
     font-size: 12px;
     line-height: 1.4;
     font-weight: 500;
@@ -670,52 +759,45 @@ body.error-page {
     border: 1px solid rgba(255, 255, 255, 0.15);
     text-align: left;
     font-family: var(--font-base);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
-[data-tooltip]::after {
+
+.global-tooltip--top {
+    transform: translateY(6px);
+}
+
+.global-tooltip--bottom {
+    transform: translateY(-6px);
+}
+
+/* CSS transition for dynamic activation */
+.global-tooltip--visible {
+    opacity: 1;
+    transform: translateY(0) !important;
+}
+
+/* Arrow element positioning */
+.global-tooltip::after {
     content: '';
+    position: absolute;
     border: 5px solid transparent;
 }
 
-/* Tooltip Posición Superior (Predeterminado) */
-[data-tooltip]:not([data-tooltip-pos])::before,
-[data-tooltip][data-tooltip-pos="top"]::before {
-    bottom: 100%;
+.global-tooltip--top::after {
+    top: 100%;
     left: 50%;
-    transform: translate(-50%, 8px);
-}
-[data-tooltip]:not([data-tooltip-pos])::after,
-[data-tooltip][data-tooltip-pos="top"]::after {
-    bottom: 100%;
-    left: 50%;
-    transform: translate(-50%, 8px);
+    transform: translateX(-50%);
     border-top-color: #1e293b;
-    margin-bottom: -10px;
-}
-[data-tooltip]:not([data-tooltip-pos]):hover::before,
-[data-tooltip]:not([data-tooltip-pos]):hover::after,
-[data-tooltip][data-tooltip-pos="top"]:hover::before,
-[data-tooltip][data-tooltip-pos="top"]:hover::after {
-    opacity: 1;
-    transform: translate(-50%, -6px);
 }
 
-/* Tooltip Posición Inferior */
-[data-tooltip][data-tooltip-pos="bottom"]::before {
-    top: 100%;
+.global-tooltip--bottom::after {
+    bottom: 100%;
     left: 50%;
-    transform: translate(-50%, -8px);
-}
-[data-tooltip][data-tooltip-pos="bottom"]::after {
-    top: 100%;
-    left: 50%;
-    transform: translate(-50%, -8px);
+    transform: translateX(-50%);
     border-bottom-color: #1e293b;
-    margin-top: -10px;
-}
-[data-tooltip][data-tooltip-pos="bottom"]:hover::before,
-[data-tooltip][data-tooltip-pos="bottom"]:hover::after {
-    opacity: 1;
-    transform: translate(-50%, 6px);
 }
 
 /* ============================================================
@@ -766,4 +848,4 @@ html.dark .label-tooltip-icon {
 html.dark label[data-tooltip]:hover .label-tooltip-icon {
     background: var(--color-primary);
     color: #ffffff !important;
-}
+}

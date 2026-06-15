@@ -14,7 +14,8 @@ final class MedidasAntropometricasController extends Controller
 {
     public function index(Request $request): Response
     {
-        $pag = (new Atleta())->paginate(['estatus' => 1], (int) $request->query('page', 1), 20);
+        $perPage = (int) config_db('filas_por_pagina', 15);
+        $pag = (new Atleta())->paginate(['estatus' => 1], (int) $request->query('page', 1), $perPage);
         return $this->view('medidas.index', [
             'title' => 'Antropometría',
             'active' => 'medidas',
@@ -292,8 +293,14 @@ final class MedidasAntropometricasController extends Controller
         
         try {
             (new MedidaAntropometrica())->delete($id);
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => true, 'message' => 'Medición eliminada correctamente.']);
+            }
             flash('success', 'Medición eliminada correctamente.');
         } catch (\Throwable $e) {
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json(['success' => false, 'message' => 'No se pudo eliminar la medición.'], 500);
+            }
             flash('error', 'No se pudo eliminar la medición.');
         }
 

@@ -61,6 +61,12 @@ final class Request
     {
         $uri = $this->server['REQUEST_URI'] ?? '/';
         $uri = parse_url($uri, PHP_URL_PATH) ?: '/';
+
+        $base = base_path();
+        if ($base !== '' && str_starts_with($uri, $base)) {
+            $uri = substr($uri, strlen($base)) ?: '/';
+        }
+
         return '/' . trim($uri, '/');
     }
 

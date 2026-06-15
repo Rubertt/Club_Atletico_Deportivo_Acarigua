@@ -1,9 +1,47 @@
             <div id="tab-tutor" class="form-tab-panel">
-                <div class="af-section-header">
-                    <div class="af-section-icon"><i class="ph ph-users"></i></div>
-                    <div class="af-section-info">
-                        <h3>Representante Legal</h3>
-                        <p>Persona responsable del menor de edad</p>
+                <div class="af-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <div class="af-section-icon"><i class="ph ph-users"></i></div>
+                        <div class="af-section-info">
+                            <h3>Representante Legal</h3>
+                            <p>Persona responsable del menor de edad</p>
+                        </div>
+                    </div>
+                    <!-- Select para elegir representante existente -->
+                    <div class="form-group" style="margin: 0; min-width: 280px;">
+                        <select name="representante_id" id="sel-representante" class="form-control">
+                            <option value="">— Elegir un representante —</option>
+                            <?php foreach ($representantes ?? [] as $rep): 
+                                $repCedVal = $rep['cedula'] ?? '';
+                                $repCedNum = '';
+                                if (!empty($repCedVal)) {
+                                    if (str_contains($repCedVal, '-')) {
+                                        $parts = explode('-', $repCedVal, 2);
+                                        $repCedNum = $parts[1] ?? '';
+                                    } else {
+                                        $firstChar = strtoupper($repCedVal[0]);
+                                        if (in_array($firstChar, ['V', 'E', 'P'])) {
+                                            $repCedNum = substr($repCedVal, 1);
+                                        } else {
+                                            $repCedNum = $repCedVal;
+                                        }
+                                    }
+                                }
+                                $repCedFormatted = \App\Models\Atleta::formatCedula($repCedVal);
+                            ?>
+                                <option value="<?= (int)$rep['representante_id'] ?>"
+                                    <?= (int)old('representante_id', $a['representante_id'] ?? 0) === (int)$rep['representante_id'] ? 'selected' : '' ?>
+                                    data-nombre="<?= e($rep['nombre']) ?>"
+                                    data-apellido="<?= e($rep['apellido']) ?>"
+                                    data-cedula-completa="<?= e($rep['cedula']) ?>"
+                                    data-cedula-numero="<?= e($repCedNum) ?>"
+                                    data-cedula-prefix="<?= e(str_contains($repCedVal, '-') ? explode('-', $repCedVal)[0] : (in_array(strtoupper($repCedVal[0] ?? ''), ['V', 'E', 'P']) ? strtoupper($repCedVal[0]) : 'V')) ?>"
+                                    data-telefono="<?= e($rep['telefono']) ?>"
+                                    data-relacion="<?= e($rep['tipo_relacion']) ?>">
+                                    <?= e('[ID: ' . $rep['representante_id'] . '] ' . $rep['nombre'] . ' ' . $rep['apellido'] . ' (C.I: ' . $repCedFormatted . ')') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
 

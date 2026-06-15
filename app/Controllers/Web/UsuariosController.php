@@ -403,7 +403,7 @@ final class UsuariosController extends Controller
         return [
             'nombre'    => trim((string) $request->input('nombre')),
             'apellido'  => trim((string) $request->input('apellido')),
-            'cedula'    => trim((string) $request->input('cedula')),
+            'cedula'    => clean_cedula_dots($request->input('cedula')),
             'telefono'  => trim((string) $request->input('telefono')),
             'fecha_nac' => trim((string) $request->input('fecha_nac')),
             'correo'    => trim((string) $request->input('correo')),
@@ -421,8 +421,8 @@ final class UsuariosController extends Controller
 
     private function validar(array $data, ?int $ignoreId = null): array
     {
-        // Regex: V-/E- seguido de dígitos con puntos (7-10 dígitos) o P- seguido de alfanumérico (5-15 chars)
-        $cedulaRegex = '/^([VE]-\d{1,3}(\.\d{3})*|P-[A-Z0-9]{5,15})$/i';
+        // Regex: V-/E- seguido de dígitos sin puntos (6 a 8 dígitos) o P- seguido de alfanumérico (5-15 chars)
+        $cedulaRegex = '/^([VE]-\d{6,8}|P-[A-Z0-9]{5,15})$/i';
         $cedulaRules = ['required', "regex:$cedulaRegex"];
         if ($ignoreId) {
             $cedulaRules[] = "unique:usuarios,cedula,usuario_id:$ignoreId";
@@ -452,7 +452,7 @@ final class UsuariosController extends Controller
         ], [
             'nombre'       => 'El nombre debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
             'apellido'     => 'El apellido debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
-            'cedula'       => 'La cédula o pasaporte debe ser válido (Ej: V-12.345.678, E-12.345.678 o P-Pasaporte) y ser único.',
+            'cedula'       => 'La cédula o pasaporte debe ser válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte) y ser único.',
             'parroquia_id' => 'El campo parroquia es obligatorio.',
             'rol_id'       => 'El campo rol / cargo es obligatorio.',
         ]);
@@ -474,6 +474,59 @@ final class UsuariosController extends Controller
             }
         }
 
+        // Validar duplicados globales (cédula del usuario) en atletas y representantes
+        if (!empty($data['cedula'])) {
+            $existsInAtletas = (new \App\Models\Atleta())->queryOne(
+                'SELECT 1 FROM atletas WHERE cedula = :c LIMIT 1',
+                [':c' => $data['cedula']]
+            );
+            if ($existsInAtletas) {
+                $errors['cedula'][] = 'Error: El número de documento de identidad ingresado ya existe en la tabla de atletas.';
+            }
+
+            $existsInRepresentantes = (new \App\Models\Representante())->queryOne(
+                'SELECT 1 FROM representantes WHERE cedula = :c LIMIT 1',
+                [':c' => $data['cedula']]
+            );
+            if ($existsInRepresentantes) {
+                $errors['cedula'][] = 'Error: El número de documento de identidad ingresado ya existe en la tabla de representantes.';
+            }
+        }
+
         return $errors;
     }
+
+    public function validarPaso(Request $request): Response
+    {
+        $step = (int) $request->input('step', 0);
+        $id = $request->input('usuario_id') ? (int) $request->input('usuario_id') : null;
+        
+        $data = $this->input($request);
+        
+        $errors = $this->validar($data, $id);
+        
+        // Define fields for each step
+        $stepFields = [
+            0 => ['nombre', 'apellido', 'cedula', 'telefono', 'fecha_nac', 'correo', 'rol_id', 'estatus'],
+            1 => ['estado_id', 'municipio_id', 'parroquia_id', 'localidad', 'tipo_vivienda', 'ubicacion_vivienda']
+        ];
+        
+        $fieldsToValidate = $stepFields[$step] ?? [];
+        $stepErrors = [];
+        foreach ($fieldsToValidate as $field) {
+            if (isset($errors[$field])) {
+                $stepErrors[$field] = is_array($errors[$field]) ? implode(' ', $errors[$field]) : $errors[$field];
+            }
+        }
+        
+        if (!empty($stepErrors)) {
+            return Response::json([
+                'success' => false,
+                'errors' => $stepErrors
+            ], 422);
+        }
+        
+        return Response::json(['success' => true]);
+    }
+
 }

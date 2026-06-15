@@ -29,12 +29,9 @@
 
     <!-- Pestaña: General y Sesión -->
     <div id="tab-general" class="form-tab-panel active">
-        <div class="form-card" style="background:var(--color-bg); padding:24px; border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:24px;">
+        <div class="form-card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--color-primary);">Ajustes de Sesión</h3>
-                <button type="button" class="btn-help" id="btn-help-general" title="Ayuda sobre sesión">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
             <div class="form-group">
                 <label class="form-label" for="tiempo_sesion" data-tooltip="Tiempo máximo de inactividad antes de cerrar la sesión automáticamente. Mínimo 5 minutos, máximo 480 minutos." data-tooltip-pos="top"><span class="required">*</span> Tiempo de expiración de sesión (en minutos)</label>
@@ -45,17 +42,34 @@
                     Mínimo 5 minutos · Máximo 480 minutos (8 horas).
                 </p>
             </div>
+
+            <div class="form-group" style="margin-top: 20px; border-top: 1px dashed var(--color-border); padding-top: 20px;">
+                <label class="form-label" for="filas_por_pagina" data-tooltip="Cantidad de filas/tarjetas que se muestran por página en las listas del sistema antes de aparecer el pasador de páginas." data-tooltip-pos="top"><span class="required">*</span> Filas por página en tablas</label>
+                <input type="number" name="filas_por_pagina" id="filas_por_pagina" class="form-control" 
+                       value="<?= e($configs['filas_por_pagina'] ?? '15') ?>" required min="5" max="100"
+                       data-label="Filas por página">
+                <p class="form-help" style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
+                    Mínimo 5 filas · Máximo 100 filas.
+                </p>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px; border-top: 1px dashed var(--color-border); padding-top: 20px;">
+                <label class="form-label" for="edad_minima_atleta" data-tooltip="Edad mínima requerida para poder registrar a un atleta en la academia." data-tooltip-pos="top"><span class="required">*</span> Edad mínima para registrar atletas</label>
+                <input type="number" name="edad_minima_atleta" id="edad_minima_atleta" class="form-control" 
+                       value="<?= e($configs['edad_minima_atleta'] ?? '6') ?>" required min="1" max="25"
+                       data-label="Edad mínima de registro">
+                <p class="form-help" style="font-size:12px; color:var(--color-text-muted); margin-top:4px;">
+                    Mínimo 1 año · Máximo 25 años.
+                </p>
+            </div>
         </div>
     </div>
 
     <!-- Pestaña: Identidad -->
     <div id="tab-identidad" class="form-tab-panel">
-        <div class="form-card" style="background:var(--color-bg); padding:24px; border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:24px;">
+        <div class="form-card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--color-primary);">Identidad de la Comunidad</h3>
-                <button type="button" class="btn-help" id="btn-help-identidad" title="Ayuda sobre identidad">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
             
             <div class="form-group">
@@ -83,12 +97,9 @@
 
     <!-- Pestaña: Contacto y Redes -->
     <div id="tab-contacto" class="form-tab-panel">
-        <div class="form-card" style="background:var(--color-bg); padding:24px; border:1px solid var(--color-border); border-radius:var(--radius); margin-bottom:24px;">
+        <div class="form-card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h3 style="margin:0; color:var(--color-primary);">Información de Contacto y Redes</h3>
-                <button type="button" class="btn-help" id="btn-help-contacto" title="Ayuda sobre contacto">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
             
             <div class="form-row">
@@ -132,7 +143,7 @@
         </div>
     </div>
 
-    <div style="text-align: right;">
+    <div class="config-actions">
         <button type="submit" class="btn btn-primary btn-lg"><i class="ph ph-floppy-disk"></i> Guardar Cambios</button>
     </div>
 </form>
@@ -167,38 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // ========== Botones de Ayuda ==========
-    document.getElementById('btn-help-general')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Ayuda: General y Sesión',
-            null,
-            '<p>El <strong>tiempo de expiración de sesión</strong> determina cuánto tiempo de inactividad ' +
-            'puede pasar antes de que el sistema cierre tu sesión automáticamente.</p>' +
-            '<p><strong>Mínimo:</strong> 5 minutos<br><strong>Máximo:</strong> 480 minutos (8 horas)</p>' +
-            '<p>Si el campo está vacío o tiene un valor fuera de rango, no se guardará.</p>'
-        );
-    });
-
-    document.getElementById('btn-help-identidad')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Ayuda: Identidad de la Comunidad',
-            null,
-            '<p>Aquí puedes editar la <strong>Misión</strong> y <strong>Visión</strong> del club, ' +
-            'así como los <strong>Requisitos de Inscripción</strong> que se mostrarán al público en la página de Nosotros.</p>' +
-            '<p>Todos los campos marcados con <span style="color:var(--color-danger);">*</span> son obligatorios.</p>'
-        );
-    });
-
-    document.getElementById('btn-help-contacto')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Ayuda: Contacto y Redes',
-            null,
-            '<p>Configura la información de contacto del club que se mostrará públicamente en la página de Contacto y en el pie de página.</p>' +
-            '<p><strong>Teléfono WhatsApp:</strong> Debe incluir el código de país sin espacios. Ejemplo: +584121234567</p>' +
-            '<p><strong>Redes sociales:</strong> Pega la URL completa del perfil (ejemplo: https://facebook.com/tu_club)</p>'
-        );
-    });
 
     // ========== FormValidator ==========
     const form = document.getElementById('form-configuracion');
@@ -235,6 +214,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     errors.push({
                         label: 'El tiempo de sesión debe estar entre 5 y 480 minutos.',
                         element: tiempoInput
+                    });
+                }
+            }
+            const filasInput = document.getElementById('filas_por_pagina');
+            if (filasInput) {
+                const val = parseInt(filasInput.value);
+                if (isNaN(val) || val < 5 || val > 100) {
+                    errors.push({
+                        label: 'La cantidad de filas por página debe estar entre 5 y 100.',
+                        element: filasInput
+                    });
+                }
+            }
+            const edadMinimaInput = document.getElementById('edad_minima_atleta');
+            if (edadMinimaInput) {
+                const val = parseInt(edadMinimaInput.value);
+                if (isNaN(val) || val < 1 || val > 25) {
+                    errors.push({
+                        label: 'La edad mínima para registrar a un atleta debe estar entre 1 y 25 años.',
+                        element: edadMinimaInput
                     });
                 }
             }

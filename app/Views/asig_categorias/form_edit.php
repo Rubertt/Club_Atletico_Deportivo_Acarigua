@@ -39,7 +39,7 @@ $get = fn(string $k, $d = '') => old($k, $item[$k] ?? $d);
             <input type="text" class="form-control" style="background: var(--color-bg-alt);" value="<?= e($categoria['nombre_categoria']) ?>" readonly>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <div class="form-row" style="margin-bottom: 24px;">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Posición principal en la cancha en la que se desempeña el atleta." data-tooltip-pos="top">Posición de Juego Principal</label>
                 <div style="position: relative;">

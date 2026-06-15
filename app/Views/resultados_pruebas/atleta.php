@@ -43,7 +43,7 @@
             <thead><tr><th>Fecha</th><th>Fuerza (CMJ)</th><th>Resistencia (Yo-Yo)</th><th>Velocidad (30m)</th><th>Coordinación (Conos)</th><th>Reacción (Cognitiva)</th></tr></thead>
             <tbody>
             <?php foreach ($historial as $h): ?>
-                <tr>
+                <tr class="historial-row">
                     <td><?= e(date('d/m/Y', strtotime($h['fecha_evento']))) ?></td>
                     <td><?= e($h['test_de_fuerza_raw'] !== null ? $h['test_de_fuerza_raw'] . ' cm (' . $h['test_de_fuerza'] . '/100)' : '—') ?></td>
                     <td><?= e($h['test_resistencia_raw'] !== null ? $h['test_resistencia_raw'] . ' m (' . $h['test_resistencia'] . '/100)' : '—') ?></td>
@@ -56,6 +56,7 @@
             </tbody>
         </table>
     </div>
+    <div id="historial-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
 </div>
 
 <?php if (!empty($historial)): ?>
@@ -82,5 +83,14 @@
 })();
 </script>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    CadaPagination({
+        rowSelector: '.historial-row',
+        containerId: 'historial-pagination'
+    });
+});
+</script>
 
 <style>@media (max-width: 900px) { .pruebas-grid { grid-template-columns: 1fr !important; } }</style>

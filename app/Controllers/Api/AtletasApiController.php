@@ -20,7 +20,7 @@ final class AtletasApiController extends Controller
         $data = (new Atleta())->paginate(
             $filters,
             (int) $request->query('page', 1),
-            (int) $request->query('per_page', 20)
+            (int) $request->query('per_page', config_db('filas_por_pagina', 15))
         );
         return $this->json($data);
     }

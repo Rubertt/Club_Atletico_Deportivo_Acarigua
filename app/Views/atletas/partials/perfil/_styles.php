@@ -166,15 +166,28 @@
         background: var(--color-surface-2);
         font-weight: 700;
         font-size: 13px;
-        padding: 0 12px;
+        padding: 0 24px 0 12px;
         cursor: pointer;
         border-right: 1px solid var(--color-border);
-        color: var(--color-text);
+        color: var(--color-text) !important;
         outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 12px;
     }
     .phone-field .phone-prefix option {
         background-color: var(--color-surface, #1e293b) !important;
         color: var(--color-text, #f8fafc) !important;
+    }
+    .phone-field #cedula_prefix,
+    .phone-field #tutor_cedula_prefix {
+        width: 60px !important;
+        padding: 0 16px 0 10px !important;
+        background-position: right 4px center !important;
     }
     .phone-field .phone-number {
         flex: 1;
@@ -207,5 +220,91 @@
 
     html.dark .dorsal-circle {
         color: #ffffff; /* Blanco en modo oscuro */
+    }
+
+    /* —— Tablas Responsivas en Perfil (Patrón Flex/Grid) —— */
+    .perfil-table-wrap {
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        overflow-x: auto;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .perfil-table-header {
+        display: grid;
+        gap: 16px;
+        padding: 12px 20px;
+        background: var(--color-surface-2);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
+        align-items: center;
+    }
+
+    .perfil-table-row {
+        display: grid;
+        gap: 16px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--color-border);
+        align-items: center;
+        transition: background 0.2s;
+        background: var(--color-surface);
+    }
+
+    @media (min-width: 769px) {
+        .perfil-table-header, .perfil-table-row {
+            min-width: 950px;
+        }
+    }
+
+    .perfil-table-row:hover {
+        background: var(--color-bg-alt);
+    }
+
+    .perfil-table-row:last-child {
+        border-bottom: 0;
+    }
+
+    .perfil-row-col {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .perfil-col-label {
+        display: none;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .perfil-table-header {
+            display: none !important;
+        }
+        
+        .perfil-table-row {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+            padding: 16px !important;
+        }
+        
+        .perfil-col-label {
+            display: block;
+        }
+    }
+
+    /* Prevent action buttons from shrinking */
+    .btn-icon-premium,
+    .btn-edit-premium,
+    .btn-delete-premium,
+    .btn-view-premium {
+        flex-shrink: 0 !important;
     }
 </style>

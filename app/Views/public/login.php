@@ -59,9 +59,6 @@
                 <div class="login-footer" style="margin: 0;">
                     ¿Necesitas acceso? <a href="<?= e(url('/contacto')) ?>">Contacta a la directiva</a>
                 </div>
-                <button type="button" class="btn-help" id="btn-help-login" title="¿Cómo iniciar sesión?" style="width: 38px; height: 38px;">
-                    <i class="ph ph-question"></i>
-                </button>
             </div>
         </form>
     </div>
@@ -69,14 +66,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Botón de ayuda [?]
-    document.getElementById('btn-help-login')?.addEventListener('click', () => {
-        FormValidator.showHelp(
-            'Guía: Inicio de Sesión',
-            '<?= e(asset("img/ayuda/login.png")) ?>'
-        );
-    });
-
     // Validación estándar al clic en "Iniciar Sesión"
     FormValidator.init('#form-login');
 });

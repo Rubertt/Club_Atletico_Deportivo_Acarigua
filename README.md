@@ -2,229 +2,205 @@
 
 Este proyecto es una aplicación web integral diseñada para la recopilación, monitoreo y análisis antropométrico del rendimiento deportivo de los atletas del **Club Atlético Deportivo Acarigua**.
 
+---
+
 ## 📖 Descripción del Proyecto
 
-El sistema centraliza la información técnica y médica del club, facilitando el seguimiento del progreso físico de los jugadores a través de mediciones periódicas, control de asistencias y generación de reportes técnicos detallados.
+El sistema centraliza la información técnica y médica del club, facilitando el seguimiento del progreso físico de los jugadores a través de mediciones periódicas, control de asistencias, convocatorias y generación de reportes técnicos detallados.
 
 ### 🌟 Características Principales
 
-- **Gestión de Atletas:** Registro detallado de deportistas con información personal, técnica, médica y de contacto (incluyendo representante y dirección detallada).
-- **Monitoreo Antropométrico:** Seguimiento de peso, altura, envergadura e índices de masa corporal.
-- **Evaluación de Rendimiento:** Registro de tests físicos especializados (Fuerza, Resistencia, Velocidad, Coordinación y Reacción).
-- **Ficha Médica Digital:** Historial de salud, alergias, condiciones crónicas y gestión de carnet de discapacidad.
-- **Control de Asistencias:** Registro diario de presencia en los entrenamientos por categorías.
-- **Gestión del Plantel:** Administración de entrenadores y personal del club con roles específicos.
-- **Reportes Técnicos en PDF:** Generación e impresión de fichas técnicas individuales con gráficos y métricas de progreso.
-- **Seguridad:** Sistema de permisos basado en roles (RBAC) y autenticación segura mediante **JSON Web Tokens (JWT)**.
+- **Gestión de Atletas:** Registro detallado de deportistas con información personal, técnica, médica y de contacto (incluyendo representante y dirección detallada con cascada de ubicación geográfica del país).
+- **Monitoreo Antropométrico:** Historial y evolución de mediciones de peso, altura, envergadura e índices de masa corporal (IMC).
+- **Evaluación de Rendimiento:** Registro de tests físicos especializados (Fuerza, Resistencia, Velocidad, Coordinación y Reacción) para análisis deportivo.
+- **Ficha Médica Digital:** Historial de salud, alergias, condiciones crónicas, antecedentes familiares y control detallado de discapacidades (con soporte para paginación fija a 5 registros).
+- **Consultas Médicas:** Registro cronológico de visitas médicas, diagnósticos, tratamientos y observaciones del atleta.
+- **Control de Asistencias y Convocatorias:** Registro diario de presencia en entrenamientos/partidos por categorías y llamado a convocatorias.
+- **Gestión del Plantel y Usuarios:** Administración y control del personal del club con roles de seguridad específicos.
+- **Reportes Técnicos en PDF e Impresión:** Generación e impresión de fichas técnicas individuales con gráficos y métricas de progreso (usando TCPDF o fallback HTML imprimible).
+- **Seguridad:** Control de Acceso Basado en Roles (RBAC), protección CSRF, rate limit y autenticación segura con **JSON Web Tokens (JWT)** con renovación automática (Keep-Alive con periodo de gracia).
 
-### 🛡️ Seguridad y Roles (RBAC)
+---
 
-El sistema implementa un modelo de Control de Acceso Basado en Roles para garantizar la integridad y privacidad de la información:
+## 🛡️ Seguridad y Roles (RBAC)
 
-- **Súper Usuario / Administrador:** Acceso total a todos los módulos, incluyendo la configuración del sistema, gestión de usuarios y personal. Debido a la ausencia de un médico de planta constante, el administrador tiene permisos para actualizar fichas médicas.
-- **Entrenador:** Orientado al seguimiento técnico. Puede registrar asistencias y actualizar datos de **Rendimiento y Antropometría** de los atletas. Tiene acceso de solo lectura a los datos personales y médicos básicos. No tiene acceso a la configuración ni a la gestión de personal.
+El sistema implementa un modelo de Control de Acceso Basado en Roles (RBAC) con **5 roles de usuario** distintos para garantizar la integridad y privacidad de la información:
 
-#### Matriz de Permisos
+1. **Súper Usuario:** Acceso absoluto e ilimitado a todos los módulos, configuraciones y usuarios (bypass total de permisos).
+2. **Administrador:** Acceso de gestión y control del sistema. Puede administrar usuarios, categorías, atletas y configuraciones (salvo operaciones reservadas al Súper Usuario).
+3. **Entrenador:** Orientado al seguimiento deportivo diario. Puede registrar asistencias, convocatorias, y actualizar datos de **Rendimiento y Antropometría** de los atletas. Acceso de solo lectura a datos personales y médicos básicos. Sin acceso a configuraciones ni plantilla del personal.
+4. **Directivo:** Rol de supervisión y gestión institucional. Posee permisos equivalentes al Administrador para visualización y operaciones.
+5. **Médico:** Rol especializado en el cuidado de la salud del atleta. Tiene permisos exclusivos para crear y actualizar **Fichas Médicas** y **Consultas Médicas**, además de acceso a la configuración general.
 
-| Módulo | Súper / Admin | Entrenador |
-| :--- | :---: | :---: |
-| **Atletas (Datos Personales)** | Escritura | Lectura |
-| **Ficha Médica** | Escritura | Lectura |
-| **Rendimiento y Antropometría** | Escritura | **Escritura** |
-| **Control de Asistencias** | Escritura | Escritura |
-| **Gestión del Plantel** | Escritura | Sin Acceso |
-| **Configuración del Sistema** | Escritura | Sin Acceso |
-| **Reportes** | Todos | Todos |
+### Matriz de Permisos
+
+| Módulo | Súper / Admin | Directivo | Médico | Entrenador |
+| :--- | :---: | :---: | :---: | :---: |
+| **Atletas (Datos Personales)** | Escritura | Escritura | Lectura | Lectura |
+| **Ficha Médica (Salud)** | Escritura | Escritura | **Escritura** | Lectura |
+| **Consultas Médicas** | Escritura | Escritura | **Escritura** | Sin Acceso |
+| **Rendimiento y Antropometría** | Escritura | Escritura | Lectura | **Escritura** |
+| **Control de Asistencias (Pase)** | Escritura | Escritura | Sin Acceso | **Escritura** |
+| **Control de Asistencias (Edición)**| Escritura | Escritura | Sin Acceso | Sin Acceso |
+| **Convocatorias (Creación/Pase)** | Escritura | Escritura | Sin Acceso | **Escritura** |
+| **Convocatorias (Edición/Baja)** | Escritura | Escritura | Sin Acceso | **Escritura** |
+| **Gestión del Plantel / Usuarios** | Escritura | Escritura | Sin Acceso | Sin Acceso |
+| **Configuración del Sistema** | Escritura | Escritura | **Escritura** | Sin Acceso |
+| **Reportes e Impresión** | Todos | Todos | Todos | Todos |
+
+---
+
+## 📊 Visualización de Gráficos y Estadísticas
+
+El sistema utiliza de manera combinada dos de las mejores librerías de visualización en JavaScript, adaptadas localmente para optimizar la carga y rendimiento:
+
+### ⚡ ECharts (Apache ECharts)
+Cargada de forma local (`/assets/js/lib/echarts.min.js`) y CDN en módulos individuales. Se utiliza en:
+- **Perfil del Atleta - Pestaña Antropometría:** Gráfica de línea del historial antropométrico (evolución temporal de peso, talla y envergadura).
+- **Perfil del Atleta - Pestaña Ficha Médica/Consultas:** Gráfica de Radar para la evaluación y comparación del rendimiento deportivo nacional (FUTVE) e internacional.
+- **Perfil del Atleta - Pestaña Asistencia:** Gráfica de Dona interactiva que resume el porcentaje de asistencia, inasistencias y faltas justificadas.
+- **Evolución Antropométrica Individual (`medidas/atleta`):** Gráfica de doble línea de tiempo para la progresión física detallada.
+
+### 📈 Chart.js
+Utilizada para analíticas globales en tableros y comparativas. Se utiliza en:
+- **Dashboard Principal (`dashboard/index`):**
+  - *Categorías por Entrenador:* Gráfico de barras de asignaciones.
+  - *Distribución de Actividades:* Gráfico de dona (Entrenamientos vs Partidos vs Eventos).
+  - *Porcentaje de Asistencia Reciente:* Gráfico de líneas temporales de los últimos 15 días.
+  - *Top Rendimiento Físico:* Gráfico de barras horizontales con mejores puntajes.
+  - *Crecimiento del Roster:* Gráfico de área que muestra la evolución de la matrícula de atletas.
+  - *Consistencia Deportiva:* Gráfico de radar con métricas agregadas de puntualidad, asistencia e inasistencias.
+- **Módulo de Categorías (`categorias/index`):**
+  - *Distribución de Atletas por Categoría:* Gráfico de barras de carga deportiva.
+  - *Demografía General:* Gráfico circular de distribución por sexo.
+- **Evolución Física Individual (`resultados_pruebas/atleta`):** Gráfica de Radar de rendimiento en pruebas físicas.
 
 ---
 
 ## 🧰 Stack Técnico
 
-- **Backend:** PHP 8.1+ (vanilla, arquitectura MVC propia, PDO, JWT HS256 implementado sin dependencias)
-- **Frontend:** PHP templates renderizadas en servidor + JavaScript vanilla progresivo (fetch, Chart.js desde CDN)
-- **Base de datos:** MySQL 8 / MariaDB 10.4+ (UTF-8 `utf8mb4`, esquema normalizado)
-- **Reportes:** TCPDF (opcional vía Composer) con fallback a HTML imprimible
-- **Deploy:** Apache (XAMPP/Laragon) o servidor embebido de PHP (`php -S`)
-
-## 📁 Estructura del proyecto
-
-```
-├── app/                  # Código PHP (MVC)
-│   ├── Core/             # Router, DB, JWT, Auth, Validator, etc.
-│   ├── Middleware/       # Auth, Role (RBAC), CSRF
-│   ├── Controllers/
-│   │   ├── Web/          # Retornan vistas HTML
-│   │   └── Api/          # Retornan JSON
-│   ├── Models/           # PDO wrappers de cada tabla
-│   ├── Services/         # Reglas de negocio (transacciones, uploads, PDF)
-│   ├── Views/            # Templates PHP
-│   └── Helpers/          # funciones globales y constantes
-├── config/               # app.php, database.php, auth.php, routes.php
-├── database/
-│   ├── normalized_schema.sql
-│   ├── seeds/            # 01_roles, 03_posiciones, 04_ubicaciones_vzla, etc.
-│   └── install.php       # Instalador CLI
-├── public/                # DocumentRoot
-│   ├── index.php         # Front controller
-│   ├── .htaccess
-│   └── assets/           # CSS, JS, imágenes, uploads
-└── storage/logs/
-```
-
-## 🐳 Despliegue con Docker (recomendado)
-
-El proyecto incluye un stack Docker completo (Apache + PHP 8.2 + MariaDB 11) listo para usar.
-
-### Requisitos
-- Docker 20+ y Docker Compose v2
-
-### Uso rápido
-
-```bash
-# Levantar el stack (construye la imagen la primera vez)
-docker compose up -d --build
-
-# La app queda disponible en:
-#   http://localhost:8080
-# Y MariaDB en:
-#   localhost:3307 (usuario cada_user / cada_pass_2026)
-
-# Credenciales iniciales:
-#   admin@cada.com / Admin2026!
-```
-
-El entrypoint detecta si la BD está vacía y la instala automáticamente (schema + seeds + admin) la primera vez.
-
-### Comandos útiles
-
-```bash
-# Ver logs
-docker compose logs -f app
-docker compose logs -f db
-
-# Entrar al contenedor
-docker compose exec app bash
-
-# Reinstalar BD desde cero
-docker compose down -v         # borra volúmenes
-docker compose up -d --build
-
-# phpMyAdmin (opcional) en http://localhost:8081
-docker compose --profile tools up -d
-
-# Detener sin perder datos
-docker compose down
-
-# Detener y borrar volúmenes (pierde la BD)
-docker compose down -v
-```
-
-### Personalizar puertos/credenciales
-
-Por defecto el stack usa los puertos 8080 (app), 3307 (MariaDB) y 8081 (phpMyAdmin). Si alguno está ocupado o quieres cambiar credenciales:
-
-```bash
-cp .env.docker.example .env.docker
-# edita .env.docker
-docker compose --env-file .env.docker up -d
-```
-
-Todas las variables del stack Docker usan prefijo `CADA_` (ej. `CADA_APP_HOST_PORT=9000`).
-
-### Archivos relevantes
-
-- `Dockerfile` — imagen PHP 8.2 + Apache con extensiones (pdo_mysql, gd, mbstring, intl, opcache)
-- `docker-compose.yml` — orquestación app + db + phpMyAdmin (opcional)
-- `docker/apache/000-default.conf` — vhost Apache (DocumentRoot → /public, bloquea rutas internas)
-- `docker/php/php.ini` — ajustes de producción (opcache, sesión segura, límites)
-- `docker/entrypoint.sh` — espera a MariaDB, auto-instala BD, arranca Apache
-- `.env.docker.example` — plantilla para personalizar el stack
+- **Backend:** PHP 8.1+ (Arquitectura limpia MVC propia sin frameworks pesados, PDO, inyección segura de dependencias, validador de formularios y JWT HS256 vanilla).
+- **Frontend:** Plantillas PHP dinámicas renderizadas en servidor + CSS Vanilla Premium estructurado en variables de diseño, íconos de Phosphor Icons, y componentes interactivos modulares en Vanilla JavaScript (Toasts, Modales, Validadores).
+- **Base de datos:** MySQL 8 / MariaDB 10.4+ (UTF-8 `utf8mb4`, modelo altamente normalizado y triggers de integridad global para evitar duplicidad de cédulas).
+- **Reportes:** TCPDF (vía Composer) con fallback automático a HTML optimizado para impresión física.
 
 ---
 
-## 🚀 Instalación local
+## 📁 Estructura del Proyecto
+
+```
+├── app/                  # Código PHP (MVC)
+│   ├── Core/             # Núcleo: Router, DB (PDO), JWT, Auth, Validator, etc.
+│   ├── Middleware/       # Filtros de ruta: Auth, Role (RBAC), CSRF, Médico
+│   ├── Controllers/
+│   │   ├── Web/          # Controladores de vistas HTML
+│   │   └── Api/          # Controladores API REST (JSON)
+│   ├── Models/           # Modelos de base de datos
+│   ├── Services/         # Lógica de negocio avanzada (PDF, subida de archivos)
+│   ├── Views/            # Vistas y templates HTML/PHP
+│   └── Helpers/          # Constantes y funciones globales auxiliares
+├── config/               # Archivos de configuración (app, database, auth, routes)
+├── database/
+│   ├── cada_db_clean.sql # Esquema completo limpio y normalizado
+│   └── install.php       # Instalador automático por consola
+├── public/               # Raíz pública del servidor web
+│   ├── index.php         # Front Controller principal
+│   └── assets/           # Recursos estáticos: CSS (diseño premium), JS, librerías locales
+└── storage/logs/         # Registro y auditoría de eventos de seguridad del sistema
+```
+
+---
+
+## 🐳 Despliegue con Docker (Recomendado)
+
+El proyecto incluye un stack de contenedores Docker listo para producción o desarrollo local.
+
+### Uso Rápido
+1. Levantar contenedores:
+   ```bash
+   docker compose up -d --build
+   ```
+2. La aplicación estará disponible en `http://localhost:8080` y la base de datos MariaDB en el puerto local `3307`.
+
+---
+
+## 🚀 Instalación y Configuración Local
 
 ### Requisitos
-- PHP 8.1 o superior (con `pdo_mysql`, `mbstring`, `gd`, `json`)
-- MySQL 8 / MariaDB 10.4+
-- (Opcional) Composer para instalar TCPDF y generar PDFs binarios
+- PHP 8.1 o superior (con extensiones: `pdo_mysql`, `mbstring`, `gd`, `json`).
+- MySQL 8 / MariaDB 10.4+ en ejecución.
+- (Opcional) Composer instalado para generación de PDF binarios.
 
 ### Pasos
-
-1. **Clonar el repositorio** y entrar al directorio.
-
-2. **Configurar variables de entorno:**
+1. **Configurar variables de entorno:**
    ```bash
    cp .env.example .env
-   # editar .env con tus credenciales MySQL y generar JWT_SECRET:
+   ```
+   Genera una clave secreta JWT segura:
+   ```bash
    php -r "echo bin2hex(random_bytes(32));"
    ```
+   Colócala en la variable `JWT_SECRET` dentro de tu `.env` junto con tus credenciales de base de datos.
 
-3. **(Opcional) Instalar dependencias de Composer:**
+2. **(Opcional) Instalar dependencias PHP:**
    ```bash
    composer install
    ```
-   Sin Composer, los reportes se entregan como HTML imprimible; el resto del sistema funciona completo.
 
-4. **Crear base de datos + schema + seeds:**
+3. **Ejecutar el instalador de la Base de Datos:**
    ```bash
    php database/install.php
-   # o para recrear desde cero:
+   # O para reiniciar la BD limpiamente:
    php database/install.php --fresh
    ```
-   Esto crea la base `club_atletico_db_normalized`, todas las tablas, ubicaciones (Venezuela → Portuguesa → Páez), roles, posiciones, categorías demo y un usuario admin.
 
-5. **Levantar el servidor:**
+4. **Levantar el servidor local:**
    ```bash
-   # Opción A: servidor embebido de PHP
    php -S localhost:8000 -t public
-
-   # Opción B: Apache/XAMPP → apuntar DocumentRoot a /public
    ```
+   Accede en tu navegador a `http://localhost:8000`.
 
-6. **Iniciar sesión** en `http://localhost:8000/login`:
-   - **Email:** `admin@cada.com`
-   - **Contraseña:** `Admin2026!`
-   - ⚠ Cambia la contraseña al primer acceso desde Configuración → Usuarios.
+---
 
-### Scripts disponibles
+## 🔑 Credenciales de Prueba y Demostración
 
-```bash
-composer run install-db    # Instala la BD (alias de database/install.php)
-composer run serve         # Levanta servidor PHP en localhost:8000
-```
+El instalador inicializa la base de datos con cuentas de prueba listas para evaluar cada rol (Contraseña para todas las cuentas: `prueba.123`):
 
-## 🔐 Notas de seguridad
+- **Súper Usuario:** `superusuario@gmail.com`
+- **Administrador:** `administrador@gmail.com`
+- **Entrenador:** `entrenador@gmail.com`
+- **Directivo:** `directivo@gmail.com`
+- **Médico:** `medico@gmail.com`
 
-- Las contraseñas se almacenan con **bcrypt** (cost 12).
-- El JWT viaja en cookie `httpOnly + SameSite=Lax` (mitiga XSS y CSRF).
-- Todas las operaciones POST requieren token **CSRF** (`_csrf` inyectado en formularios vía `csrf_field()`).
-- **Rate limit** en login: 5 intentos / 5 min por IP+email.
-- **Prepared statements** en todas las consultas (PDO con `emulate_prepares = false`).
-- Las rutas `/admin/*` requieren JWT válido; RBAC por rol en `/admin/plantel`, `/admin/configuracion` y escritura de ficha médica.
-- Auditoría de eventos sensibles (`login`, `logout`, creación/edición/eliminación de atletas) en `storage/logs/app-YYYY-MM-DD.log`.
+---
 
-## 🧪 Smoke tests
+## 🔐 Notas de Seguridad Implementadas
 
-Tras la instalación:
-- `GET /` → landing con CTA "Acceder al Sistema"
-- `GET /login` + credenciales admin → redirige a `/admin`
-- `GET /admin/atletas` + crear atleta (foto, tutor, cascada de ubicación)
-- `GET /admin/asistencia/pase` + categoría → marca asistencia y guarda
-- `GET /admin/antropometria/atleta/{id}` → registra medición y ve gráfico
-- `GET /admin/reportes/atleta/{id}` → descarga ficha técnica (PDF o HTML imprimible)
+- **Protección de Sesión:** El JWT se almacena de forma segura en una cookie `httpOnly` con bandera `SameSite=Lax` para anular ataques XSS y CSRF.
+- **CSRF Token:** Validación obligatoria de tokens anti-falsificación en todas las peticiones mutacionales (`POST`).
+- **Rate Limiting:** Límite estricto de 5 intentos fallidos de inicio de sesión cada 5 minutos por IP/cuenta.
+- **Consultas Seguras:** Consultas preparadas parametrizadas en PDO en todo el sistema.
+- **Auditoría:** Registro automático de acciones sensibles (`login`, `logout`, registro/baja de atletas) en `/storage/logs`.
 
+---
 
+## 🧪 Pruebas Rápidas de Verificación (Smoke Tests)
 
+Una vez completada la instalación, verifique el correcto flujo en:
+1. `GET /login` -> Inicie sesión con la cuenta de su elección.
+2. `GET /admin/atletas` -> Acceso al listado, visualice un perfil y pruebe los botones de edición y pestañas antropométricas/médicas.
+3. `GET /admin/asistencias/crear` -> Realice un pase de asistencia por categoría.
+4. `GET /admin/medidas/atleta/{id}` -> Compruebe la carga y renderizado de la gráfica local de evolución física.
+5. `GET /admin/reportes` -> Genere y descargue la Ficha Técnica de un atleta en PDF.
 
+---
 
-<img width="1131" height="990" alt="image" src="https://github.com/user-attachments/assets/63040ee1-b64a-49bb-b9b0-3f5ede8f0c62" />
+## 📸 Capturas de Pantalla del Sistema
 
+Aquí se muestran algunas interfaces del sistema en funcionamiento:
 
-<img width="1515" height="1031" alt="image" src="https://github.com/user-attachments/assets/7dc3c0d9-49b2-48a6-9844-d34a0f61623c" />
+![Página de Inicio (Landing Page)](docs/screenshots/landing.png)
 
-<img width="1919" height="997" alt="image" src="https://github.com/user-attachments/assets/d71949f4-b770-4fd9-a556-083c884a81fb" />
+![Panel de Control (Dashboard)](docs/screenshots/dashboard.png)
 
-
-<img width="1919" height="996" alt="image" src="https://github.com/user-attachments/assets/ad030031-03a2-41a3-8876-fa4ae6431acb" />
-
+![Directorio de Atletas](docs/screenshots/atletas.png)

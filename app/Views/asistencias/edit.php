@@ -14,7 +14,7 @@
 
     <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <!-- Fila 1: Campos requeridos y lectura -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 24px; align-items: end;">
+        <div class="form-header-grid">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Categoría a la que pertenece esta actividad. No es modificable." data-tooltip-pos="top">Categoría Deportiva</label>
                 <input type="text" class="form-control" value="<?= e($actividad['nombre_categoria'] ?? 'Sin categoría') ?>" disabled>
@@ -23,24 +23,7 @@
                 <label class="form-label" data-tooltip="Fecha en la que se realizó la actividad o entrenamiento." data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
                 <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
             </div>
-            <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Tipo de actividad realizada: Entrenamiento, Partido, Pruebas Físicas, etc." data-tooltip-pos="top"><span class="required">*</span> Tipo de Actividad</label>
-                <select name="tipo_evento" class="form-control" required>
-                    <?php 
-                        $currentTipo = match ((int)$actividad['tipo_actividad']) {
-                            0 => 'Partido',
-                            1 => 'Entrenamiento',
-                            2 => 'Pruebas Físicas',
-                            3 => 'Evento Especial',
-                            default => 'Entrenamiento'
-                        };
-                    ?>
-                    <?php foreach (TIPO_EVENTO as $op): ?>
-                        <option value="<?= e($op) ?>" <?= $op === $currentTipo ? 'selected' : '' ?>><?= e($op) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="form-group" style="margin: 0;">
+            <div class="form-group form-header-toggle-group" style="margin: 0;">
                 <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
@@ -48,10 +31,19 @@
         </div>
 
         <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" style="display: none; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Lugar donde se llevó a cabo el evento o entrenamiento." data-tooltip-pos="top">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e($actividad['ubicacion'] ?? 'Cancha UPTP') ?>">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Terreno de juego donde se realiza la actividad">Terreno de Juego</label>
+                <select name="terreno" class="form-control">
+                    <option value="">— Seleccione —</option>
+                    <?php foreach (TERRENO_TIPO as $k => $v): ?>
+                        <option value="<?= $k ?>" <?= (isset($actividad['terreno']) && (int)$actividad['terreno'] === $k) ? 'selected' : '' ?>><?= e($v) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Estado del clima observado durante la actividad." data-tooltip-pos="top">Clima</label>
@@ -106,11 +98,12 @@
                 </div>
             <?php endforeach; ?>
         </div>
+        <div id="atletas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; margin-top: 24px; gap: 12px;">
-        <button type="button" onclick="history.back()" class="btn btn-ghost">Descartar Cambios</button>
-        <button type="submit" class="btn btn-primary btn-lg" id="btn-save" style="padding: 12px 32px;">
+    <div class="form-actions-btn-group" style="margin-top: 24px;">
+        <a href="<?= e(url('/admin/asistencias/' . $actividad['actividad_id'])) ?>" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-primary" id="btn-save">
             <i class="ph ph-floppy-disk"></i> Guardar Cambios
         </button>
     </div>
@@ -198,6 +191,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const btn = document.getElementById('btn-save');
         btn.disabled = true;
         btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Actualizando...';
+    });
+
+    CadaPagination({
+        rowSelector: '.asistencia-row',
+        containerId: 'atletas-pagination'
     });
 });
 </script>

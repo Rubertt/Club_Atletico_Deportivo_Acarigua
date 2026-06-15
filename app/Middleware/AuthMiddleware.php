@@ -11,7 +11,12 @@ final class AuthMiddleware
 {
     public function handle(Request $request, callable $next): Response
     {
-        $user = Auth::user();
+        // La ruta keep-alive puede renovar la sesión aunque haya "expirado"
+        // el temporizador de inactividad, siempre que el JWT siga siendo válido
+        // (o haya expirado hace menos de 3 minutos).
+        $isKeepAlive = $request->uri() === '/api/keep-alive';
+
+        $user = $isKeepAlive ? Auth::userWithGrace(180) : Auth::user();
         if ($user === null) {
             if ($request->isJson()) {
                 return Response::json(['error' => 'No autenticado'], 401);
@@ -19,10 +24,6 @@ final class AuthMiddleware
             flash('error', 'Debes iniciar sesión.');
             return Response::redirect('/login');
         }
-
-        // La ruta keep-alive puede renovar la sesión aunque haya "expirado"
-        // el temporizador de inactividad, siempre que el JWT siga siendo válido.
-        $isKeepAlive = $request->uri() === '/api/keep-alive';
 
         // Verificar expiración de sesión basada en la configuración de la BD
         $tiempoSesionMin = (int) config_db('tiempo_sesion', 120);

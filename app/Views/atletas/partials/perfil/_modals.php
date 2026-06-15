@@ -58,10 +58,12 @@
                     <!-- Inputs para Partida -->
                     <div id="folio_inputs" style="display: <?= $cedPref === 'N' ? 'flex' : 'none' ?>; flex: 1; align-items: center;">
                         <?php
-                            $fYear = ''; $fActa = '';
+                            $fYear = ''; $fActa = ''; $fFolio = '';
                             if ($cedPref === 'N') {
                                 $fParts = explode('-', $cedNum);
-                                if (count($fParts) >= 2) {
+                                if (count($fParts) >= 3) {
+                                    $fYear = $fParts[0]; $fActa = $fParts[1]; $fFolio = $fParts[2];
+                                } elseif (count($fParts) == 2) {
                                     $fYear = $fParts[0]; $fActa = $fParts[1];
                                 } else {
                                     $fYear = $cedNum;
@@ -70,7 +72,9 @@
                         ?>
                         <input type="text" id="folio_year" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Año" maxlength="4" value="<?= e($fYear) ?>">
                         <span class="phone-sep">-</span>
-                        <input type="text" id="folio_acta" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Acta" maxlength="5" value="<?= e($fActa) ?>">
+                        <input type="text" id="folio_acta" class="phone-number" style="flex: 1.5; min-width: 0; width: 0; text-align: center;" placeholder="Acta" maxlength="6" value="<?= e($fActa) ?>">
+                        <span class="phone-sep">-</span>
+                        <input type="text" id="folio_folio" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Folio" maxlength="3" value="<?= e($fFolio) ?>">
                     </div>
                     
                     <input type="hidden" name="cedula" id="cedula" value="<?= e($cedVal) ?>" required>
@@ -108,6 +112,7 @@
                     <label class="form-label" data-tooltip="Estado actual del atleta en el club (activo, suspendido o inactivo)." data-tooltip-pos="top">Estatus</label>
                     <select name="estatus" class="form-control">
                         <?php foreach (ESTATUS_ATLETA as $val => $lbl): ?>
+                            <?php if ($val === 2) continue; // Lesionado se maneja automáticamente por consulta médica ?>
                             <option value="<?= $val ?>" <?= (int) $atleta['estatus'] === $val ? 'selected' : '' ?>>
                                 <?= e($lbl) ?></option>
                         <?php endforeach; ?>
@@ -119,10 +124,11 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de 6 a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha Nacimiento</label>
+                    <?php $edadMinModal = (int) config_db('edad_minima_atleta', 6); ?>
+                    <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de <?= $edadMinModal ?> a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha Nacimiento</label>
                     <input type="date" name="fecha_nacimiento" class="form-control"
                         value="<?= e($atleta['fecha_nac']) ?>" required
-                        max="<?= date('Y-m-d', strtotime('-6 years')) ?>">
+                        max="<?= date('Y-m-d', strtotime('-' . $edadMinModal . ' years')) ?>">
                 </div>
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Perfil natural del atleta para el golpeo del balón (derecha, izquierda o ambidiestro)." data-tooltip-pos="top">Pierna Dominante</label>
@@ -149,9 +155,6 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
             <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar Cambios</button>
-            <button type="button" class="btn-help" id="btn-help-basico" title="¿Cómo llenar esta sección?">
-                <i class="ph ph-question"></i>
-            </button>
         </div>
     </form>
 </div>
@@ -309,10 +312,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar</button>
-            <button type="button" class="btn-help" id="btn-help-representante" title="¿Cómo llenar esta sección?">
-                <i class="ph ph-question"></i>
-            </button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar cambios</button>
         </div>
     </form>
 </div>
@@ -334,7 +334,7 @@
             <div style="margin-bottom: 16px;">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Seleccione el estado venezolano correspondiente a la residencia actual del atleta." data-tooltip-pos="top"><span class="required">*</span> Estado</label>
-                    <select id="select-estado" class="form-control" required>
+                    <select id="select-estado" class="form-control" data-selected="<?= (int) ($atleta['estado_id'] ?? 0) ?>" required>
                         <option value="">— Seleccionar —</option>
                     </select>
                 </div>
@@ -343,13 +343,13 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Municipio dentro del estado seleccionado donde reside el atleta." data-tooltip-pos="top"><span class="required">*</span> Municipio</label>
-                    <select id="select-municipio" class="form-control" required>
+                    <select id="select-municipio" class="form-control" data-selected="<?= (int) ($atleta['municipio_id'] ?? 0) ?>" required>
                         <option value="">— Seleccionar —</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Parroquia dentro del municipio donde reside el atleta." data-tooltip-pos="top"><span class="required">*</span> Parroquia</label>
-                    <select name="parroquia_id" id="select-parroquia" class="form-control" required>
+                    <select name="parroquia_id" id="select-parroquia" class="form-control" data-selected="<?= (int) ($atleta['parroquias_id'] ?? 0) ?>" required>
                         <option value="">— Seleccionar —</option>
                     </select>
                 </div>
@@ -380,10 +380,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar</button>
-            <button type="button" class="btn-help" id="btn-help-direccion" title="¿Cómo llenar esta sección?">
-                <i class="ph ph-question"></i>
-            </button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar cambios</button>
         </div>
     </form>
 </div>

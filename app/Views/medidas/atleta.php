@@ -112,7 +112,7 @@
                 </thead>
                 <tbody>
                     <?php foreach ($historial as $m): ?>
-                    <tr>
+                    <tr class="medida-row">
                         <td style="padding-left: 24px;">
                             <div style="font-weight: 600;"><?= e(date('d/m/Y', strtotime($m['fecha_medicion']))) ?></div>
                         </td>
@@ -132,8 +132,8 @@
                         <td><?= e($m['porcentaje_grasa'] ? $m['porcentaje_grasa'] . '%' : '—') ?></td>
                         <td><?= e($m['porcentaje_musculatura'] ? $m['porcentaje_musculatura'] . '%' : '—') ?></td>
                         <td style="text-align: right; padding-right: 24px;">
-                            <button class="btn btn-sm btn-ghost btn-delete-medida" data-id="<?= $m['medidas_id'] ?>">
-                                <i class="ph ph-trash" style="color: var(--color-danger);"></i>
+                            <button class="btn-delete-premium btn-delete-medida" data-id="<?= $m['medidas_id'] ?>">
+                                <i class="ph ph-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -141,6 +141,7 @@
                 </tbody>
             </table>
         </div>
+        <div id="medidas-pagination" style="display: flex; justify-content: center; margin-top: 24px; padding-bottom: 24px;"></div>
     </div>
 </div>
 
@@ -248,3 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    CadaPagination({
+        rowSelector: '.medida-row',
+        containerId: 'medidas-pagination'
+    });
+});
+</script>

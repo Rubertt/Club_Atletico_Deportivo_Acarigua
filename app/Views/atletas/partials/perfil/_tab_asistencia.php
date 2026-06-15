@@ -1,6 +1,4 @@
-            <!-- Tab: Asistencia -->
-            <div id="tab-asistencia" class="tab-content" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-calendar-check"></i> Historial de Asistencias</h3>
                 </div>
                 <div>
@@ -75,14 +73,13 @@
                                 <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #10B981;"></div> Presente</div>
                                 <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #EF4444;"></div> Ausente</div>
                                 <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: #F59E0B;"></div> Justificado</div>
-                                <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 10px; height: 10px; border-radius: 50%; background: var(--color-primary);"></div> Partido</div>
                             </div>
                         </div>
 
                         <!-- Gráfico de Dona -->
                         <div style="background: var(--color-bg-alt); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--color-border);">
                             <h4 style="margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;"><i class="ph ph-chart-pie-slice"></i> Distribución</h4>
-                            <div id="chart-asistencia-dona" style="flex: 1; min-height: 250px;"></div>
+                            <div id="chart-asistencia-dona" style="flex: 1; min-height: 250px;" data-historial="<?= e(json_encode($asistencias_historial ?? [])) ?>"></div>
                         </div>
                     </div>
 
@@ -157,4 +154,3 @@
                         </table>
                     </div>
                 </div>
-            </div>

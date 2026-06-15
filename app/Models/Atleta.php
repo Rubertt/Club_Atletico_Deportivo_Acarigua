@@ -183,28 +183,6 @@ final class Atleta extends Model
      */
     public static function formatCedula(?string $cedula): string
     {
-        if (empty($cedula)) {
-            return '';
-        }
-        
-        if (!str_contains($cedula, '-')) {
-            $digits = str_replace('.', '', $cedula);
-            if (ctype_digit($digits)) {
-                return number_format((float)$digits, 0, '', '.');
-            }
-            return $cedula;
-        }
-        
-        [$prefix, $num] = explode('-', $cedula, 2);
-        $prefixUpper = strtoupper($prefix);
-        
-        if ($prefixUpper === 'V' || $prefixUpper === 'E' || $prefixUpper === 'P') {
-            $digits = str_replace('.', '', $num);
-            if (ctype_digit($digits)) {
-                return $prefixUpper . '-' . number_format((float)$digits, 0, '', '.');
-            }
-        }
-        
-        return $cedula;
+        return format_cedula($cedula);
     }
 }

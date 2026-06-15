@@ -1,28 +1,186 @@
-<?php /** @var array $pag */ ?>
+<?php /** @var array $eventos @var array $filters @var array $categorias @var array $enlistadores */ ?>
 <div class="page-header">
-    <div><h1>Pruebas físicas</h1><div class="subtitle">Selecciona un atleta para registrar o ver pruebas</div></div>
+    <div>
+        <h1>Control de Pruebas Físicas</h1>
+        <div class="subtitle">Gestión y registro de rendimiento físico por categoría</div>
+    </div>
+    <a href="<?= e(url('/admin/resultados-pruebas/crear')) ?>" class="btn btn-primary">
+        <i class="ph ph-plus-circle"></i> Registrar Pruebas Físicas
+    </a>
 </div>
 
-<div class="data-table-wrap">
-    <table class="data-table">
-        <thead><tr><th></th><th>Atleta</th><th>Cédula</th><th>Categoría</th><th style="width:160px">Acción</th></tr></thead>
-        <tbody>
-        <?php foreach ($pag['data'] as $a): ?>
-            <tr>
-                <td>
-                    <?php if (!empty($a['foto'])): ?>
-                        <img src="<?= e(url($a['foto'])) ?>" class="avatar-thumb" alt="">
-                    <?php else: ?>
-                        <span class="avatar-placeholder"><?= e(mb_substr($a['nombre'], 0, 1) . mb_substr($a['apellido'], 0, 1)) ?></span>
-                    <?php endif; ?>
-                </td>
-                <td><strong><?= e($a['nombre'] . ' ' . $a['apellido']) ?></strong></td>
-                <td><?= e($a['cedula'] ?? '—') ?></td>
-                <td><?= e($a['nombre_categoria'] ?? '—') ?></td>
-                <td><a href="<?= e(url("/admin/pruebas/atleta/{$a['atleta_id']}")) ?>" class="btn btn-sm btn-primary">Ver / Registrar</a></td>
-            </tr>
-        <?php endforeach; ?>
-        <?php if (empty($pag['data'])): ?><tr><td colspan="5" class="text-center text-muted" style="padding:32px">No hay atletas.</td></tr><?php endif; ?>
-        </tbody>
-    </table>
+<form method="GET" class="table-filters card" style="display: flex; gap: 16px; align-items: flex-end; padding: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+    <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+        <label class="form-label" for="usuario_id"><i class="ph ph-user"></i> Enlistador</label>
+        <select id="usuario_id" name="usuario_id" class="form-control">
+            <option value="">Todos los enlistadores</option>
+            <?php foreach ($enlistadores as $enl): ?>
+                <option value="<?= (int) $enl['usuario_id'] ?>" <?= ($filters['usuario_id'] ?? '') == $enl['usuario_id'] ? 'selected' : '' ?>><?= e($enl['nombre'] . ' ' . $enl['apellido']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+        <label class="form-label" for="categoria_id"><i class="ph ph-tag"></i> Categoría</label>
+        <select id="categoria_id" name="categoria_id" class="form-control">
+            <option value="">Todas las categorías</option>
+            <?php foreach ($categorias as $cat): ?>
+                <option value="<?= (int) $cat['categoria_id'] ?>" <?= ($filters['categoria_id'] ?? '') == $cat['categoria_id'] ? 'selected' : '' ?>><?= e($cat['nombre_categoria']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+        <a href="<?= e(url('/admin/resultados-pruebas')) ?>" class="btn btn-outline" title="Limpiar filtros" style="height: 44px; display: inline-flex; align-items: center; justify-content: center;"><i class="ph ph-trash"></i> Limpiar</a>
+    </div>
+</form>
+
+<div class="data-table-wrap card" style="padding: 0; border: none; border-radius: 0; border-top: 1px solid var(--color-border);">
+    <!-- Cabeceras en PC -->
+    <div class="sesion-headers-desktop" style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 10; font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
+        <div style="width: 240px; flex-shrink: 0;">Fecha</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; flex: 1;">
+            <div>Categoría</div>
+            <div>Enlistador</div>
+            <div>Evaluados</div>
+        </div>
+        <div style="width: 140px; text-align: right; flex-shrink: 0; padding-right: 12px;">Acciones</div>
+    </div>
+
+    <!-- Listado de sesiones de pruebas físicas -->
+    <div class="sesiones-list-container">
+        <?php if (empty($eventos)): ?>
+            <div style="padding: 64px 24px; text-align: center; background: var(--color-surface);">
+                <i class="ph ph-calendar-x text-muted" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
+                <h3 class="text-muted" style="margin: 0 0 8px;">No hay registros</h3>
+                <p class="text-muted" style="font-size: 14px; max-width: 400px; margin: 0 auto;">No hay registros de pruebas físicas para mostrar.</p>
+            </div>
+        <?php else: foreach ($eventos as $ev): ?>
+            <div class="sesion-row-card sesion-row">
+                <div class="sesion-row-card__info">
+                    <i class="ph ph-calendar text-muted" style="font-size: 24px; flex-shrink: 0;"></i>
+                    <div class="sesion-row-card__date-wrap">
+                        <div class="sesion-row-card__date"><?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?></div>
+                    </div>
+                </div>
+
+                <div class="sesion-row-card__details">
+                    <div class="asig-input-group">
+                        <span class="sesion-label">Categoría</span>
+                        <span style="font-weight: 600; color: var(--color-text);"><i class="ph ph-users-three text-muted"></i> <?= e($ev['nombre_categoria'] ?? 'Sin Categoría') ?></span>
+                    </div>
+
+                    <div class="asig-input-group">
+                        <span class="sesion-label">Enlistador</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-user-circle text-muted" style="font-size: 20px;"></i>
+                            <?= e($ev['entrenador'] ?? 'No definido') ?>
+                        </div>
+                    </div>
+
+                    <div class="asig-input-group">
+                        <span class="sesion-label">Evaluados</span>
+                        <div>
+                            <span class="badge badge-primary" style="font-size: 12px; font-weight: 600; padding: 4px 10px; align-self: flex-start; display: inline-block;">
+                                <?= (int) $ev['total'] ?> Atletas
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sesion-row-card__actions">
+                    <a href="<?= e(url('/admin/resultados-pruebas/sesion/' . $ev['evento_id'])) ?>" class="btn-view-premium" title="Ver Detalles">
+                        <i class="ph ph-eye"></i>
+                    </a>
+                    <a href="<?= e(url('/admin/resultados-pruebas/sesion/' . $ev['evento_id'] . '/editar')) ?>" class="btn-edit-premium" title="Editar">
+                        <i class="ph ph-pencil-simple"></i>
+                    </a>
+                    <form action="<?= e(url('/admin/resultados-pruebas/sesion/' . $ev['evento_id'] . '/eliminar')) ?>" method="POST" style="display:inline;">
+                        <?= csrf_field() ?>
+                        <button type="button" class="btn-delete-premium btn-delete-sesion" title="Eliminar Registro" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <?php endforeach; endif; ?>
+    </div>
 </div>
+
+<div id="sesiones-pagination" style="display: flex; justify-content: center; margin-top: 24px;"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function bindDeleteButtons() {
+        document.querySelectorAll('.btn-delete-sesion').forEach(btn => {
+            btn.onclick = () => {
+                const form = btn.closest('form');
+                const date = btn.getAttribute('data-date');
+
+                CadaModal.confirm({
+                    title: '¿Eliminar Sesión de Pruebas?',
+                    text: `¿Estás seguro de eliminar el registro de pruebas del día ${date}? Esta acción borrará permanentemente los resultados de todos los atletas evaluados en esta sesión.`,
+                    type: 'danger',
+                    confirmText: 'Sí, Eliminar',
+                    cancelText: 'Cancelar'
+                }).then((confirmed) => {
+                    if (confirmed) {
+                        form.submit();
+                    }
+                });
+            };
+        });
+    }
+
+    // --- Paginación Client-Side ---
+    function initClientPagination() {
+        CadaPagination({
+            rowSelector: '.sesion-row',
+            containerId: 'sesiones-pagination'
+        });
+    }
+
+    // --- AJAX Filtering ---
+    const form = document.querySelector('.table-filters');
+    if (form) {
+        const usuarioSelect = form.querySelector('#usuario_id');
+        const categoriaSelect = form.querySelector('#categoria_id');
+
+        const performFilter = () => {
+            const formData = new FormData(form);
+            formData.append('ajax', '1');
+            const queryString = new URLSearchParams(formData).toString();
+            
+            const newUrl = `${window.location.pathname}?${new URLSearchParams(new FormData(form)).toString()}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+
+            fetch(`${window.location.pathname}?${queryString}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const oldList = document.querySelector('.sesiones-list-container');
+                const newList = doc.querySelector('.sesiones-list-container');
+                if (oldList && newList) {
+                    oldList.innerHTML = newList.innerHTML;
+                }
+                
+                bindDeleteButtons();
+                initClientPagination();
+            })
+            .catch(err => console.error('Error al filtrar:', err));
+        };
+
+        if (usuarioSelect) usuarioSelect.addEventListener('change', performFilter);
+        if (categoriaSelect) categoriaSelect.addEventListener('change', performFilter);
+
+        form.addEventListener('submit', (e) => e.preventDefault());
+    }
+
+    bindDeleteButtons();
+    initClientPagination();
+});
+</script>

@@ -24,6 +24,7 @@ return [
         'admin'        => 2,
         'entrenador'   => 3,
         'directivo'    => 4,
+        'medico'       => 5,
     ],
 
     'login' => [
