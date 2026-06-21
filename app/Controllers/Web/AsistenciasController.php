@@ -75,7 +75,7 @@ final class AsistenciasController extends Controller
             'fecha_evento' => (string) $request->input('fecha_evento', date('Y-m-d')),
             'entrenador_id' => (int) Auth::id(),
             'categoria_id' => (int) $request->input('categoria_id', 0),
-            'ubicacion' => $request->input('ubicacion') ?: 'Cancha UPTP',
+            'ubicacion' => trim((string) $request->input('ubicacion', '')),
             'terreno' => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima' => $request->input('clima') !== '' ? (int) $request->input('clima') : null,
             'hora_inicio' => $request->input('hora_inicio') ?: null,
@@ -84,6 +84,9 @@ final class AsistenciasController extends Controller
         $v = Validator::make($data, [
             'fecha_evento' => 'required|date',
             'categoria_id' => 'required|integer',
+            'ubicacion' => 'required',
+        ], [
+            'ubicacion' => 'La ubicación es obligatoria.',
         ]);
         if (!$v->validate()) {
             $this->withOld($request->body());
@@ -254,7 +257,7 @@ final class AsistenciasController extends Controller
             'tipo_evento' => 'Entrenamiento',
             'fecha_evento' => (string) $request->input('fecha_evento', date('Y-m-d')),
             'entrenador_id' => (int) Auth::id(),
-            'ubicacion' => $request->input('ubicacion') ?: 'Cancha UPTP',
+            'ubicacion' => trim((string) $request->input('ubicacion', '')),
             'terreno' => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima' => $request->input('clima') !== '' ? (int) $request->input('clima') : null,
             'hora_inicio' => $request->input('hora_inicio') ?: null,
@@ -263,6 +266,9 @@ final class AsistenciasController extends Controller
 
         $v = Validator::make($data, [
             'fecha_evento' => 'required|date',
+            'ubicacion' => 'required',
+        ], [
+            'ubicacion' => 'La ubicación es obligatoria.',
         ]);
 
         if (!$v->validate()) {

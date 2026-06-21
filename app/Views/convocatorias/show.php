@@ -100,7 +100,7 @@
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
                                 <div class="asig-atleta-row__name" style="font-size: 14px; font-weight: 600;"><?= e($d['nombre'] . ' ' . $d['apellido']) ?></div>
-                                <div style="font-size: 12px; color: var(--color-text-muted);">C.I: <?= e($d['cedula'] ?? '—') ?></div>
+                                <div style="font-size: 12px; color: var(--color-text-muted);"><?= e($d['cedula'] ?? '—') ?></div>
                             </div>
                         </div>
 

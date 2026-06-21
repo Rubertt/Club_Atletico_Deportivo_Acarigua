@@ -98,7 +98,7 @@ final class ConvocatoriasController extends Controller
             'fecha_evento' => (string) $request->input('fecha_evento', date('Y-m-d')),
             'entrenador_id' => (int) Auth::id(),
             'categoria_id' => (int) $request->input('categoria_id', 0),
-            'ubicacion' => $request->input('ubicacion') ?: 'Cancha UPTP',
+            'ubicacion' => trim((string) $request->input('ubicacion', '')),
             'terreno' => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima' => $request->input('clima') !== '' ? (int) $request->input('clima') : null,
             'hora_inicio' => $request->input('hora_inicio') ?: null,
@@ -108,17 +108,31 @@ final class ConvocatoriasController extends Controller
         $v = Validator::make($data, [
             'fecha_evento' => 'required|date',
             'categoria_id' => 'required|integer',
+            'hora_inicio'  => 'required',
+            'hora_fin'     => 'required',
+            'ubicacion'    => 'required',
+        ], [
+            'hora_inicio'  => 'El campo "Hora inicio" es obligatorio.',
+            'hora_fin'     => 'El campo "Hora Fin" es obligatorio.',
+            'categoria_id' => 'El campo "Categoría Deportiva" es obligatorio.',
+            'ubicacion'    => 'La ubicación es obligatoria.',
         ]);
+
+        if (!empty($data['fecha_evento'])) {
+            $minDateStr = date('Y-m-d', strtotime('+1 day'));
+            $maxDateStr = date('Y-m-d', strtotime('+3 months'));
+            $eventTime = strtotime($data['fecha_evento']);
+
+            if ($eventTime < strtotime($minDateStr)) {
+                $v->addError('fecha_evento', 'El campo "Fecha del Partido" es menor al valor mínimo permitido.');
+            } elseif ($eventTime > strtotime($maxDateStr)) {
+                $v->addError('fecha_evento', 'El campo "Fecha del Partido" es mayor al valor máximo permitido.');
+            }
+        }
 
         if (!$v->validate()) {
             $this->withOld($request->body());
             $this->withErrors($v->errors());
-            return $this->redirect('/admin/convocatorias/crear');
-        }
-
-        if (strtotime($data['fecha_evento']) < strtotime('2019-01-01')) {
-            $this->withOld($request->body());
-            flash('error', 'No se pueden registrar convocatorias anteriores al año 2019.');
             return $this->redirect('/admin/convocatorias/crear');
         }
 
@@ -304,6 +318,11 @@ final class ConvocatoriasController extends Controller
             return $this->redirect('/admin/convocatorias');
         }
 
+        if ((int)$actividad['estatus'] === 2) {
+            flash('error', 'No se puede editar una convocatoria finalizada.');
+            return $this->redirect('/admin/convocatorias');
+        }
+
         // Restricción de 30 días para entrenadores
         if (Auth::user()['rol_id'] == ROL_ENTRENADOR) {
             $fechaActividad = strtotime($actividad['fecha']);
@@ -356,6 +375,11 @@ final class ConvocatoriasController extends Controller
             return $this->redirect('/admin/convocatorias');
         }
 
+        if ((int)$actividad['estatus'] === 2) {
+            flash('error', 'No se puede actualizar una convocatoria finalizada.');
+            return $this->redirect('/admin/convocatorias');
+        }
+
         if (Auth::user()['rol_id'] == ROL_ENTRENADOR) {
             if (time() > strtotime('+30 days', strtotime($actividad['fecha']))) {
                 flash('error', 'El tiempo permitido para editar esta asistencia de partido (30 días) ha expirado.');
@@ -366,7 +390,7 @@ final class ConvocatoriasController extends Controller
         $data = [
             'fecha_evento' => (string) $request->input('fecha_evento', date('Y-m-d')),
             'entrenador_id' => (int) Auth::id(),
-            'ubicacion' => $request->input('ubicacion') ?: 'Cancha UPTP',
+            'ubicacion' => trim((string) $request->input('ubicacion', '')),
             'terreno' => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima' => $request->input('clima') !== '' ? (int) $request->input('clima') : null,
             'hora_inicio' => $request->input('hora_inicio') ?: null,
@@ -375,15 +399,29 @@ final class ConvocatoriasController extends Controller
 
         $v = Validator::make($data, [
             'fecha_evento' => 'required|date',
+            'hora_inicio'  => 'required',
+            'hora_fin'     => 'required',
+            'ubicacion'    => 'required',
+        ], [
+            'hora_inicio'  => 'El campo "Hora inicio" es obligatorio.',
+            'hora_fin'     => 'El campo "Hora Fin" es obligatorio.',
+            'ubicacion'    => 'La ubicación es obligatoria.',
         ]);
+
+        if (!empty($data['fecha_evento'])) {
+            $minDateStr = date('Y-m-d', strtotime('+1 day'));
+            $maxDateStr = date('Y-m-d', strtotime('+3 months'));
+            $eventTime = strtotime($data['fecha_evento']);
+
+            if ($eventTime < strtotime($minDateStr)) {
+                $v->addError('fecha_evento', 'El campo "Fecha del Partido" es menor al valor mínimo permitido.');
+            } elseif ($eventTime > strtotime($maxDateStr)) {
+                $v->addError('fecha_evento', 'El campo "Fecha del Partido" es mayor al valor máximo permitido.');
+            }
+        }
 
         if (!$v->validate()) {
             $this->withErrors($v->errors());
-            return $this->redirect("/admin/convocatorias/{$id}/editar");
-        }
-
-        if (strtotime($data['fecha_evento']) < strtotime('2019-01-01')) {
-            flash('error', 'No se pueden registrar convocatorias anteriores al año 2019.');
             return $this->redirect("/admin/convocatorias/{$id}/editar");
         }
 
@@ -448,8 +486,28 @@ final class ConvocatoriasController extends Controller
     public function destroy(Request $request): Response
     {
         $id = (int) $request->param('id');
+        $db = Database::connection();
+
+        $act = $db->prepare("SELECT * FROM actividades WHERE actividad_id = ? AND tipo_actividad = 0");
+        $act->execute([$id]);
+        $actividad = $act->fetch();
+
+        if (!$actividad) {
+            flash('error', 'Registro no encontrado.');
+            return $this->redirect('/admin/convocatorias');
+        }
+
+        if ((int)$actividad['estatus'] === 2) {
+            flash('error', 'No se puede eliminar una convocatoria finalizada.');
+            return $this->redirect('/admin/convocatorias');
+        }
+
+        if ($actividad['fecha'] < date('Y-m-d')) {
+            flash('error', 'No se puede eliminar una convocatoria de un partido que ya se ha jugado.');
+            return $this->redirect('/admin/convocatorias');
+        }
+
         try {
-            $db = Database::connection();
             $db->beginTransaction();
 
             $stmt = $db->prepare("DELETE FROM convocatorias WHERE actividad_id = ?");
