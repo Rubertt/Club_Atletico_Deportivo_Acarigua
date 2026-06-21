@@ -23,15 +23,19 @@
                 <label class="form-label" data-tooltip="Fecha en la que se realizó la actividad o entrenamiento." data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
                 <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
             </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Escribe el nombre o apellido del atleta para buscar" data-tooltip-pos="top">Buscar Atleta</label>
+                <input type="text" id="input-buscar" class="form-control" placeholder="Escribe nombre o apellido...">
+            </div>
             <div class="form-group form-header-toggle-group" style="margin: 0;">
-                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost active" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ocultar opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+        <!-- Fila 2: Opciones extras (desplegada por defecto) -->
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: grid; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Lugar donde se llevó a cabo el evento o entrenamiento." data-tooltip-pos="top">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e($actividad['ubicacion'] ?? 'Cancha UPTP') ?>">
@@ -192,6 +196,39 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Actualizando...';
     });
+
+    const $buscar = document.getElementById('input-buscar');
+    if ($buscar) {
+        $buscar.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const rows = document.querySelectorAll('.asistencia-row');
+            const pagination = document.getElementById('atletas-pagination');
+
+            if (!query) {
+                if (pagination) pagination.style.display = 'flex';
+                CadaPagination({
+                    rowSelector: '.asistencia-row',
+                    containerId: 'atletas-pagination'
+                });
+                return;
+            }
+
+            if (pagination) pagination.style.display = 'none';
+            rows.forEach(row => {
+                const nameEl = row.querySelector('div[style*="font-weight: 600"]') || 
+                               row.querySelector('div[style*="font-weight:600"]') ||
+                               row.querySelector('.prueba-row__name') || 
+                               row.querySelector('.asig-atleta-row__name');
+                const text = nameEl ? nameEl.textContent : row.textContent;
+                const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (normalizedText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
 
     CadaPagination({
         rowSelector: '.asistencia-row',

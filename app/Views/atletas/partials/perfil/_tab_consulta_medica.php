@@ -102,6 +102,7 @@
                                     data-tratamiento="<?= e($row['tratamiento_indicado'] ?? '') ?>">
                                     <i class="ph ph-pencil-simple"></i>
                                 </button>
+                                <!--
                                 <form class="form-delete-consulta" method="POST"
                                     action="<?= e(url("/admin/atletas/{$atleta['atleta_id']}/consultas-medicas/{$row['consulta_id']}/eliminar")) ?>"
                                     style="display:inline;">
@@ -110,6 +111,7 @@
                                         <i class="ph ph-trash"></i>
                                     </button>
                                 </form>
+                                -->
                             <?php endif; ?>
                         </div>
                     </div>
@@ -129,7 +131,7 @@
             <div class="modal-body">
                 <div id="consulta-error" class="alert alert-danger" style="display:none; margin-bottom: 16px;"></div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="modal-grid-2">
                     <div class="form-group">
                         <label class="form-label" data-tooltip="Seleccione el tipo de consulta o registro médico." data-tooltip-pos="top"><span class="required">*</span> Tipo de Consulta</label>
                         <select name="tipo_consulta" id="input-tipo-consulta" class="form-control" required>
@@ -150,21 +152,21 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="modal-grid-3">
                     <div class="form-group">
                         <label class="form-label" data-tooltip="Fecha de registro de la consulta en el sistema." data-tooltip-pos="top">Fecha de Consulta</label>
                         <input type="text" name="creado_en" id="input-creado-en" class="form-control" readonly>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Fecha en la que ocurrió el suceso o la consulta (máximo hace 10 años, no futura)." data-tooltip-pos="top"><span class="required">*</span> Fecha Suceso</label>
+                        <label class="form-label" data-tooltip="Fecha en la que ocurrió el suceso o la consulta (máximo hace 5 años, no futura)." data-tooltip-pos="top"><span class="required">*</span> Fecha Suceso</label>
                         <input type="date" name="fecha_suceso" id="input-fecha-suceso" class="form-control" 
-                               min="<?= date('Y-m-d', strtotime('-10 years')) ?>" 
+                               min="<?= date('Y-m-d', strtotime('-5 years')) ?>" 
                                max="<?= date('Y-m-d') ?>" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Fecha estimada de recuperación (posterior al suceso, máximo 3 años a futuro)." data-tooltip-pos="top">Fecha de Recuperación Estimada</label>
+                        <label class="form-label" data-tooltip="Fecha estimada de recuperación (posterior al suceso, máximo 5 años a futuro)." data-tooltip-pos="top">Fecha de Recuperación Estimada</label>
                         <input type="date" name="fecha_alta_estimada" id="input-fecha-alta" class="form-control"
-                               max="<?= date('Y-m-d', strtotime('+3 years')) ?>">
+                               max="<?= date('Y-m-d', strtotime('+5 years')) ?>">
                     </div>
                 </div>
 
@@ -185,7 +187,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-                <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> <span id="submit-text-consulta">Guardar Cambios</span></button>
+                <button type="submit" class="btn btn-primary"> <span id="submit-text-consulta">Guardar Cambios</span></button>
             </div>
         </form>
     </div>
@@ -215,7 +217,7 @@
                 </div>
 
                 <!-- Grid de Fechas: Suceso y Alta Estimada -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="modal-grid-2">
                     <!-- Fecha Suceso -->
                     <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);">
                         <div style="width: 38px; height: 38px; border-radius: var(--radius-sm); background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">

@@ -23,65 +23,65 @@
                 </div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label" id="label-cedula" data-tooltip="Cédula (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Requerido." data-tooltip-pos="top"><span class="required">*</span>Documento de Identidad</label>
-                <?php
-                    $cedVal   = $atleta['cedula'];
-                    $cedPref  = 'V';
-                    $cedNum   = '';
-                    if (!empty($cedVal)) {
-                        if (str_contains($cedVal, '-')) {
-                            [$cedPref, $cedNum] = explode('-', $cedVal, 2);
-                        } else {
-                            $firstChar = strtoupper($cedVal[0]);
-                            if (in_array($firstChar, ['V', 'E', 'P', 'N'])) {
-                                $cedPref = $firstChar;
-                                $cedNum = substr($cedVal, 1);
+            <div class="modal-grid-2">
+                <div class="form-group">
+                    <label class="form-label" id="label-cedula" data-tooltip="Cédula (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Requerido." data-tooltip-pos="top"><span class="required">*</span>Documento de Identidad</label>
+                    <?php
+                        $cedVal   = $atleta['cedula'];
+                        $cedPref  = 'V';
+                        $cedNum   = '';
+                        if (!empty($cedVal)) {
+                            if (str_contains($cedVal, '-')) {
+                                [$cedPref, $cedNum] = explode('-', $cedVal, 2);
                             } else {
-                                $cedNum = $cedVal;
-                            }
-                        }
-                    }
-                ?>
-                <div class="phone-field" id="phone-wrap-cedula" style="max-width: 280px;">
-                    <select class="phone-prefix" id="cedula_prefix" aria-label="Prefijo">
-                        <option value="V" <?= $cedPref==='V'?'selected':'' ?>>V</option>
-                        <option value="E" <?= $cedPref==='E'?'selected':'' ?>>E</option>
-                        <option value="P" <?= $cedPref==='P'?'selected':'' ?>>P</option>
-                        <option value="N" <?= $cedPref==='N'?'selected':'' ?>>N</option>
-                    </select>
-                    <span class="phone-sep">-</span>
-                    
-                    <!-- Input para Cédula o Pasaporte -->
-                    <input type="text" class="phone-number" id="cedula_number" style="display: <?= $cedPref !== 'N' ? 'block' : 'none' ?>;" maxlength="13" placeholder="12345678" value="<?= $cedPref !== 'N' ? e($cedNum) : '' ?>">
-                    
-                    <!-- Inputs para Partida -->
-                    <div id="folio_inputs" style="display: <?= $cedPref === 'N' ? 'flex' : 'none' ?>; flex: 1; align-items: center;">
-                        <?php
-                            $fYear = ''; $fActa = ''; $fFolio = '';
-                            if ($cedPref === 'N') {
-                                $fParts = explode('-', $cedNum);
-                                if (count($fParts) >= 3) {
-                                    $fYear = $fParts[0]; $fActa = $fParts[1]; $fFolio = $fParts[2];
-                                } elseif (count($fParts) == 2) {
-                                    $fYear = $fParts[0]; $fActa = $fParts[1];
+                                $firstChar = strtoupper($cedVal[0]);
+                                if (in_array($firstChar, ['V', 'E', 'P', 'N'])) {
+                                    $cedPref = $firstChar;
+                                    $cedNum = substr($cedVal, 1);
                                 } else {
-                                    $fYear = $cedNum;
+                                    $cedNum = $cedVal;
                                 }
                             }
-                        ?>
-                        <input type="text" id="folio_year" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Año" maxlength="4" value="<?= e($fYear) ?>">
+                        }
+                    ?>
+                    <div class="phone-field" id="phone-wrap-cedula" style="max-width: 280px;">
+                        <select class="phone-prefix" id="cedula_prefix" aria-label="Prefijo">
+                            <option value="V" <?= $cedPref==='V'?'selected':'' ?>>V</option>
+                            <option value="E" <?= $cedPref==='E'?'selected':'' ?>>E</option>
+                            <option value="P" <?= $cedPref==='P'?'selected':'' ?>>P</option>
+                            <option value="N" <?= $cedPref==='N'?'selected':'' ?>>N</option>
+                        </select>
                         <span class="phone-sep">-</span>
-                        <input type="text" id="folio_acta" class="phone-number" style="flex: 1.5; min-width: 0; width: 0; text-align: center;" placeholder="Acta" maxlength="6" value="<?= e($fActa) ?>">
-                        <span class="phone-sep">-</span>
-                        <input type="text" id="folio_folio" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Folio" maxlength="3" value="<?= e($fFolio) ?>">
+                        
+                        <!-- Input para Cédula o Pasaporte -->
+                        <input type="text" class="phone-number" id="cedula_number" style="display: <?= $cedPref !== 'N' ? 'block' : 'none' ?>;" maxlength="13" placeholder="12345678" value="<?= $cedPref !== 'N' ? e($cedNum) : '' ?>">
+                        
+                        <!-- Inputs para Partida -->
+                        <div id="folio_inputs" style="display: <?= $cedPref === 'N' ? 'flex' : 'none' ?>; flex: 1; align-items: center;">
+                            <?php
+                                $fYear = ''; $fActa = ''; $fFolio = '';
+                                if ($cedPref === 'N') {
+                                    $fParts = explode('-', $cedNum);
+                                    if (count($fParts) >= 3) {
+                                        $fYear = $fParts[0]; $fActa = $fParts[1]; $fFolio = $fParts[2];
+                                    } elseif (count($fParts) == 2) {
+                                        $fYear = $fParts[0]; $fActa = $fParts[1];
+                                    } else {
+                                        $fYear = $cedNum;
+                                    }
+                                }
+                            ?>
+                            <input type="text" id="folio_year" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Año" maxlength="4" value="<?= e($fYear) ?>">
+                            <span class="phone-sep">-</span>
+                            <input type="text" id="folio_acta" class="phone-number" style="flex: 1.5; min-width: 0; width: 0; text-align: center;" placeholder="Acta" maxlength="6" value="<?= e($fActa) ?>">
+                            <span class="phone-sep">-</span>
+                            <input type="text" id="folio_folio" class="phone-number" style="flex: 1; min-width: 0; width: 0; text-align: center;" placeholder="Folio" maxlength="3" value="<?= e($fFolio) ?>">
+                        </div>
+                        
+                        <input type="hidden" name="cedula" id="cedula" value="<?= e($cedVal) ?>" required>
                     </div>
-                    
-                    <input type="hidden" name="cedula" id="cedula" value="<?= e($cedVal) ?>" required>
                 </div>
-            </div>
 
-            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" id="label-telefono" data-tooltip="Teléfono móvil de contacto. Obligatorio para mayores de 18 años (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono Personal</label>
                     <?php
@@ -108,6 +108,9 @@
                         <input type="hidden" name="telefono" id="telefono" value="<?= e($telVal) ?>" required>
                     </div>
                 </div>
+            </div>
+
+            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Estado actual del atleta en el club (activo, suspendido o inactivo)." data-tooltip-pos="top">Estatus</label>
                     <select name="estatus" class="form-control">
@@ -118,11 +121,6 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
-
-
-
-            <div class="modal-grid-2">
                 <div class="form-group">
                     <?php $edadMinModal = (int) config_db('edad_minima_atleta', 6); ?>
                     <label class="form-label" data-tooltip="Fecha de nacimiento del atleta. El rango de edad oficial permitido en el club es de <?= $edadMinModal ?> a 70 años." data-tooltip-pos="top"><span class="required">*</span> Fecha Nacimiento</label>
@@ -130,6 +128,9 @@
                         value="<?= e($atleta['fecha_nac']) ?>" required
                         max="<?= date('Y-m-d', strtotime('-' . $edadMinModal . ' years')) ?>">
                 </div>
+            </div>
+
+            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Perfil natural del atleta para el golpeo del balón (derecha, izquierda o ambidiestro)." data-tooltip-pos="top">Pierna Dominante</label>
                     <select name="pierna_dominante" class="form-control">
@@ -140,9 +141,6 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
-
-            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Género del atleta. Determina en qué categorías puede ser enrolado." data-tooltip-pos="top"><span class="required">*</span> Género</label>
                     <select name="sexo" class="form-control" required>
@@ -226,7 +224,7 @@
             <div id="error-representante" class="alert alert-danger" style="display:none; margin-bottom: 16px;">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Nombres completos del tutor legal. Requerido para atletas menores de 18 años." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
                     <input type="text" name="tutor_nombres" class="form-control"
@@ -239,7 +237,7 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Vínculo familiar o legal entre el representante y el atleta (padre, madre, tutor, etc.)." data-tooltip-pos="top"><span class="required">*</span> Parentesco</label>
                     <select name="tutor_relacion" class="form-control" required>
@@ -340,7 +338,7 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Municipio dentro del estado seleccionado donde reside el atleta." data-tooltip-pos="top"><span class="required">*</span> Municipio</label>
                     <select id="select-municipio" class="form-control" data-selected="<?= (int) ($atleta['municipio_id'] ?? 0) ?>" required>
@@ -355,7 +353,7 @@
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="modal-grid-2">
                 <div class="form-group">
                     <label class="form-label" data-tooltip="Urbanización, barrio, sector o comunidad donde vive el atleta (mínimo 2 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Localidad / Sector</label>
                     <input type="text" name="localidad" class="form-control"

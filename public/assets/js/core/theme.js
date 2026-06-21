@@ -83,6 +83,27 @@
             observer.observe(document.body, { childList: true, subtree: true });
         }
 
+        // Update switch titles dynamically on hover
+        document.addEventListener('mouseover', (e) => {
+            const wrapper = e.target.closest('.switch');
+            if (wrapper) {
+                const input = wrapper.querySelector('input[type="checkbox"]');
+                if (input) {
+                    const titleText = input.checked ? 'activo' : 'inactivo';
+                    if (wrapper.hasAttribute('data-original-title')) {
+                        wrapper.setAttribute('data-original-title', titleText);
+                    } else {
+                        wrapper.setAttribute('title', titleText);
+                    }
+                    if (input.hasAttribute('data-original-title')) {
+                        input.setAttribute('data-original-title', titleText);
+                    } else {
+                        input.setAttribute('title', titleText);
+                    }
+                }
+            }
+        });
+
         // Toggle de tema claro/oscuro
         document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
             btn.addEventListener('click', (e) => {

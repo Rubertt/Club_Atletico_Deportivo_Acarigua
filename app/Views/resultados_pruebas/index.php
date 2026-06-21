@@ -97,9 +97,9 @@
                     </a>
                     <form action="<?= e(url('/admin/resultados-pruebas/sesion/' . $ev['evento_id'] . '/eliminar')) ?>" method="POST" style="display:inline;">
                         <?= csrf_field() ?>
-                        <button type="button" class="btn-delete-premium btn-delete-sesion" title="Eliminar Registro" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
+                        <!--<button type="button" class="btn-delete-premium btn-delete-sesion" title="Eliminar Registro" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
                             <i class="ph ph-trash"></i>
-                        </button>
+                        </button>-->
                     </form>
                 </div>
             </div>

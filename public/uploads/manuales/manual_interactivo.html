@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  /* ESTILOS PARA VISTA WEB EN CHROME / EDGE */
+  body {
+    font-family: 'Outfit', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.6;
+    background-color: #f8fafc;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .manual-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+  
+  .manual-header {
+    text-align: center;
+    background: linear-gradient(135deg, #0d2c54 0%, #06101e 100%);
+    color: white;
+    padding: 50px 30px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 25px rgba(13, 44, 84, 0.15);
+    border-bottom: 5px solid #00E676;
+  }
+  
+  .manual-header h1 {
+    margin: 0;
+    font-size: 2.8em;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  
+  .manual-header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+    margin: 15px 0 0 0;
+    font-weight: 300;
+  }
+  
+  .navbar-doc {
+    background: #0d2c54;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 45px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 10px;
+    z-index: 1000;
+  }
+  
+  .navbar-doc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    justify-content: center;
+  }
+  
+  .navbar-doc a {
+    color: #f1f5f9;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9em;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.25s ease;
+  }
+  
+  .navbar-doc a:hover {
+    background: rgba(255,255,255,0.1);
+    color: #00E676;
+  }
+
+  .section-group-title {
+    font-size: 1.8em;
+    color: #0d2c54;
+    margin-top: 50px;
+    margin-bottom: 25px;
+    border-left: 5px solid #0d2c54;
+    padding-left: 15px;
+    font-weight: 700;
+  }
+  
+  .slide-section {
+    background: white;
+    border-radius: 14px;
+    padding: 30px;
+    margin-bottom: 45px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+  
+  .slide-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.06);
+  }
+  
+  .slide-title {
+    color: #0d2c54;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+  }
+
+  .slide-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.6em;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  
+  .slide-image-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background-color: #f1f5f9;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+  }
+  
+  .slide-image-wrapper img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ESTILOS DE HOTSPOTS */
+  .hotspot {
+    position: absolute;
+    border: 3px solid transparent;
+    border-radius: 6px;
+    pointer-events: none;
+    transition: all 0.25s ease;
+    z-index: 10;
+  }
+
+  .hotspot.active {
+    border-color: #00E676; /* Verde institucional */
+    box-shadow: 0 0 15px #00E676, inset 0 0 8px rgba(0, 230, 118, 0.4);
+    background-color: rgba(0, 230, 118, 0.15);
+  }
+  
+  .info-boxes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+  }
+  
+  .info-box {
+    background-color: #0d2c54; /* Azul del Club */
+    border: 2px solid #00E676; /* Verde institucional */
+    border-radius: 10px;
+    padding: 18px 22px;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(13, 44, 84, 0.08);
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  
+  .info-box:hover {
+    background-color: #0c3364;
+    border-color: #05ff87;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(13, 44, 84, 0.15);
+  }
+  
+  .info-box p {
+    margin: 0;
+    font-size: 0.95em;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  
+  .info-box p strong {
+    color: #00E676;
+    display: block;
+    margin-bottom: 6px;
+    font-size: 1.05em;
+    font-weight: 700;
+  }
+  
+  .alert-box {
+    background-color: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-top: 25px;
+    font-size: 0.95em;
+    color: #166534;
+  }
+
+  /* ==========================================
+     ESTILOS DEL BOTÓN DE IMPRESIÓN (SCREEN)
+     ========================================== */
+  .btn-print-manual {
+    background-color: #00E676; /* Verde CADA */
+    color: #0d2c54; /* Azul CADA */
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 0.95em;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0, 230, 118, 0.2);
+    margin-top: 15px;
+    font-family: inherit;
+  }
+  .btn-print-manual:hover {
+    background-color: #05ff87;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 230, 118, 0.3);
+  }
+  .btn-print-manual:active {
+    transform: translateY(0);
+  }
+
+  /* ==========================================
+     REGLAS DE IMPRESIÓN / EXPORTACIÓN A PDF
+     ========================================== */
+  @media print {
+    /* Ocultar elementos innecesarios */
+    .no-print,
+    .navbar-doc,
+    .alert-box,
+    button {
+      display: none !important;
+    }
+
+    /* Ajustes de página y márgenes */
+    body {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .manual-container {
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    /* Paginación de diapositivas */
+    .slide-section {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      box-shadow: none !important;
+      border: none !important;
+      padding: 20px 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+    /* Forzar fondo exacto de tarjetas e imágenes en Chrome/Edge */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Dibujar hotspots estáticamente en el PDF */
+    .hotspot {
+      border: 2px solid #00E676 !important;
+      background-color: rgba(0, 230, 118, 0.08) !important;
+      box-shadow: none !important;
+      opacity: 1 !important;
+      display: block !important;
+    }
+
+    /* Estilos estáticos de las tarjetas descriptivas */
+    .info-box {
+      background-color: #0d2c54 !important;
+      border-color: #00E676 !important;
+      color: #ffffff !important;
+      page-break-inside: avoid !important;
+    }
+  }
+</style>
+<title>Manual de Usuario - CADA</title>
+</head>
+<body>
+
+<div class="manual-container">
+
+  <!-- HEADER -->
+  <header class="manual-header">
+    <h1>Club Atlético Deportivo Acarigua</h1>
+    <p>Manual de Usuario y Guía de Uso del Sistema de Gestión Deportiva Integral (CADA)</p>
+    <div class="no-print">
+      <button class="btn-print-manual" onclick="window.print()">
+        🖨️ Guardar como PDF / Imprimir Manual
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVEGACIÓN RÁPIDA -->
+  <nav class="navbar-doc">
+    <ul>
+      <li><a href="#modulo-publico">Módulo Público</a></li>
+      <li><a href="#modulo-acceso">Módulo de Acceso</a></li>
+      <li><a href="#interfaz-navegacion">Interfaz y Navegación</a></li>
+      <li><a href="#dashboard-admin">Dashboard</a></li>
+      <li><a href="#modulo-categorias">Categorías</a></li>
+      <li><a href="#asignacion-atletas">Asignaciones</a></li>
+      <li><a href="#modulo-atletas">Atletas y Expediente</a></li>
+      <li><a href="#control-seguimiento">Control y Seguimiento</a></li>
+      <li><a href="#modulo-reportes">Reportes</a></li>
+      <li><a href="#modulo-usuarios">Usuarios</a></li>
+      <li><a href="#modulo-configuracion">Configuración</a></li>
+      <li><a href="#modulo-ayuda">Manuales</a></li>
+    </ul>
+  </nav>
+
+  <!-- ==================== MÓDULO PÚBLICO ==================== -->
+  <div id="modulo-publico" class="section-group-title">1. Módulo Público (Visitantes)</div>
+
+  <!-- Diapositiva 1 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Página de Inicio - Vista Principal
+      <span class="slide-badge">Diapositiva 1</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva1.JPG" alt="Página de Inicio">
+      <div class="hotspot" id="s1-logo" style="top: 4.81%; left: 9.17%; width: 1.61%; height: 1.94%;"></div>
+      <div class="hotspot" id="s1-menu" style="top: 0.00%; left: 51.35%; width: 8.27%; height: 4.27%;"></div>
+      <div class="hotspot" id="s1-acceder" style="top: 1.94%; left: 84.27%; width: 2.86%; height: 5.00%;"></div>
+      <div class="hotspot" id="s1-hero" style="top: 9.26%; left: 35.10%; width: 45.68%; height: 26.48%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s1-logo">
+        <p><strong>Logo Institucional:</strong> Visible en el extremo superior izquierdo de todas las pantallas para regresar rápidamente al inicio público.</p>
+      </div>
+      <div class="info-box" data-target="s1-menu">
+        <p><strong>Menú de Navegación Público:</strong> Accesos directos a las páginas de Inicio, Nosotros y Contacto. No requiere inicio de sesión.</p>
+      </div>
+      <div class="info-box" data-target="s1-acceder">
+        <p><strong>Botón "Acceder":</strong> Botón de acceso rápido para ir al Login desde la barra superior de navegación.</p>
+      </div>
+      <div class="info-box" data-target="s1-hero">
+        <p><strong>Sección de Presentación:</strong> Información histórica y misión del club con los botones para "Conocer Más" o "Acceder al Sistema".</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 2 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Página de Inicio - Pie de Página
+      <span class="slide-badge">Diapositiva 2</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva2.JPG" alt="Pie de Página">
+      <div class="hotspot" id="s2-info" style="top: 74.35%; left: 7.71%; width: 84.53%; height: 12.55%;"></div>
+      <div class="hotspot" id="s2-redes" style="top: 86.90%; left: 7.71%; width: 84.53%; height: 12.55%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s2-info">
+        <p><strong>Información Oficial:</strong> Muestra la dirección fiscal del club, los teléfonos de contacto principales y el año de fundación.</p>
+      </div>
+      <div class="info-box" data-target="s2-redes">
+        <p><strong>Redes Sociales:</strong> Enlaces directos a las cuentas oficiales de la institución para mantener informada a la comunidad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 3 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Área de Servicios Deportivos
+      <span class="slide-badge">Diapositiva 3</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva3.JPG" alt="Área de Servicios Deportivos">
+      <div class="hotspot" id="s3-titulo" style="top: 12.78%; left: 5.68%; width: 57.34%; height: 6.76%;"></div>
+      <div class="hotspot" id="s3-cards" style="top: 27.78%; left: 0.00%; width: 76.45%; height: 33.80%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s3-titulo">
+        <p><strong>Título de Sección:</strong> Identifica el catálogo y las herramientas disponibles en el sistema para la administración deportiva.</p>
+      </div>
+      <div class="info-box" data-target="s3-cards">
+        <p><strong>Tarjetas de Módulos:</strong> Tarjetas explicativas e interactivas que detallan de forma rápida las funcionalidades internas y su alcance.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 4 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Misión, Visión e Inscripciones
+      <span class="slide-badge">Diapositiva 4</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva4.JPG" alt="Misión y Visión">
+      <div class="hotspot" id="s4-mision" style="top: 4.26%; left: 10.26%; width: 53.85%; height: 44.12%;"></div>
+      <div class="hotspot" id="s4-requisitos" style="top: 48.38%; left: 10.26%; width: 53.85%; height: 44.12%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s4-mision">
+        <p><strong>Misión y Visión:</strong> Espacio donde se declara el compromiso institucional del club y el objetivo estratégico con sus atletas.</p>
+      </div>
+      <div class="info-box" data-target="s4-requisitos">
+        <p><strong>Requisitos de Inscripción:</strong> Lista detallada de la documentación y pasos obligatorios para registrar atletas en las diferentes categorías.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 5 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Página de Contacto
+      <span class="slide-badge">Diapositiva 5</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva5.JPG" alt="Página de Contacto">
+      <div class="hotspot" id="s5-whatsapp" style="top: 28.00%; left: 14.00%; width: 34.00%; height: 26.00%;"></div>
+      <div class="hotspot" id="s5-correo" style="top: 28.00%; left: 52.00%; width: 34.00%; height: 26.00%;"></div>
+      <div class="hotspot" id="s5-redes" style="top: 58.00%; left: 14.00%; width: 72.00%; height: 26.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s5-whatsapp">
+        <p><strong>Canal de WhatsApp:</strong> Enlace interactivo para chat y consultas rápidas directamente con la administración del club.</p>
+      </div>
+      <div class="info-box" data-target="s5-correo">
+        <p><strong>Correo Electrónico:</strong> Dirección de correspondencia oficial del club para enviar reportes o solicitudes formales.</p>
+      </div>
+      <div class="info-box" data-target="s5-redes">
+        <p><strong>Perfiles de Redes Sociales:</strong> Accesos directos a Facebook e Instagram para noticias, eventos e información al día.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 6 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Ubicación y Google Maps
+      <span class="slide-badge">Diapositiva 6</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva6.JPG" alt="Ubicación y Maps">
+      <div class="hotspot" id="s6-mapa" style="top: 17.59%; left: 11.88%; width: 50.57%; height: 26.91%;"></div>
+      <div class="hotspot" id="s6-btn" style="top: 44.50%; left: 11.88%; width: 50.57%; height: 5.13%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s6-mapa">
+        <p><strong>Mapa de Ubicación:</strong> Mapa incrustado interactivo para ver la sede deportiva del club en Acarigua.</p>
+      </div>
+      <div class="info-box" data-target="s6-btn">
+        <p><strong>Enlace Google Maps:</strong> Botón que abre la ubicación del club directamente en Google Maps.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== MÓDULO DE ACCESO ==================== -->
+  <div id="modulo-acceso" class="section-group-title">2. Módulo de Acceso (Seguridad)</div>
+
+  <!-- Diapositiva 7 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Formulario de Inicio de Sesión (Login)
+      <span class="slide-badge">Diapositiva 7</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva7.JPG" alt="Formulario de Login">
+      <div class="hotspot" id="s7-usuario" style="top: 22.41%; left: 33.02%; width: 33.91%; height: 12.57%;"></div>
+      <div class="hotspot" id="s7-password" style="top: 34.98%; left: 33.02%; width: 33.91%; height: 12.57%;"></div>
+      <div class="hotspot" id="s7-olvidaste" style="top: 47.56%; left: 33.02%; width: 33.91%; height: 7.19%;"></div>
+      <div class="hotspot" id="s7-login" style="top: 54.74%; left: 33.02%; width: 33.91%; height: 12.57%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s7-usuario">
+        <p><strong>Campo Usuario:</strong> Espacio para ingresar el nombre de usuario o correo asignado.</p>
+      </div>
+      <div class="info-box" data-target="s7-password">
+        <p><strong>Campo Contraseña:</strong> Espacio para ingresar la contraseña de seguridad. Incluye la opción del ojo para mostrar/ocultar clave.</p>
+      </div>
+      <div class="info-box" data-target="s7-olvidaste">
+        <p><strong>Olvidé mi Contraseña:</strong> Enlace para iniciar el asistente de recuperación en caso de pérdida de credenciales.</p>
+      </div>
+      <div class="info-box" data-target="s7-login">
+        <p><strong>Botón Iniciar Sesión:</strong> Valida el usuario e ingresa al panel principal según el rol configurado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 8 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Recuperar Acceso - Paso 1: Correo
+      <span class="slide-badge">Diapositiva 8</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva8.JPG" alt="Recuperación Paso 1">
+      <div class="hotspot" id="s8-pasos" style="top: 24.44%; left: 35.94%; width: 28.07%; height: 13.12%;"></div>
+      <div class="hotspot" id="s8-correo" style="top: 37.56%; left: 35.94%; width: 28.07%; height: 15.31%;"></div>
+      <div class="hotspot" id="s8-btn" style="top: 54.17%; left: 35.94%; width: 28.07%; height: 18.06%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s8-pasos">
+        <p><strong>Barra de Progreso:</strong> Guía visual que marca el avance actual dentro del flujo de recuperación de clave.</p>
+      </div>
+      <div class="info-box" data-target="s8-correo">
+        <p><strong>Campo Correo Electrónico:</strong> Entrada para el email registrado con el cual se validará la existencia del usuario en el sistema.</p>
+      </div>
+      <div class="info-box" data-target="s8-btn">
+        <p><strong>Botón Continuar:</strong> Envía los datos para validar y avanza al siguiente paso de preguntas de seguridad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 9 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Recuperar Acceso - Paso 2: Preguntas de Seguridad
+      <span class="slide-badge">Diapositiva 9</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva9.JPG" alt="Recuperación Paso 2">
+      <div class="hotspot" id="s9-preguntas" style="top: 21.11%; left: 37.08%; width: 28.13%; height: 28.24%;"></div>
+      <div class="hotspot" id="s9-btn" style="top: 64.63%; left: 39.69%; width: 22.97%; height: 4.63%;"></div>
+      <div class="hotspot" id="s9-soporte" style="top: 67.59%; left: 37.08%; width: 28.18%; height: 11.20%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s9-preguntas">
+        <p><strong>Preguntas 1 y 2:</strong> Cuestionarios secretos configurados previamente por el usuario (ej. apodo de infancia, primer teléfono).</p>
+      </div>
+      <div class="info-box" data-target="s9-btn">
+        <p><strong>Botón Verificar:</strong> Compara las respuestas ingresadas con los registros de la base de datos para habilitar el cambio de clave.</p>
+      </div>
+      <div class="info-box" data-target="s9-soporte">
+        <p><strong>Enlace de Soporte:</strong> Ayuda rápida para contactar al administrador del sistema si no se recuerdan las respuestas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 10 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Recuperar Acceso - Paso 3: Restablecer Contraseña
+      <span class="slide-badge">Diapositiva 10</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva10.JPG" alt="Recuperación Paso 3">
+      <div class="hotspot" id="s10-requisitos" style="top: 5.56%; left: 18.02%; width: 42.14%; height: 40.65%;"></div>
+      <div class="hotspot" id="s10-confirmar" style="top: 47.69%; left: 18.02%; width: 42.08%; height: 25.14%;"></div>
+      <div class="hotspot" id="s10-guardar" style="top: 72.82%; left: 18.02%; width: 42.08%; height: 25.14%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s10-requisitos">
+        <p><strong>Requisitos de Clave:</strong> Muestra las condiciones obligatorias: mínimo 8 caracteres, números, letras y símbolos.</p>
+      </div>
+      <div class="info-box" data-target="s10-confirmar">
+        <p><strong>Confirmar Contraseña:</strong> Campo doble de verificación para garantizar la precisión al tipear la nueva clave.</p>
+      </div>
+      <div class="info-box" data-target="s10-guardar">
+        <p><strong>Guardar y Restablecer:</strong> Guarda los cambios de contraseña y redirige directamente a la pantalla de Login.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== INTERFAZ Y NAVEGACIÓN ==================== -->
+  <div id="interfaz-navegacion" class="section-group-title">3. Interfaz y Estructura de Navegación</div>
+
+  <!-- Diapositiva 11 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Barra Superior (Navbar de Gestión)
+      <span class="slide-badge">Diapositiva 11</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva11.JPG" alt="Barra Superior">
+      <div class="hotspot" id="s11-menu" style="top: 0.00%; left: 11.56%; width: 88.39%; height: 3.03%;"></div>
+      <div class="hotspot" id="s11-bread" style="top: 3.03%; left: 11.56%; width: 88.39%; height: 3.03%;"></div>
+      <div class="hotspot" id="s11-tema" style="top: 6.06%; left: 11.56%; width: 88.39%; height: 3.03%;"></div>
+      <div class="hotspot" id="s11-perfil" style="top: 9.10%; left: 11.56%; width: 88.39%; height: 3.03%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s11-menu">
+        <p><strong>Botón de Menú:</strong> Permite expandir o contraer (colapsar) la barra lateral para maximizar el área de trabajo.</p>
+      </div>
+      <div class="info-box" data-target="s11-bread">
+        <p><strong>Ruta de Navegación (Breadcrumbs):</strong> Indica la ubicación actual dentro del sistema (ej. Inicio > Atletas > Registro).</p>
+      </div>
+      <div class="info-box" data-target="s11-tema">
+        <p><strong>Alternador de Tema (Modo Claro/Oscuro):</strong> Cambia los colores del sistema para mayor confort visual en cualquier horario.</p>
+      </div>
+      <div class="info-box" data-target="s11-perfil">
+        <p><strong>Perfil de Usuario:</strong> Muestra el avatar del usuario y abre el menú rápido de la cuenta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 12 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Menú Desplegable de Perfil
+      <span class="slide-badge">Diapositiva 12</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva12.JPG" alt="Menú Perfil">
+      <div class="hotspot" id="s12-perfil" style="top: 15.00%; left: 75.00%; width: 15.00%; height: 10.00%;"></div>
+      <div class="hotspot" id="s12-admin" style="top: 32.00%; left: 75.00%; width: 15.00%; height: 25.00%;"></div>
+      <div class="hotspot" id="s12-cerrar" style="top: 60.00%; left: 75.00%; width: 15.00%; height: 10.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s12-perfil">
+        <p><strong>Mi Perfil:</strong> Accede a la ficha de datos personales, información de contacto y clave del usuario conectado.</p>
+      </div>
+      <div class="info-box" data-target="s12-admin">
+        <p><strong>Administración y Ajustes:</strong> Muestra accesos de configuración general (solo visible para cuentas con rol Administrador).</p>
+      </div>
+      <div class="info-box" data-target="s12-cerrar">
+        <p><strong>Cerrar Sesión:</strong> Finaliza el acceso seguro al sistema y desconecta la cuenta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 13 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Barra Lateral de Navegación (Sidebar)
+      <span class="slide-badge">Diapositiva 13</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva13.JPG" alt="Barra Lateral">
+      <div class="hotspot" id="s13-inicio" style="top: 0.00%; left: 17.19%; width: 82.34%; height: 15.28%;"></div>
+      <div class="hotspot" id="s13-deportivo" style="top: 25.19%; left: 18.13%; width: 16.93%; height: 3.80%;"></div>
+      <div class="hotspot" id="s13-gestion" style="top: 24.44%; left: 17.19%; width: 0.73%; height: 27.50%;"></div>
+      <div class="hotspot" id="s13-admin" style="top: 49.07%; left: 17.19%; width: 20.16%; height: 50.83%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s13-inicio">
+        <p><strong>Inicio / Dashboard:</strong> Acceso rápido a las estadísticas generales y métricas clave del club.</p>
+      </div>
+      <div class="info-box" data-target="s13-deportivo">
+        <p><strong>Menú Deportivo:</strong> Permite expandir opciones para la gestión de categorías y administración de atletas.</p>
+      </div>
+      <div class="info-box" data-target="s13-gestion">
+        <p><strong>Menú Gestión:</strong> Opciones del módulo de Asistencias y control diario de entrenamientos.</p>
+      </div>
+      <div class="info-box" data-target="s13-admin">
+        <p><strong>Menú Administrativo:</strong> Gestión de Usuarios, Configuración y logs del sistema (exclusivo para administradores).</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== DASHBOARD ==================== -->
+  <div id="dashboard-admin" class="section-group-title">4. Dashboard y Métricas de Gestión</div>
+
+  <!-- Diapositiva 14 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Panel de Control (Dashboard Principal)
+      <span class="slide-badge">Diapositiva 14</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva14.JPG" alt="Dashboard Principal">
+      <div class="hotspot" id="s14-saludo" style="top: 8.70%; left: 5.52%; width: 28.49%; height: 3.83%;"></div>
+      <div class="hotspot" id="s14-stats" style="top: 12.53%; left: 5.52%; width: 28.49%; height: 7.65%;"></div>
+      <div class="hotspot" id="s14-graficos" style="top: 68.89%; left: 47.29%; width: 9.43%; height: 8.43%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s14-saludo">
+        <p><strong>Saludo de Bienvenida:</strong> Muestra un mensaje personalizado indicando el rol actual y nombre del usuario.</p>
+      </div>
+      <div class="info-box" data-target="s14-stats">
+        <p><strong>Tarjetas de Estadísticas:</strong> Resumen numérico en tiempo real de atletas totales, activos, categorías creadas y entrenadores.</p>
+      </div>
+      <div class="info-box" data-target="s14-graficos">
+        <p><strong>Gráficos de Rendimiento:</strong> Muestran diagramas de distribución de atletas por edad, estadísticas de asistencia y categorías activas.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== CATEGORÍAS ==================== -->
+  <div id="modulo-categorias" class="section-group-title">5. Módulo de Categorías</div>
+
+  <!-- Diapositiva 15 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Listado y Gestión de Categorías
+      <span class="slide-badge">Diapositiva 15</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva15.JPG" alt="Listado Categorías">
+      <div class="hotspot" id="s15-filtros" style="top: 0.00%; left: 11.09%; width: 81.41%; height: 29.72%;"></div>
+      <div class="hotspot" id="s15-estatus" style="top: 43.15%; left: 11.09%; width: 81.41%; height: 28.38%;"></div>
+      <div class="hotspot" id="s15-acciones" style="top: 71.53%; left: 11.09%; width: 81.41%; height: 28.38%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s15-filtros">
+        <p><strong>Buscador y Filtros:</strong> Filtra las categorías por género, edad, nombre o entrenador asignado de forma rápida.</p>
+      </div>
+      <div class="info-box" data-target="s15-estatus">
+        <p><strong>Estatus y Entrenador:</strong> Indica visualmente si la categoría está activa/inactiva y el responsable asignado.</p>
+      </div>
+      <div class="info-box" data-target="s15-acciones">
+        <p><strong>Botones de Acciones rápidas:</strong> Permite ver detalles del atleta en la categoría, editar campos, exportar PDF o eliminarla.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 16 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Crear Nueva Categoría
+      <span class="slide-badge">Diapositiva 16</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva16.JPG" alt="Crear Categoría">
+      <div class="hotspot" id="s16-nombre" style="top: 26.00%; left: 26.00%; width: 34.00%; height: 8.00%;"></div>
+      <div class="hotspot" id="s16-edades" style="top: 36.00%; left: 26.00%; width: 34.00%; height: 16.00%;"></div>
+      <div class="hotspot" id="s16-entrenador" style="top: 54.00%; left: 26.00%; width: 34.00%; height: 8.00%;"></div>
+      <div class="hotspot" id="s16-crear" style="top: 55.93%; left: 63.02%; width: 13.70%; height: 4.91%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s16-nombre">
+        <p><strong>Autogeneración de Nombre:</strong> El nombre de la categoría se calcula automáticamente en base al género y las edades ingresadas.</p>
+      </div>
+      <div class="info-box" data-target="s16-edades">
+        <p><strong>Campos de Rango de Edad:</strong> Permite establecer la edad mínima y máxima admitida en la categoría deportiva.</p>
+      </div>
+      <div class="info-box" data-target="s16-entrenador">
+        <p><strong>Entrenador Responsable:</strong> Lista desplegable para asignar un miembro técnico como responsable de la categoría.</p>
+      </div>
+      <div class="info-box" data-target="s16-crear">
+        <p><strong>Botón Crear Categoría:</strong> Valida las reglas de edad y crea el registro de forma permanente.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 17 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Editar Categoría Existente
+      <span class="slide-badge">Diapositiva 17</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva17.JPG" alt="Editar Categoría">
+      <div class="hotspot" id="s17-titulo" style="top: 10.00%; left: 26.00%; width: 30.00%; height: 8.00%;"></div>
+      <div class="hotspot" id="s17-guardar" style="top: 55.93%; left: 62.19%; width: 14.53%; height: 4.91%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s17-titulo">
+        <p><strong>Título Modificar:</strong> Indica claramente que se está editando una categoría ya guardada.</p>
+      </div>
+      <div class="info-box" data-target="s17-guardar">
+        <p><strong>Guardar Cambios:</strong> Aplica las modificaciones en el sistema. Todos los atletas vinculados se actualizarán.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 18 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Eliminar Categoría
+      <span class="slide-badge">Diapositiva 18</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva18.JPG" alt="Eliminar Categoría">
+      <div class="hotspot" id="s18-advertencia" style="top: 17.13%; left: 26.98%; width: 45.99%; height: 39.81%;"></div>
+      <div class="hotspot" id="s18-eliminar" style="top: 65.93%; left: 50.83%; width: 17.97%; height: 8.06%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s18-advertencia">
+        <p><strong>Advertencia del Modal:</strong> Alerta de confirmación obligatoria para evitar borrar información por accidente.</p>
+      </div>
+      <div class="info-box" data-target="s18-eliminar">
+        <p><strong>Sí, Eliminar:</strong> Confirma la remoción completa. Esta acción no se puede deshacer en la base de datos.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== ASIGNACIONES ==================== -->
+  <div id="asignacion-atletas" class="section-group-title">6. Asignación de Atletas a Categorías</div>
+
+  <!-- Diapositiva 19 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Vista de Detalles de la Categoría y Atletas Asignados
+      <span class="slide-badge">Diapositiva 19</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva19.JPG" alt="Detalle Categoría Atletas">
+      <div class="hotspot" id="s19-info" style="top: 35.00%; left: 25.00%; width: 35.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s19-posicion" style="top: 35.00%; left: 60.00%; width: 15.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s19-acciones" style="top: 35.00%; left: 82.00%; width: 10.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s19-asignar" style="top: 24.00%; left: 82.00%; width: 10.00%; height: 6.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s19-info">
+        <p><strong>Información del Atleta:</strong> Columnas con foto, nombre completo, documento y dorsal del atleta.</p>
+      </div>
+      <div class="info-box" data-target="s19-posicion">
+        <p><strong>Posición de Juego:</strong> Indica el rol táctico del atleta dentro del campo (principal y secundaria).</p>
+      </div>
+      <div class="info-box" data-target="s19-acciones">
+        <p><strong>Acciones del Listado:</strong> Botones rápidos para editar la asignación de dorsal/posición o retirar al atleta de la categoría.</p>
+      </div>
+      <div class="info-box" data-target="s19-asignar">
+        <p><strong>Botón Asignar Atleta:</strong> Abre el formulario para añadir nuevos atletas disponibles en el club a esta categoría.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 20 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Asignación de Atleta
+      <span class="slide-badge">Diapositiva 20</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva20.JPG" alt="Registrar Asignación">
+      <div class="hotspot" id="s20-validaciones" style="top: 32.00%; left: 26.00%; width: 34.00%; height: 16.00%;"></div>
+      <div class="hotspot" id="s20-dorsal" style="top: 50.00%; left: 26.00%; width: 34.00%; height: 8.00%;"></div>
+      <div class="hotspot" id="s20-posiciones" style="top: 60.00%; left: 26.00%; width: 34.00%; height: 16.00%;"></div>
+      <div class="hotspot" id="s20-habilitar" style="top: 78.00%; left: 26.00%; width: 34.00%; height: 8.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s20-validaciones">
+        <p><strong>Validaciones de Edad y Reglas:</strong> Panel que verifica si el atleta seleccionado cumple con la edad máxima y mínima requerida.</p>
+      </div>
+      <div class="info-box" data-target="s20-dorsal">
+        <p><strong>Asignar Dorsal:</strong> Permite ingresar el número de camiseta del atleta. El sistema valida que el dorsal no esté duplicado en la misma categoría.</p>
+      </div>
+      <div class="info-box" data-target="s20-posiciones">
+        <p><strong>Posiciones Deportivas:</strong> Selección del puesto de juego principal y secundario en la cancha.</p>
+      </div>
+      <div class="info-box" data-target="s20-habilitar">
+        <p><strong>Habilitar Registro:</strong> Control para activar o desactivar temporalmente la participación de ese atleta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 21 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Editar Asignación de Atleta
+      <span class="slide-badge">Diapositiva 21</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva21.JPG" alt="Editar Asignación">
+      <div class="hotspot" id="s21-posiciones" style="top: 32.00%; left: 26.00%; width: 34.00%; height: 16.00%;"></div>
+      <div class="hotspot" id="s21-dorsal" style="top: 50.00%; left: 26.00%; width: 34.00%; height: 8.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s21-posiciones">
+        <p><strong>Modificar Posiciones:</strong> Actualiza las tácticas asignadas al atleta según las necesidades del cuerpo técnico.</p>
+      </div>
+      <div class="info-box" data-target="s21-dorsal">
+        <p><strong>Cambiar Dorsal:</strong> Permite modificar el número de camiseta validando la disponibilidad del nuevo número.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 22 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Retirar Atleta de Categoría
+      <span class="slide-badge">Diapositiva 22</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva22.JPG" alt="Retirar Atleta">
+      <div class="hotspot" id="s22-modal" style="top: 9.63%; left: 25.21%; width: 49.53%; height: 62.04%;"></div>
+      <div class="hotspot" id="s22-retirar" style="top: 71.67%; left: 25.21%; width: 49.53%; height: 18.61%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s22-modal">
+        <p><strong>Modal de Confirmación:</strong> Solicita al usuario confirmar el retiro del atleta de esta categoría específica.</p>
+      </div>
+      <div class="info-box" data-target="s22-retirar">
+        <p><strong>Retirar Atleta:</strong> Desvincula al atleta de la categoría. Quedará disponible en la lista general para ser asignado a otra categoría.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================== MÓDULO DE ATLETAS ==================== -->
+  <div id="modulo-atletas" class="section-group-title">7. Módulo de Atletas y Expedientes Deportivos</div>
+
+  <!-- Diapositiva 23 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Directorio de Atletas (Listado General)
+      <span class="slide-badge">Diapositiva 23</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva23.JPG" alt="Directorio de Atletas">
+      <div class="hotspot" id="s23-stats" style="top: 23.80%; left: 57.60%; width: 1.15%; height: 2.69%;"></div>
+      <div class="hotspot" id="s23-nuevo" style="top: 11.30%; left: 81.35%; width: 9.64%; height: 4.72%;"></div>
+      <div class="hotspot" id="s23-filtros" style="top: 39.05%; left: 41.47%; width: 32.39%; height: 4.35%;"></div>
+      <div class="hotspot" id="s23-tabla" style="top: 52.05%; left: 41.47%; width: 32.39%; height: 23.18%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s23-stats">
+        <p><strong>Contadores de Estatus:</strong> Indicadores estadísticos en tiempo real sobre el plantel del club, mostrando totales de registrados, activos, lesionados, suspendidos e inactivos.</p>
+      </div>
+      <div class="info-box" data-target="s23-nuevo">
+        <p><strong>Nuevo Atleta:</strong> Botón destacado en color rojo que permite iniciar el asistente de registro en 3 pasos para ingresar un nuevo deportista al sistema.</p>
+      </div>
+      <div class="info-box" data-target="s23-filtros">
+        <p><strong>Buscador y Filtros:</strong> Barra para buscar de manera rápida por nombres, apellidos o cédula, junto con filtros avanzados por categoría y estatus.</p>
+      </div>
+      <div class="info-box" data-target="s23-tabla">
+        <p><strong>Tabla de Registros:</strong> Muestra la ficha de cada atleta (foto, nombres, cédula, edad, categoría y estatus) con botones de acción para ver perfil, exportar PDF o eliminar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 24 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Atleta - Paso 1: Información Básica
+      <span class="slide-badge">Diapositiva 24</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva24.JPG" alt="Paso 1: Información Básica">
+      <div class="hotspot" id="s24-personal" style="top: 27.41%; left: 27.24%; width: 59.38%; height: 50.66%;"></div>
+      <div class="hotspot" id="s24-foto" style="top: 85.06%; left: 27.24%; width: 59.38%; height: 14.85%;"></div>
+      <div class="hotspot" id="s24-sexo" style="top: 78.07%; left: 27.24%; width: 59.38%; height: 6.99%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s24-personal">
+        <p><strong>Pestaña Personal:</strong> Formulario inicial para ingresar datos de identidad del deportista, incluyendo nombres, apellidos, cédula, teléfono y fecha de nacimiento.</p>
+      </div>
+      <div class="info-box" data-target="s24-foto">
+        <p><strong>Subir Foto:</strong> Área dedicada para cargar la fotografía de perfil oficial del atleta, que se mostrará en todas sus fichas técnicas.</p>
+      </div>
+      <div class="info-box" data-target="s24-sexo">
+        <p><strong>Sexo y Pierna Dominante:</strong> Datos necesarios para la categorización del atleta y el posterior análisis técnico de su posición en cancha.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 25 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Atleta - Paso 2: Datos de Residencia
+      <span class="slide-badge">Diapositiva 25</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva25.JPG" alt="Paso 2: Datos de Residencia">
+      <div class="hotspot" id="s25-ubicacion" style="top: 30.00%; left: 21.93%; width: 65.10%; height: 48.26%;"></div>
+      <div class="hotspot" id="s25-direccion" style="top: 78.26%; left: 21.93%; width: 65.10%; height: 10.72%;"></div>
+      <div class="hotspot" id="s25-botones" style="top: 91.30%; left: 74.22%; width: 9.27%; height: 4.54%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s25-ubicacion">
+        <p><strong>Pestaña Ubicación:</strong> Permite ingresar los datos geográficos de domicilio del atleta, tales como Estado, Municipio, Parroquia y Localidad/Urbanización.</p>
+      </div>
+      <div class="info-box" data-target="s25-direccion">
+        <p><strong>Dirección Exacta:</strong> Campo de texto detallado para registrar la calle, avenida, número de vivienda o puntos de referencia del domicilio.</p>
+      </div>
+      <div class="info-box" data-target="s25-botones">
+        <p><strong>Controles de Flujo:</strong> Botones para limpiar campos, volver al paso anterior o avanzar al paso final del registro.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 26 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Atleta - Paso 3: Representante Legal
+      <span class="slide-badge">Diapositiva 26</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva26.JPG" alt="Paso 3: Representante Legal">
+      <div class="hotspot" id="s26-representante" style="top: 38.63%; left: 21.77%; width: 64.53%; height: 49.61%;"></div>
+      <div class="hotspot" id="s26-buscar" style="top: 29.81%; left: 21.77%; width: 64.53%; height: 8.82%;"></div>
+      <div class="hotspot" id="s26-finalizar" style="top: 90.56%; left: 68.85%; width: 13.91%; height: 4.54%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s26-representante">
+        <p><strong>Pestaña Representante:</strong> Registro obligatorio de los datos del adulto responsable (nombres, apellidos, cédula y teléfono de contacto).</p>
+      </div>
+      <div class="info-box" data-target="s26-buscar">
+        <p><strong>Elegir un Representante:</strong> Lista desplegable que permite asociar un representante ya registrado en el sistema para evitar duplicidad de datos.</p>
+      </div>
+      <div class="info-box" data-target="s26-finalizar">
+        <p><strong>Finalizar Registro:</strong> Valida todos los datos ingresados en los 3 pasos anteriores y guarda permanentemente la ficha del atleta en la base de datos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 27 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña Datos Generales
+      <span class="slide-badge">Diapositiva 27</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva27.JPG" alt="Perfil Atleta - Datos Generales">
+      <div class="hotspot" id="s27-lateral" style="top: 10.56%; left: 13.13%; width: 79.06%; height: 48.81%;"></div>
+      <div class="hotspot" id="s27-direccion" style="top: 62.30%; left: 13.13%; width: 79.06%; height: 19.99%;"></div>
+      <div class="hotspot" id="s27-representante" style="top: 82.30%; left: 13.13%; width: 79.06%; height: 17.05%;"></div>
+      <div class="hotspot" id="s27-tabs" style="top: 59.36%; left: 13.13%; width: 79.06%; height: 2.94%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s27-lateral">
+        <p><strong>Tarjeta del Atleta (Lateral):</strong> Muestra de forma fija la foto del deportista, estatus (Activo/Inactivo), edad, género, categorías asignadas y número de dorsal.</p>
+      </div>
+      <div class="info-box" data-target="s27-direccion">
+        <p><strong>Dirección Detallada:</strong> Vista con la información de residencia del atleta. Cuenta con un botón de acceso directo para editar estos datos en cualquier momento.</p>
+      </div>
+      <div class="info-box" data-target="s27-representante">
+        <p><strong>Representante Legal:</strong> Muestra los datos del tutor del menor (nombre completo, cédula y teléfono) con opción directa de edición.</p>
+      </div>
+      <div class="info-box" data-target="s27-tabs">
+        <p><strong>Navegación de Pestañas:</strong> Menú superior para alternar entre Datos Generales, Ficha Médica, Consulta Médica, Antropometría, Pruebas Físicas y Asistencias.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 28 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña Ficha Médica
+      <span class="slide-badge">Diapositiva 28</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva28.JPG" alt="Perfil Atleta - Ficha Médica">
+      <div class="hotspot" id="s28-info" style="top: 14.63%; left: 30.26%; width: 56.98%; height: 43.03%;"></div>
+      <div class="hotspot" id="s28-discapacidad" style="top: 64.83%; left: 30.26%; width: 56.98%; height: 28.69%;"></div>
+      <div class="hotspot" id="s28-agregar" style="top: 57.66%; left: 30.26%; width: 56.98%; height: 7.17%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s28-info">
+        <p><strong>Información Médica:</strong> Muestra el grupo sanguíneo, alergias conocidas, condiciones crónicas, medicamentos habituales y antecedentes familiares/lesiones del atleta.</p>
+      </div>
+      <div class="info-box" data-target="s28-discapacidad">
+        <p><strong>Tabla de Discapacidades:</strong> Listado de discapacidades registradas para el atleta, incluyendo tipo, carnet, porcentaje de discapacidad y fecha de registro.</p>
+      </div>
+      <div class="info-box" data-target="s28-agregar">
+        <p><strong>Agregar Discapacidad:</strong> Botón destacado "+ Agregar" para registrar una nueva discapacidad en el historial del atleta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 29 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Ficha Médica - Editar Ficha Médica (Modal)
+      <span class="slide-badge">Diapositiva 29</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva29.JPG" alt="Editar Ficha Médica">
+      <div class="hotspot" id="s29-form" style="top: 16.85%; left: 24.22%; width: 46.67%; height: 73.43%;"></div>
+      <div class="hotspot" id="s29-guardar" style="top: 91.67%; left: 54.06%; width: 14.37%; height: 5.09%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s29-form">
+        <p><strong>Formulario de Edición Médica:</strong> Ventana modal que permite cambiar de manera directa las condiciones médicas del atleta, alergias, tipo de sangre y antecedentes.</p>
+      </div>
+      <div class="info-box" data-target="s29-guardar">
+        <p><strong>Guardar Cambios:</strong> Botón de confirmación que actualiza los datos en la base de datos de manera instantánea, cerrando el modal de forma segura.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 30 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Ficha Médica - Registrar Discapacidad (Modal)
+      <span class="slide-badge">Diapositiva 30</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva30.JPG" alt="Registrar Discapacidad">
+      <div class="hotspot" id="s30-datos" style="top: 18.61%; left: 21.88%; width: 56.67%; height: 63.33%;"></div>
+      <div class="hotspot" id="s30-agregar" style="top: 84.26%; left: 61.77%; width: 13.28%; height: 7.13%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s30-datos">
+        <p><strong>Datos de Discapacidad:</strong> Campos requeridos para ingresar el tipo de discapacidad (Física, Intelectual, etc.), el número de carnet oficial y el porcentaje asignado.</p>
+      </div>
+      <div class="info-box" data-target="s30-agregar">
+        <p><strong>Agregar:</strong> Valida y añade el registro correspondiente directamente en la tabla de discapacidades del atleta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 31 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña Consultas Médicas
+      <span class="slide-badge">Diapositiva 31</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva31.JPG" alt="Perfil Atleta - Consultas Médicas">
+      <div class="hotspot" id="s31-tabla" style="top: 19.73%; left: 31.41%; width: 59.79%; height: 43.62%;"></div>
+      <div class="hotspot" id="s31-estatus" style="top: 63.35%; left: 31.41%; width: 59.79%; height: 34.89%;"></div>
+      <div class="hotspot" id="s31-registrar" style="top: 15.37%; left: 31.41%; width: 59.79%; height: 4.36%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s31-tabla">
+        <p><strong>Historial de Consultas:</strong> Tabla cronológica que muestra el tipo de consulta, el diagnóstico del médico, fecha del suceso, alta médica estimada y el nombre del profesional que lo registró.</p>
+      </div>
+      <div class="info-box" data-target="s31-estatus">
+        <p><strong>Estatus de Aptitud:</strong> Distintivo visual (ej. APTO / NO APTO) que indica si el atleta está en condiciones físicas de entrenar o jugar.</p>
+      </div>
+      <div class="info-box" data-target="s31-registrar">
+        <p><strong>Registrar Consulta:</strong> Botón rojo superior para reportar una nueva evaluación o incidencia médica sufrida por el atleta.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 32 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Consultas Médicas - Registrar Consulta Médica (Modal)
+      <span class="slide-badge">Diapositiva 32</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva32.JPG" alt="Registrar Consulta Médica">
+      <div class="hotspot" id="s32-campos" style="top: 9.26%; left: 28.18%; width: 43.07%; height: 27.84%;"></div>
+      <div class="hotspot" id="s32-diag" style="top: 37.10%; left: 28.18%; width: 43.07%; height: 25.06%;"></div>
+      <div class="hotspot" id="s32-trata" style="top: 62.16%; left: 28.18%; width: 43.07%; height: 27.84%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s32-campos">
+        <p><strong>Detalle de Consulta:</strong> Formulario para clasificar el tipo de consulta (lesión, enfermedad, control de rutina), fecha y fecha de alta médica estimada.</p>
+      </div>
+      <div class="info-box" data-target="s32-diag">
+        <p><strong>Diagnóstico y Síntomas:</strong> Campos de texto detallados para ingresar la descripción del cuadro clínico del atleta.</p>
+      </div>
+      <div class="info-box" data-target="s32-trata">
+        <p><strong>Tratamiento y Disponibilidad:</strong> Permite ingresar las medicaciones o reposo indicados y seleccionar si el atleta queda APTO o NO APTO para los partidos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 33 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña de Consultas Médicas
+      <span class="slide-badge">Diapositiva 33</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/atletas/tab_consulta_medica.png" alt="Perfil del Atleta - Pestaña Consultas Médicas">
+      <div class="hotspot" id="s33-tabla-historial" style="top: 20.45%; left: 25.78%; width: 73.19%; height: 61.17%;"></div>
+      <div class="hotspot" id="s33-registrar" style="top: 24.47%; left: 86.48%; width: 9.82%; height: 2.46%;"></div>
+      <div class="hotspot" id="s33-btn-ver" style="top: 29.27%; left: 90.48%; width: 2.50%; height: 4.00%;"></div>
+      <div class="hotspot" id="s33-btn-editar" style="top: 29.27%; left: 93.48%; width: 2.50%; height: 4.00%;"></div>
+      <div class="hotspot" id="s33-btn-eliminar" style="top: 29.27%; left: 96.48%; width: 2.50%; height: 4.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s33-tabla-historial">
+        <p><strong>Tabla de Historial:</strong> Listado de todas las consultas registradas indicando de forma resumida el tipo de consulta, diagnóstico, fechas de suceso y alta médica estimada, estatus y el profesional encargado del registro.</p>
+      </div>
+      <div class="info-box" data-target="s33-registrar">
+        <p><strong>Registrar Consulta:</strong> Botón de acción rápida para abrir el formulario modal de registro de una nueva incidencia o consulta médica.</p>
+      </div>
+      <div class="info-box" data-target="s33-btn-ver">
+        <p><strong>Acción "Ver Detalles":</strong> Botón (icono de ojo) que permite visualizar el expediente clínico detallado y completo de la consulta en modo lectura.</p>
+      </div>
+      <div class="info-box" data-target="s33-btn-editar">
+        <p><strong>Acción "Editar":</strong> Botón (icono de lápiz) que abre el formulario para modificar y corregir cualquier campo de la consulta médica seleccionada.</p>
+      </div>
+      <div class="info-box" data-target="s33-btn-eliminar">
+        <p><strong>Acción "Eliminar":</strong> Botón (icono de papelera) que despliega una confirmación de seguridad para remover permanentemente el registro médico del historial.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 34 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Consulta Médica (Modal)
+      <span class="slide-badge">Diapositiva 34</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/atletas/create_consulta_medica.png" alt="Registrar Consulta Médica">
+      <div class="hotspot" id="s34-datos-basicos" style="top: 15.42%; left: 29.69%; width: 40.47%; height: 28.77%;"></div>
+      <div class="hotspot" id="s34-diagnostico" style="top: 44.19%; left: 29.69%; width: 40.47%; height: 20.72%;"></div>
+      <div class="hotspot" id="s34-tratamiento" style="top: 64.91%; left: 29.69%; width: 40.47%; height: 13.81%;"></div>
+      <div class="hotspot" id="s34-guardar" style="top: 85.59%; left: 58.35%; width: 9.60%; height: 3.46%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s34-datos-basicos">
+        <p><strong>Datos Básicos y Fechas:</strong> Campos para seleccionar el tipo de consulta, el estatus de disponibilidad del atleta (Apto / No Apto) y las fechas del suceso y alta estimada.</p>
+      </div>
+      <div class="info-box" data-target="s34-diagnostico">
+        <p><strong>Diagnóstico y Síntomas:</strong> Entrada de texto para escribir el diagnóstico médico formal y la descripción de los síntomas presentados por el deportista.</p>
+      </div>
+      <div class="info-box" data-target="s34-tratamiento">
+        <p><strong>Tratamiento Indicado:</strong> Detalle de las indicaciones médicas relativas a la medicación, terapias de rehabilitación o reposo absoluto indicados.</p>
+      </div>
+      <div class="info-box" data-target="s34-guardar">
+        <p><strong>Botón Registrar:</strong> Botón que valida que los campos requeridos estén llenos y procede a guardar el registro clínico.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 35 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Editar Consulta Médica (Modal)
+      <span class="slide-badge">Diapositiva 35</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/atletas/edit_consulta_medica.png" alt="Editar Consulta Médica">
+      <div class="hotspot" id="s35-editar-datos" style="top: 15.42%; left: 29.69%; width: 40.47%; height: 28.77%;"></div>
+      <div class="hotspot" id="s35-editar-diag" style="top: 44.19%; left: 29.69%; width: 40.47%; height: 20.72%;"></div>
+      <div class="hotspot" id="s35-editar-trata" style="top: 64.91%; left: 29.69%; width: 40.47%; height: 13.81%;"></div>
+      <div class="hotspot" id="s35-guardar" style="top: 85.59%; left: 54.43%; width: 13.52%; height: 3.46%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s35-editar-datos">
+        <p><strong>Modificar Datos Médicos:</strong> Permite cambiar los parámetros generales, corregir fechas mal tipeadas o actualizar el estatus de disponibilidad del atleta.</p>
+      </div>
+      <div class="info-box" data-target="s35-editar-diag">
+        <p><strong>Modificar Diagnóstico:</strong> Permite refinar la descripción de los síntomas o actualizar el dictamen del médico tratante.</p>
+      </div>
+      <div class="info-box" data-target="s35-editar-trata">
+        <p><strong>Modificar Tratamiento:</strong> Campo para cambiar las dosis de medicamentos, agregar nuevas recomendaciones físicas o ajustar el tiempo estimado de recuperación.</p>
+      </div>
+      <div class="info-box" data-target="s35-guardar">
+        <p><strong>Guardar Cambios:</strong> Botón de confirmación que aplica las correcciones directamente sobre la consulta actual en el sistema.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 36 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Eliminar Consulta Médica (Diálogo de Confirmación)
+      <span class="slide-badge">Diapositiva 36</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/atletas/delete_consulta_medica.png" alt="Eliminar Consulta Médica">
+      <div class="hotspot" id="s36-mensaje" style="top: 21.12%; left: 26.29%; width: 47.34%; height: 37.06%;"></div>
+      <div class="hotspot" id="s36-confirmar" style="top: 63.91%; left: 51.03%; width: 18.32%; height: 7.15%;"></div>
+      <div class="hotspot" id="s36-cancelar" style="top: 63.91%; left: 30.80%; width: 18.32%; height: 7.15%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s36-mensaje">
+        <p><strong>Confirmación de Seguridad:</strong> Cuadro de diálogo de confirmación que evita eliminaciones accidentales de consultas del historial.</p>
+      </div>
+      <div class="info-box" data-target="s36-confirmar">
+        <p><strong>Confirmar "Sí, eliminar":</strong> Botón rojo que procesa la baja definitiva y remoción lógica del registro en el sistema.</p>
+      </div>
+      <div class="info-box" data-target="s36-cancelar">
+        <p><strong>Cancelar Acción:</strong> Botón gris para desistir de la eliminación y cerrar la confirmación sin afectar el historial.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 37 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Ver Detalle de Consulta Médica (Modal)
+      <span class="slide-badge">Diapositiva 37</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/atletas/detail_consulta_medica.png" alt="Detalle de Consulta Médica">
+      <div class="hotspot" id="s37-tipo-estatus" style="top: 17.09%; left: 28.43%; width: 43.06%; height: 11.14%;"></div>
+      <div class="hotspot" id="s37-fechas" style="top: 28.23%; left: 28.43%; width: 43.06%; height: 11.14%;"></div>
+      <div class="hotspot" id="s37-diagnostico" style="top: 39.37%; left: 28.43%; width: 43.06%; height: 10.02%;"></div>
+      <div class="hotspot" id="s37-detalles" style="top: 49.39%; left: 28.43%; width: 43.06%; height: 27.84%;"></div>
+      <div class="hotspot" id="s37-cerrar" style="top: 77.23%; left: 28.43%; width: 43.06%; height: 5.57%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s37-tipo-estatus">
+        <p><strong>Clasificación y Estatus:</strong> Visualizador superior que detalla la categoría del diagnóstico y el estatus deportivo activo (ej: Apto o No Apto).</p>
+      </div>
+      <div class="info-box" data-target="s37-fechas">
+        <p><strong>Fechas del Evento:</strong> Línea de tiempo que indica cuándo se reportó el caso y cuándo se tiene proyectado el retorno deportivo formal del atleta.</p>
+      </div>
+      <div class="info-box" data-target="s37-diagnostico">
+        <p><strong>Diagnóstico Formal:</strong> Diagnóstico médico descriptivo guardado en la consulta.</p>
+      </div>
+      <div class="info-box" data-target="s37-detalles">
+        <p><strong>Detalles y Tratamiento:</strong> Secciones que recuperan la descripción de los síntomas observados y el plan de medicación o reposo asignado al atleta.</p>
+      </div>
+      <div class="info-box" data-target="s37-cerrar">
+        <p><strong>Cerrar Ficha:</strong> Botón inferior para salir de la ventana de detalles y volver al historial de la pestaña.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 38 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña Antropometría (Mediciones)
+      <span class="slide-badge">Diapositiva 38</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva33.JPG" alt="Perfil Atleta - Antropometría">
+      <div class="hotspot" id="s38-grafica" style="top: 35.09%; left: 50.73%; width: 6.41%; height: 7.87%;"></div>
+      <div class="hotspot" id="s38-tabla" style="top: 54.21%; left: 43.06%; width: 27.81%; height: 11.39%;"></div>
+      <div class="hotspot" id="s38-nueva" style="top: 8.33%; left: 78.39%; width: 9.79%; height: 3.15%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s38-grafica">
+        <p><strong>Gráfica de Evolución Física:</strong> Gráfico de líneas y barras interactivo que asocia y dibuja el peso, la altura y el IMC del atleta a lo largo del tiempo.</p>
+      </div>
+      <div class="info-box" data-target="s38-tabla">
+        <p><strong>Historial de Medidas:</strong> Tabla de evolución física donde se registran la envergadura, el contorno del torso y la pierna, y se calcula automáticamente el IMC (Normal, Sobrepeso, etc.).</p>
+      </div>
+      <div class="info-box" data-target="s38-nueva">
+        <p><strong>Nueva Medición:</strong> Botón superior para ingresar nuevas variables de peso y dimensiones corporales.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 39 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Antropometría - Nueva Medición Antropométrica (Modal)
+      <span class="slide-badge">Diapositiva 39</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva34.JPG" alt="Nueva Medición Antropométrica">
+      <div class="hotspot" id="s39-campos" style="top: 10.00%; left: 21.30%; width: 57.29%; height: 55.29%;"></div>
+      <div class="hotspot" id="s39-porcentajes" style="top: 65.29%; left: 21.30%; width: 57.29%; height: 20.73%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s39-campos">
+        <p><strong>Ficha de Medición:</strong> Permite ingresar la fecha de la medición, peso en kilogramos, altura en centímetros, envergadura, pierna y torso del atleta.</p>
+      </div>
+      <div class="info-box" data-target="s39-porcentajes">
+        <p><strong>Porcentajes Corporales:</strong> Campos para introducir el porcentaje de grasa y porcentaje de masa muscular para el expediente del deportista.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 40 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña Pruebas Físicas (Rendimiento)
+      <span class="slide-badge">Diapositiva 40</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva35.JPG" alt="Perfil Atleta - Pruebas Físicas">
+      <div class="hotspot" id="s40-graficos" style="top: 22.00%; left: 25.00%; width: 66.00%; height: 26.00%;"></div>
+      <div class="hotspot" id="s40-detalle" style="top: 49.00%; left: 25.00%; width: 66.00%; height: 22.00%;"></div>
+      <div class="hotspot" id="s40-tabla" style="top: 76.00%; left: 25.00%; width: 66.00%; height: 20.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s40-graficos">
+        <p><strong>Gráficos de Comparación:</strong> Gráficos de radar que evalúan la fuerza, resistencia, velocidad, coordinación y reacción, comparando las marcas del atleta con estándares profesionales (FUTVE y élite mundial).</p>
+      </div>
+      <div class="info-box" data-target="s40-detalle">
+        <p><strong>Detalle de Pruebas:</strong> Muestra los resultados de la última evaluación física en velocidad (test de 30m), fuerza de salto (test CMJ), resistencia cardiovascular (test Yo-Yo) y tiempos de reacción.</p>
+      </div>
+      <div class="info-box" data-target="s40-tabla">
+        <p><strong>Historial de Evaluaciones:</strong> Tabla cronológica con el registro detallado de las marcas obtenidas por el atleta en cada jornada de pruebas físicas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 41 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Perfil del Atleta - Pestaña Asistencia
+      <span class="slide-badge">Diapositiva 41</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/slides/Diapositiva36.JPG" alt="Perfil Atleta - Asistencia">
+      <div class="hotspot" id="s41-metricas" style="top: 24.00%; left: 32.00%; width: 56.00%; height: 12.00%;"></div>
+      <div class="hotspot" id="s41-calendario" style="top: 38.00%; left: 32.00%; width: 37.00%; height: 50.00%;"></div>
+      <div class="hotspot" id="s41-distribucion" style="top: 38.00%; left: 70.00%; width: 18.00%; height: 50.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s41-metricas">
+        <p><strong>Métricas de Asistencias:</strong> Resumen de asistencia total, cantidad de sesiones de entrenamiento presentadas, ausencias y faltas justificadas del atleta seleccionado.</p>
+      </div>
+      <div class="info-box" data-target="s41-calendario">
+        <p><strong>Calendario Mensual:</strong> Visualizador en formato de calendario donde se muestra con círculos de colores los días de entrenamiento del mes y el estatus del atleta para cada día.</p>
+      </div>
+      <div class="info-box" data-target="s41-distribucion">
+        <p><strong>Gráfico de Distribución:</strong> Gráfico de donut que evalúa visualmente el porcentaje general de participación activa del deportista.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTROL Y SEGUIMIENTO ==================== -->
+  <div id="control-seguimiento" class="section-group-title">8. Módulo de Control y Seguimiento (Asistencias, Convocatorias y Pruebas Físicas)</div>
+
+  <!-- Diapositiva 42 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Control de Asistencias - Listado General
+      <span class="slide-badge">Diapositiva 42</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/asistencias/table_asistencias.png" alt="Control de Asistencias - Listado General">
+      <div class="hotspot" id="s42-btn-registrar" style="top: 9.39%; left: 86.41%; width: 11.96%; height: 3.91%;"></div>
+      <div class="hotspot" id="s42-filtros" style="top: 16.39%; left: 19.41%; width: 61.51%; height: 7.82%;"></div>
+      <div class="hotspot" id="s42-tabla" style="top: 31.39%; left: 19.41%; width: 61.51%; height: 42.36%;"></div>
+      <div class="hotspot" id="s42-acciones" style="top: 34.64%; left: 92.50%; width: 5.50%; height: 2.91%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s42-btn-registrar">
+        <p><strong>Registrar Asistencia:</strong> Botón destacado para dar de alta una nueva toma de asistencia por categoría.</p>
+      </div>
+      <div class="info-box" data-target="s42-filtros">
+        <p><strong>Barra de Filtros:</strong> Permite buscar y filtrar el historial de asistencia por Enlistador (entrenador) y Categoría.</p>
+      </div>
+      <div class="info-box" data-target="s42-tabla">
+        <p><strong>Tabla de Sesiones:</strong> Muestra la fecha, categoría evaluada, tipo de actividad, enlistador y el porcentaje gráfico de asistencia.</p>
+      </div>
+      <div class="info-box" data-target="s42-acciones">
+        <p><strong>Controles de Fila:</strong> Botones directos para visualizar la sesión, modificar los presentes o eliminar la jornada del historial.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 43 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Sesión de Asistencia
+      <span class="slide-badge">Diapositiva 43</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/asistencias/create_asistencias.png" alt="Registrar Sesión de Asistencia">
+      <div class="hotspot" id="s43-cabecera" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 18.00%;"></div>
+      <div class="hotspot" id="s43-tabla-atletas" style="top: 35.00%; left: 24.00%; width: 52.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s43-btn-guardar" style="top: 90.50%; left: 86.26%; width: 12.11%; height: 3.24%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s43-cabecera">
+        <p><strong>Ficha de Sesión:</strong> Selección obligatoria de la categoría, el tipo de actividad (entrenamiento o partido) y la fecha de ejecución.</p>
+      </div>
+      <div class="info-box" data-target="s43-tabla-atletas">
+        <p><strong>Planilla de Asistencias:</strong> Lista todos los atletas de la categoría para marcar su estatus (Presente, Ausente, Falta Justificada).</p>
+      </div>
+      <div class="info-box" data-target="s43-btn-guardar">
+        <p><strong>Registrar Asistencia:</strong> Guarda la sesión de asistencia y actualiza las métricas en tiempo real.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 44 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Editar Sesión de Asistencia
+      <span class="slide-badge">Diapositiva 44</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/asistencias/edit_asistencias.png" alt="Editar Sesión de Asistencia">
+      <div class="hotspot" id="s44-cabecera" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 18.00%;"></div>
+      <div class="hotspot" id="s44-atletas" style="top: 35.00%; left: 24.00%; width: 52.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s44-btn-guardar" style="top: 90.50%; left: 86.26%; width: 12.11%; height: 3.24%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s44-cabecera">
+        <p><strong>Datos de Sesión:</strong> Muestra los datos generales de la sesión (Categoría, Actividad, Fecha) bajo edición.</p>
+      </div>
+      <div class="info-box" data-target="s44-atletas">
+        <p><strong>Modificación de Estatus:</strong> Permite ajustar el estado de asistencia de cualquiera de los atletas del listado.</p>
+      </div>
+      <div class="info-box" data-target="s44-btn-guardar">
+        <p><strong>Guardar Cambios:</strong> Confirma y re-escribe el listado de asistencia de la sesión seleccionada.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 45 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Eliminar Sesión de Asistencia (Diálogo de Confirmación)
+      <span class="slide-badge">Diapositiva 45</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/asistencias/delete_asistencias.png" alt="Eliminar Sesión de Asistencia">
+      <div class="hotspot" id="s45-alerta" style="top: 21.12%; left: 26.29%; width: 47.34%; height: 37.06%;"></div>
+      <div class="hotspot" id="s45-confirmar" style="top: 63.91%; left: 51.03%; width: 18.32%; height: 7.15%;"></div>
+      <div class="hotspot" id="s45-cancelar" style="top: 63.91%; left: 30.80%; width: 18.32%; height: 7.15%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s45-alerta">
+        <p><strong>Confirmación:</strong> Ventana de seguridad para reconfirmar la eliminación de la asistencia y no dañar las estadísticas.</p>
+      </div>
+      <div class="info-box" data-target="s45-confirmar">
+        <p><strong>Sí, eliminar:</strong> Borra permanentemente el registro de asistencia del sistema de manera definitiva.</p>
+      </div>
+      <div class="info-box" data-target="s45-cancelar">
+        <p><strong>Cancelar:</strong> Cierra la ventana y resguarda la sesión intacta sin aplicar modificaciones.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 46 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Detalle de Sesión de Asistencia
+      <span class="slide-badge">Diapositiva 46</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/asistencias/detail_asistencias.png" alt="Detalle de Sesión de Asistencia">
+      <div class="hotspot" id="s46-resumen" style="top: 15.53%; left: 16.84%; width: 82.20%; height: 19.77%;"></div>
+      <div class="hotspot" id="s46-listado" style="top: 35.30%; left: 16.84%; width: 82.20%; height: 44.48%;"></div>
+      <div class="hotspot" id="s46-cerrar" style="top: 84.91%; left: 59.84%; width: 14.23%; height: 4.94%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s46-resumen">
+        <p><strong>Estadísticas de Sesión:</strong> Muestra de forma concisa el total de convocados, presentes, ausencias y justificados.</p>
+      </div>
+      <div class="info-box" data-target="s46-listado">
+        <p><strong>Listado de Estatus:</strong> Muestra a cada atleta y su marca de asistencia asignada en esa jornada.</p>
+      </div>
+      <div class="info-box" data-target="s46-cerrar">
+        <p><strong>Cerrar:</strong> Retorna a la pantalla principal del listado de asistencias.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 47 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Convocatorias a Partidos - Listado General
+      <span class="slide-badge">Diapositiva 47</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/convocatorias/table_convocatorias.png" alt="Convocatorias - Listado General">
+      <div class="hotspot" id="s47-btn-crear" style="top: 9.39%; left: 86.12%; width: 12.26%; height: 3.91%;"></div>
+      <div class="hotspot" id="s47-filtros" style="top: 16.39%; left: 19.12%; width: 63.05%; height: 7.82%;"></div>
+      <div class="hotspot" id="s47-tabla" style="top: 31.39%; left: 19.12%; width: 63.05%; height: 42.36%;"></div>
+      <div class="hotspot" id="s47-acciones" style="top: 34.64%; left: 92.50%; width: 5.50%; height: 2.91%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s47-btn-crear">
+        <p><strong>Crear Convocatoria:</strong> Botón de acción para planificar y citar atletas a un partido o evento oficial.</p>
+      </div>
+      <div class="info-box" data-target="s47-filtros">
+        <p><strong>Buscador:</strong> Permite filtrar convocatorias vigentes o pasadas por categorías.</p>
+      </div>
+      <div class="info-box" data-target="s47-tabla">
+        <p><strong>Tabla de Convocatorias:</strong> Registra la fecha de citación, la actividad/rival, la categoría y el estatus logístico.</p>
+      </div>
+      <div class="info-box" data-target="s47-acciones">
+        <p><strong>Acciones:</strong> Herramientas para ver la citación, editar la nómina o suspender/eliminar la convocatoria.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 48 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Crear Convocatoria
+      <span class="slide-badge">Diapositiva 48</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/convocatorias/create_convocatorias.png" alt="Crear Convocatoria">
+      <div class="hotspot" id="s48-datos-basicos" style="top: 15.57%; left: 48.82%; width: 2.73%; height: 2.72%;"></div>
+      <div class="hotspot" id="s48-convocados" style="top: 42.57%; left: 48.82%; width: 2.73%; height: 4.13%;"></div>
+      <div class="hotspot" id="s48-btn-crear" style="top: 78.21%; left: 86.26%; width: 12.11%; height: 3.35%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s48-datos-basicos">
+        <p><strong>Datos del Evento:</strong> Formulario para ingresar rival, fecha, hora del pitazo, lugar de reunión, tipo de uniforme e instrucciones logísticas.</p>
+      </div>
+      <div class="info-box" data-target="s48-convocados">
+        <p><strong>Selección de Plantel:</strong> Permite marcar con casillas a los atletas de la categoría que serán citados oficialmente.</p>
+      </div>
+      <div class="info-box" data-target="s48-btn-crear">
+        <p><strong>Crear Convocatoria:</strong> Valida y publica la convocatoria en el sistema de forma inmediata.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 49 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Editar Convocatoria
+      <span class="slide-badge">Diapositiva 49</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/convocatorias/edit_convocatorias.png" alt="Editar Convocatoria">
+      <div class="hotspot" id="s49-datos" style="top: 21.49%; left: 48.45%; width: 2.58%; height: 1.39%;"></div>
+      <div class="hotspot" id="s49-convocados" style="top: 48.49%; left: 48.45%; width: 2.58%; height: 2.12%;"></div>
+      <div class="hotspot" id="s49-btn-guardar" style="top: 87.49%; left: 86.26%; width: 12.11%; height: 3.24%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s49-datos">
+        <p><strong>Editar Logística:</strong> Permite modificar campos clave como la hora de salida del bus o las instrucciones del cuerpo técnico.</p>
+      </div>
+      <div class="info-box" data-target="s49-convocados">
+        <p><strong>Ajuste de Nómina:</strong> Permite convocar atletas adicionales o desconvocar jugadores de forma rápida.</p>
+      </div>
+      <div class="info-box" data-target="s49-btn-guardar">
+        <p><strong>Guardar Cambios:</strong> Registra las variaciones y notifica a los perfiles de los atletas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 50 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Eliminar Convocatoria (Diálogo de Confirmación)
+      <span class="slide-badge">Diapositiva 50</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/convocatorias/delete_convocatorias.png" alt="Eliminar Convocatoria">
+      <div class="hotspot" id="s50-alerta" style="top: 19.11%; left: 26.29%; width: 47.34%; height: 39.65%;"></div>
+      <div class="hotspot" id="s50-confirmar" style="top: 65.92%; left: 51.03%; width: 18.32%; height: 7.15%;"></div>
+      <div class="hotspot" id="s50-cancelar" style="top: 65.92%; left: 30.80%; width: 18.32%; height: 7.15%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s50-alerta">
+        <p><strong>Confirmar Baja:</strong> Ventana de alerta preventiva que advierte que la convocatoria y sus listados se eliminarán del sistema.</p>
+      </div>
+      <div class="info-box" data-target="s50-confirmar">
+        <p><strong>Sí, eliminar:</strong> Procede a borrar la convocatoria del sistema de forma definitiva y permanente.</p>
+      </div>
+      <div class="info-box" data-target="s50-cancelar">
+        <p><strong>Cancelar:</strong> Cancela la baja del partido y preserva la convocatoria intacta en el historial.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 51 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Detalle de Convocatoria
+      <span class="slide-badge">Diapositiva 51</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/convocatorias/detail_convocatorias.png" alt="Detalle de Convocatoria">
+      <div class="hotspot" id="s51-ficha" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 22.00%;"></div>
+      <div class="hotspot" id="s51-lista-convocados" style="top: 40.00%; left: 24.00%; width: 52.00%; height: 43.00%;"></div>
+      <div class="hotspot" id="s51-cerrar" style="top: 86.00%; left: 67.00%; width: 9.00%; height: 5.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s51-ficha">
+        <p><strong>Ficha de Citación:</strong> Muestra la información oficial sobre el rival, lugar, hora de salida, uniforme requerido e indicaciones logísticas.</p>
+      </div>
+      <div class="info-box" data-target="s51-lista-convocados">
+        <p><strong>Plantel Convocado:</strong> Visualiza los nombres, dorsales and fotos de los atletas citados para el encuentro.</p>
+      </div>
+      <div class="info-box" data-target="s51-cerrar">
+        <p><strong>Volver:</strong> Cierra la vista detallada para regresar al listado general de convocatorias.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 52 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Pruebas Físicas - Listado General
+      <span class="slide-badge">Diapositiva 52</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/pruebas_fisicas/tab_pruebas_fisicas.png" alt="Pruebas Físicas - Listado General">
+      <div class="hotspot" id="s52-btn-registrar" style="top: 9.39%; left: 84.42%; width: 13.96%; height: 1.30%;"></div>
+      <div class="hotspot" id="s52-filtros" style="top: 10.69%; left: 84.42%; width: 13.96%; height: 2.61%;"></div>
+      <div class="hotspot" id="s52-tabla" style="top: 28.54%; left: 50.92%; width: 42.88%; height: 14.11%;"></div>
+      <div class="hotspot" id="s52-acciones" style="top: 33.85%; left: 92.50%; width: 5.50%; height: 3.02%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s52-btn-registrar">
+        <p><strong>Nueva Jornada:</strong> Botón para registrar una nueva jornada de toma de evaluaciones y marcas físicas.</p>
+      </div>
+      <div class="info-box" data-target="s52-filtros">
+        <p><strong>Filtros Avanzados:</strong> Permite filtrar las jornadas por categorías o por el tipo de test físico evaluado.</p>
+      </div>
+      <div class="info-box" data-target="s52-tabla">
+        <p><strong>Tabla de Jornadas:</strong> Registra la fecha de la evaluación, la categoría evaluada, el tipo de test y los promedios de rendimiento alcanzados.</p>
+      </div>
+      <div class="info-box" data-target="s52-acciones">
+        <p><strong>Acciones:</strong> Permite acceder a las marcas individuales, modificar el registro de marcas o eliminar la sesión.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 53 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Nueva Jornada de Pruebas
+      <span class="slide-badge">Diapositiva 53</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/pruebas_fisicas/create_pruebas_fisicas.png" alt="Registrar Jornada de Pruebas">
+      <div class="hotspot" id="s53-cabecera" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 18.00%;"></div>
+      <div class="hotspot" id="s53-resultados" style="top: 35.00%; left: 24.00%; width: 52.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s53-btn-guardar" style="top: 93.30%; left: 86.26%; width: 12.11%; height: 3.24%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s53-cabecera">
+        <p><strong>Definición de Test:</strong> Selección de la fecha del test, la categoría a evaluar y el tipo de prueba física (velocidad 30m, salto CMJ, test Yo-Yo, etc.).</p>
+      </div>
+      <div class="info-box" data-target="s53-resultados">
+        <p><strong>Ingreso de Marcas:</strong> Listado de todos los atletas de la categoría con sus respectivos campos numéricos para digitar sus marcas.</p>
+      </div>
+      <div class="info-box" data-target="s53-btn-guardar">
+        <p><strong>Registrar Evaluación:</strong> Valida y almacena los resultados y marcas de la jornada en el sistema.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 54 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Editar Marcas de Pruebas Físicas
+      <span class="slide-badge">Diapositiva 54</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/pruebas_fisicas/edit_pruebas_fisicas.png" alt="Editar Marcas de Pruebas Físicas">
+      <div class="hotspot" id="s54-cabecera" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 18.00%;"></div>
+      <div class="hotspot" id="s54-resultados" style="top: 35.00%; left: 24.00%; width: 52.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s54-btn-guardar" style="top: 93.30%; left: 86.26%; width: 12.11%; height: 3.24%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s54-cabecera">
+        <p><strong>Datos de la Jornada:</strong> Muestra los datos de cabecera de la jornada evaluada actualmente en edición.</p>
+      </div>
+      <div class="info-box" data-target="s54-resultados">
+        <p><strong>Corregir Marcas:</strong> Permite modificar o actualizar los valores numéricos de rendimiento físico de los deportistas.</p>
+      </div>
+      <div class="info-box" data-target="s54-btn-guardar">
+        <p><strong>Guardar Cambios:</strong> Aplica y actualiza los registros con las nuevas marcas tipeadas de forma inmediata.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 55 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Eliminar Jornada de Pruebas (Diálogo de Confirmación)
+      <span class="slide-badge">Diapositiva 55</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/pruebas_fisicas/delete_pruebas_fisicas.png" alt="Eliminar Jornada de Pruebas">
+      <div class="hotspot" id="s55-alerta" style="top: 17.21%; left: 26.29%; width: 47.34%; height: 42.16%;"></div>
+      <div class="hotspot" id="s55-confirmar" style="top: 67.93%; left: 51.03%; width: 18.32%; height: 7.04%;"></div>
+      <div class="hotspot" id="s55-cancelar" style="top: 67.93%; left: 30.80%; width: 18.32%; height: 7.04%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s55-alerta">
+        <p><strong>Alerta de Confirmación:</strong> Mensaje preventivo para asegurar que se desea desincorporar permanentemente el registro del test de la base de datos.</p>
+      </div>
+      <div class="info-box" data-target="s55-confirmar">
+        <p><strong>Sí, eliminar:</strong> Borra la jornada física y todos los resultados de rendimiento asociados a ella de forma definitiva.</p>
+      </div>
+      <div class="info-box" data-target="s55-cancelar">
+        <p><strong>Cancelar:</strong> Desiste de la desincorporación y cierra la ventana de confirmación conservando los datos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 56 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Detalle de Jornada y Resultados
+      <span class="slide-badge">Diapositiva 56</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/pruebas_fisicas/detail_pruebas_fisicas.png" alt="Detalle de Jornada y Resultados">
+      <div class="hotspot" id="s56-resumen" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 20.00%;"></div>
+      <div class="hotspot" id="s56-lista-resultados" style="top: 38.00%; left: 24.00%; width: 52.00%; height: 45.00%;"></div>
+      <div class="hotspot" id="s56-cerrar" style="top: 86.00%; left: 67.00%; width: 9.00%; height: 5.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s56-resumen">
+        <p><strong>Resumen de Resultados:</strong> Muestra estadísticas grupales del test (marca promedio general, récords y marcas extremas de la categoría).</p>
+      </div>
+      <div class="info-box" data-target="s56-lista-resultados">
+        <p><strong>Planilla Detallada:</strong> Tabla ordenada de mayor a menor rendimiento con todos los resultados individuales de la sesión.</p>
+      </div>
+      <div class="info-box" data-target="s56-cerrar">
+        <p><strong>Volver:</strong> Cierra el detalle y regresa al listado general de marcas físicas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== REPORTES ==================== -->
+  <div id="modulo-reportes" class="section-group-title">9. Módulo de Reportes de Gestión</div>
+
+  <!-- Diapositiva 57 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Reportes de Atletas (Generador y Exportación)
+      <span class="slide-badge">Diapositiva 57</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/reportes/table_atleta_reportes.png" alt="Reportes de Atletas">
+      <div class="hotspot" id="s57-filtros" style="top: 42.40%; left: 36.48%; width: 1.85%; height: 1.12%;"></div>
+      <div class="hotspot" id="s57-exportar" style="top: 62.40%; left: 36.48%; width: 1.85%; height: 0.50%;"></div>
+      <div class="hotspot" id="s57-vista-previa" style="top: 72.40%; left: 36.48%; width: 1.85%; height: 2.79%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s57-filtros">
+        <p><strong>Filtros de Reporte:</strong> Permite segmentar el listado de atletas por categoría, sexo, estatus y tipo de reporte a generar.</p>
+      </div>
+      <div class="info-box" data-target="s57-exportar">
+        <p><strong>Botones de Exportación:</strong> Botones interactivos para descargar el listado resultante en formato PDF o planilla Excel.</p>
+      </div>
+      <div class="info-box" data-target="s57-vista-previa">
+        <p><strong>Vista Previa:</strong> Muestra una lista de los atletas seleccionados antes de exportar la información.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 58 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Reportes de Usuarios y Bitácora (Auditoría)
+      <span class="slide-badge">Diapositiva 58</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/reportes/table_usuarios_reportes.png" alt="Reportes de Usuarios y Bitácora">
+      <div class="hotspot" id="s58-filtros" style="top: 50.84%; left: 38.85%; width: 1.85%; height: 0.91%;"></div>
+      <div class="hotspot" id="s58-bitacora" style="top: 70.84%; left: 38.85%; width: 1.85%; height: 2.79%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s58-filtros">
+        <p><strong>Filtros de Bitácora:</strong> Permite filtrar el historial de auditoría por fecha, autor de la modificación o acción realizada (creación, edición, eliminación).</p>
+      </div>
+      <div class="info-box" data-target="s58-bitacora">
+        <p><strong>Historial de Bitácora:</strong> Muestra el detalle de auditoría en tiempo real para control administrativo (quién hizo qué y cuándo).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== USUARIOS ==================== -->
+  <div id="modulo-usuarios" class="section-group-title">10. Módulo de Usuarios (Administración y Permisos)</div>
+
+  <!-- Diapositiva 59 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Directorio de Usuarios (Listado General)
+      <span class="slide-badge">Diapositiva 59</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/usuarios/tab_usuarios.png" alt="Directorio de Usuarios">
+      <div class="hotspot" id="s59-btn-crear" style="top: 9.39%; left: 88.40%; width: 9.97%; height: 3.91%;"></div>
+      <div class="hotspot" id="s59-tabla" style="top: 61.01%; left: 50.37%; width: 1.85%; height: 2.79%;"></div>
+      <div class="hotspot" id="s59-acciones" style="top: 29.94%; left: 92.50%; width: 5.50%; height: 3.02%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s59-btn-crear">
+        <p><strong>Registrar Usuario:</strong> Botón para abrir el asistente de creación de nuevas cuentas de operador en el sistema.</p>
+      </div>
+      <div class="info-box" data-target="s59-tabla">
+        <p><strong>Tabla de Operadores:</strong> Muestra el nombre, correo, rol (Administrador, Médico, Entrenador) y estatus activo/inactivo de cada usuario.</p>
+      </div>
+      <div class="info-box" data-target="s59-acciones">
+        <p><strong>Acciones:</strong> Controles para visualizar detalles, editar privilegios, suspender o cambiar la contraseña del usuario.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 60 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Usuario - Paso 1: Datos Personales
+      <span class="slide-badge">Diapositiva 60</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/usuarios/create1_usuarios.png" alt="Registrar Usuario - Paso 1">
+      <div class="hotspot" id="s60-formulario" style="top: 24.58%; left: 18.24%; width: 65.73%; height: 44.76%;"></div>
+      <div class="hotspot" id="s60-siguiente" style="top: 77.21%; left: 66.10%; width: 14.25%; height: 3.91%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s60-formulario">
+        <p><strong>Datos Personales:</strong> Campos requeridos de identidad del nuevo operador: nombres, apellidos, cédula, teléfono y dirección.</p>
+      </div>
+      <div class="info-box" data-target="s60-siguiente">
+        <p><strong>Siguiente:</strong> Botón que valida los datos del paso 1 y avanza a la configuración de credenciales de seguridad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 61 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Registrar Usuario - Paso 2: Credenciales y Rol
+      <span class="slide-badge">Diapositiva 61</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/usuarios/create2_usuarios.png" alt="Registrar Usuario - Paso 2">
+      <div class="hotspot" id="s61-credenciales" style="top: 23.58%; left: 18.24%; width: 65.73%; height: 45.02%;"></div>
+      <div class="hotspot" id="s61-registrar" style="top: 78.21%; left: 71.05%; width: 9.31%; height: 4.02%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s61-credenciales">
+        <p><strong>Seguridad y Rol:</strong> Configuración del nombre de usuario, contraseña, email y asignación del rol logístico (Administrador, Médico, Entrenador).</p>
+      </div>
+      <div class="info-box" data-target="s61-registrar">
+        <p><strong>Registrar:</strong> Guarda y activa la cuenta del usuario en el sistema de forma inmediata.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 62 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Restablecer Contraseña de Usuario (Modal)
+      <span class="slide-badge">Diapositiva 62</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/usuarios/reset_usuarios.png" alt="Restablecer Contraseña">
+      <div class="hotspot" id="s62-formulario" style="top: 14.75%; left: 26.29%; width: 47.34%; height: 56.31%;"></div>
+      <div class="hotspot" id="s62-guardar" style="top: 70.06%; left: 51.03%; width: 18.32%; height: 7.15%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s62-formulario">
+        <p><strong>Nueva Clave:</strong> Ventana modal para asignar una nueva contraseña de emergencia o clave temporal a un usuario.</p>
+      </div>
+      <div class="info-box" data-target="s62-guardar">
+        <p><strong>Establecer Contraseña:</strong> Guarda los cambios de acceso de forma segura en la base de datos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 63 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Eliminar Usuario (Diálogo de Confirmación)
+      <span class="slide-badge">Diapositiva 63</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/usuarios/delete_usuarios.png" alt="Eliminar Usuario">
+      <div class="hotspot" id="s63-alerta" style="top: 21.12%; left: 26.29%; width: 47.34%; height: 37.06%;"></div>
+      <div class="hotspot" id="s63-confirmar" style="top: 63.91%; left: 51.03%; width: 18.32%; height: 7.15%;"></div>
+      <div class="hotspot" id="s63-cancelar" style="top: 63.91%; left: 30.80%; width: 18.32%; height: 7.15%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s63-alerta">
+        <p><strong>Advertencia:</strong> Cuadro de diálogo que pide confirmación de seguridad antes de revocar los accesos de la cuenta.</p>
+      </div>
+      <div class="info-box" data-target="s63-confirmar">
+        <p><strong>Sí, eliminar:</strong> Remueve el usuario del plantel de operadores activos de forma lógica e inmediata.</p>
+      </div>
+      <div class="info-box" data-target="s63-cancelar">
+        <p><strong>Cancelar:</strong> Cierra la alerta conservando el perfil y sus permisos sin aplicar cambios.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 64 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Ficha de Detalles de Usuario
+      <span class="slide-badge">Diapositiva 64</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/usuarios/detail_usuarios.png" alt="Detalle de Usuario">
+      <div class="hotspot" id="s64-perfil" style="top: 15.00%; left: 24.00%; width: 52.00%; height: 25.00%;"></div>
+      <div class="hotspot" id="s64-actividad" style="top: 42.00%; left: 24.00%; width: 52.00%; height: 40.00%;"></div>
+      <div class="hotspot" id="s64-cerrar" style="top: 85.00%; left: 67.00%; width: 9.00%; height: 5.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s64-perfil">
+        <p><strong>Expediente de Usuario:</strong> Muestra la información básica del usuario (nombres, cédula, correo y rol asignado).</p>
+      </div>
+      <div class="info-box" data-target="s64-actividad">
+        <p><strong>Historial de Operaciones:</strong> Detalla las últimas acciones realizadas por este usuario dentro de la plataforma (auditoría individual).</p>
+      </div>
+      <div class="info-box" data-target="s64-cerrar">
+        <p><strong>Cerrar:</strong> Retorna a la pantalla principal del listado general del directorio de usuarios.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONFIGURACIÓN ==================== -->
+  <div id="modulo-configuracion" class="section-group-title">11. Módulo de Configuración del Sistema</div>
+
+  <!-- Diapositiva 65 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Configuración del Sistema - Pestaña General
+      <span class="slide-badge">Diapositiva 65</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/configuracion/tab_configuracion_general.png" alt="Configuración General">
+      <div class="hotspot" id="s65-logo" style="top: 18.00%; left: 32.00%; width: 18.00%; height: 25.00%;"></div>
+      <div class="hotspot" id="s65-datos-club" style="top: 18.00%; left: 52.00%; width: 36.00%; height: 25.00%;"></div>
+      <div class="hotspot" id="s65-guardar" style="top: 48.00%; left: 77.00%; width: 11.00%; height: 5.00%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s65-logo">
+        <p><strong>Logo/Escudo Oficial:</strong> Área de carga de archivos para cambiar o añadir el logotipo de la institución.</p>
+      </div>
+      <div class="info-box" data-target="s65-datos-club">
+        <p><strong>Datos del Club:</strong> Campos editables para definir el nombre institucional, siglas oficiales del club (CADA) y número de RIF.</p>
+      </div>
+      <div class="info-box" data-target="s65-guardar">
+        <p><strong>Guardar Configuración:</strong> Aplica y asienta la identidad del club de forma global en todo el sistema.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 66 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Configuración del Sistema - Pestaña Contacto
+      <span class="slide-badge">Diapositiva 66</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/configuracion/tab_configuracion_contacto.png" alt="Configuración de Contacto">
+      <div class="hotspot" id="s66-contacto" style="top: 19.33%; left: 40.23%; width: 66.95%; height: 28.91%;"></div>
+      <div class="hotspot" id="s66-guardar" style="top: 59.33%; left: 85.23%; width: 13.15%; height: 4.13%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s66-contacto">
+        <p><strong>Canales de Enlace:</strong> Permite modificar la dirección principal de la sede del club, teléfonos de contacto, correo y perfiles de redes sociales.</p>
+      </div>
+      <div class="info-box" data-target="s66-guardar">
+        <p><strong>Guardar Cambios:</strong> Registra y actualiza los nuevos datos de contacto.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diapositiva 67 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Configuración del Sistema - Pestaña Comunidad
+      <span class="slide-badge">Diapositiva 67</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/configuracion/tab_configuracion_comunidad.png" alt="Configuración de Comunidad">
+      <div class="hotspot" id="s67-comunidad" style="top: 18.00%; left: 32.00%; width: 56.00%; height: 28.00%;"></div>
+      <div class="hotspot" id="s67-guardar" style="top: 76.31%; left: 85.23%; width: 13.15%; height: 4.13%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s67-comunidad">
+        <p><strong>Integraciones Externas:</strong> Configuración del número de WhatsApp para soporte rápido y el enlace iframe de Google Maps de la sede.</p>
+      </div>
+      <div class="info-box" data-target="s67-guardar">
+        <p><strong>Guardar Cambios:</strong> Sincroniza la ubicación y el botón de contacto en el portal público de visitantes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== AYUDA Y MANUALES ==================== -->
+  <div id="modulo-ayuda" class="section-group-title">12. Módulo de Ayuda y Manuales</div>
+
+  <!-- Diapositiva 68 -->
+  <section class="slide-section">
+    <div class="slide-title">
+      Descarga de Manuales de Ayuda
+      <span class="slide-badge">Diapositiva 68</span>
+    </div>
+    <div class="slide-image-wrapper">
+      <img src="manual usuario/manuales/card_manuales.png" alt="Manuales de Ayuda">
+      <div class="hotspot" id="s68-tarjetas" style="top: 7.60%; left: 16.84%; width: 82.20%; height: 57.54%;"></div>
+    </div>
+    <div class="info-boxes-grid">
+      <div class="info-box" data-target="s68-tarjetas">
+        <p><strong>Fichas de Descarga:</strong> Sección que expone las guías interactivas y manuales del sistema (instalación, usuario) con opciones de descarga en PDF o visualización directa.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMENDACIONES DE USO -->
+  <div class="alert-box">
+    <strong>💡 Recomendación General:</strong> Para una visualización óptima de esta guía en navegadores Chrome y Edge, mantenga el nivel de zoom en 100% y utilice la barra de navegación superior rápida para saltar directamente a la sección que necesite consultar.
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.info-box');
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const targetId = card.getAttribute('data-target');
+        if (targetId) {
+          const hotspot = document.getElementById(targetId);
+          if (hotspot) {
+            hotspot.classList.add('active');
+          }
+        }
+      });
+      card.addEventListener('mouseleave', () => {
+        const targetId = card.getAttribute('data-target');
+        if (targetId) {
+          const hotspot = document.getElementById(targetId);
+          if (hotspot) {
+            hotspot.classList.remove('active');
+          }
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -20,6 +20,12 @@
         const text = target.getAttribute('data-tooltip');
         if (!text) return;
 
+        // Temporarily remove title attribute to prevent double tooltips
+        if (target.hasAttribute('title')) {
+            target.setAttribute('data-original-title', target.getAttribute('title'));
+            target.removeAttribute('title');
+        }
+
         const pos = target.getAttribute('data-tooltip-pos') || 'top';
 
         // Create the global tooltip container
@@ -70,6 +76,12 @@
         if (!currentTooltip) return;
         const tooltip = currentTooltip;
         currentTooltip = null;
+
+        // Restore original title if it was temporarily removed
+        if (currentTarget && currentTarget.hasAttribute('data-original-title')) {
+            currentTarget.setAttribute('title', currentTarget.getAttribute('data-original-title'));
+            currentTarget.removeAttribute('data-original-title');
+        }
         currentTarget = null;
 
         tooltip.classList.remove('global-tooltip--visible');
