@@ -60,7 +60,8 @@
 </div>
 
 <?php if (!empty($historial)): ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<!-- Incluir local de Chart.js -->
+<script src="<?= e(url('/assets/js/lib/chart.umd.js')) ?>"></script>
 <script>
 (async () => {
     const data = await API.get('<?= e(url("/api/pruebas/atleta/{$atleta['atleta_id']}")) ?>');

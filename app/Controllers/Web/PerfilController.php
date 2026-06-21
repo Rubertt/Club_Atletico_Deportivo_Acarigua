@@ -343,6 +343,8 @@ final class PerfilController extends Controller
             'sistema' => [
                 'exists' => is_file($dir . '/manual_sistema.pdf'),
                 'url'    => url('/uploads/manuales/manual_sistema.pdf'),
+                'pdf_exists' => is_file($dir . '/manual_sistema.pdf'),
+                'pdf_url'    => url('/uploads/manuales/manual_sistema.pdf'),
                 'title'  => 'Manual del Sistema',
                 'file'   => 'manual_sistema.pdf',
                 'icon'   => 'ph ph-cpu',
@@ -351,16 +353,20 @@ final class PerfilController extends Controller
             'instalacion' => [
                 'exists' => is_file($dir . '/manual_instalacion.pdf'),
                 'url'    => url('/uploads/manuales/manual_instalacion.pdf'),
+                'pdf_exists' => is_file($dir . '/manual_instalacion.pdf'),
+                'pdf_url'    => url('/uploads/manuales/manual_instalacion.pdf'),
                 'title'  => 'Manual de Instalación',
                 'file'   => 'manual_instalacion.pdf',
                 'icon'   => 'ph ph-wrench',
                 'desc'   => 'Instrucciones paso a paso para el despliegue del sistema en servidores web o en entornos locales.'
             ],
             'usuario' => [
-                'exists' => is_file($dir . '/manual_usuario.pdf'),
-                'url'    => url('/uploads/manuales/manual_usuario.pdf'),
+                'exists' => is_file($dir . '/manual_interactivo.html'),
+                'url'    => url('/uploads/manuales/manual_interactivo.html'),
+                'pdf_exists' => is_file($dir . '/manual_usuario.pdf'),
+                'pdf_url'    => url('/uploads/manuales/manual_usuario.pdf'),
                 'title'  => 'Manual de Usuario',
-                'file'   => 'manual_usuario.pdf',
+                'file'   => 'manual_interactivo.html',
                 'icon'   => 'ph ph-users-three',
                 'desc'   => 'Guía visual e interactiva para el manejo del perfil, control de asistencias, evaluaciones físicas y fichas médicas.'
             ]

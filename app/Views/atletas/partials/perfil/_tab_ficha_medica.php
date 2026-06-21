@@ -169,9 +169,9 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                     </div>
                     <?= csrf_field() ?>
                     <div class="modal-body">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="modal-grid-2">
                             <div class="form-group">
-                                <label class="form-label">Grupo Sanguíneo</label>
+                                <label class="form-label" data-tooltip="Grupo sanguíneo y factor RH del atleta (necesario en caso de emergencias)." data-tooltip-pos="top">Grupo Sanguíneo</label>
                                 <select name="grupo_sanguineo" class="form-control">
                                     <option value="">— Seleccionar —</option>
                                     <?php foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $gs): ?>
@@ -180,33 +180,33 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Alergias</label>
+                                <label class="form-label" data-tooltip="Sustancias o alimentos que causan reacciones alérgicas. Especificar 'Ninguna' si aplica." data-tooltip-pos="top">Alergias</label>
                                 <input type="text" name="alergias" class="form-control"
                                     value="<?= e($atleta['alergias'] ?? '') ?>" placeholder="Ej: Penicilina, Maní...">
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label">Antecedentes Familiares</label>
+                            <label class="form-label" data-tooltip="Enfermedades crónicas o de relevancia en familiares de primer grado (ej. hipertensión, diabetes)." data-tooltip-pos="top">Antecedentes Familiares</label>
                             <textarea name="antecedentes_familiares" class="form-control" rows="2"
                                 placeholder="Enfermedades hereditarias relevantes..."><?= e($atleta['antecedentes_familiares'] ?? '') ?></textarea>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label">Antecedentes Quirúrgicos / Lesiones Previas</label>
+                            <label class="form-label" data-tooltip="Cirugías previas, fracturas, esguinces o lesiones deportivas de importancia." data-tooltip-pos="top">Antecedentes Quirúrgicos / Lesiones Previas</label>
                             <textarea name="antecedentes_quirurgicos" class="form-control" rows="2"
                                 placeholder="Operaciones o fracturas importantes..."><?= e($atleta['antecedentes_quirurgicos'] ?? '') ?></textarea>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="modal-grid-2">
                             <div class="form-group">
-                                <label class="form-label">Condición Crónica</label>
+                                <label class="form-label" data-tooltip="Enfermedades crónicas bajo tratamiento o seguimiento constante (ej. asma, diabetes)." data-tooltip-pos="top">Condición Crónica</label>
                                 <input type="text" name="condicion_cronica" class="form-control"
                                     value="<?= e($atleta['condicion_cronica'] ?? '') ?>"
                                     placeholder="Ej: Asma, Diabetes...">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Medicación Actual</label>
+                                <label class="form-label" data-tooltip="Medicamentos tomados de forma permanente o regular con dosis." data-tooltip-pos="top">Medicación Actual</label>
                                 <input type="text" name="medicacion_actual" class="form-control"
                                     value="<?= e($atleta['medicacion_actual'] ?? '') ?>"
                                     placeholder="Medicamentos regulares...">
@@ -216,9 +216,6 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
                         <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Guardar</button>
-                        <button type="button" class="btn-help" id="btn-help-ficha-medica" title="¿Cómo llenar esta sección?">
-                            <i class="ph ph-question"></i>
-                        </button>
                     </div>
                 </form>
             </div>
@@ -236,7 +233,7 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                     <?= csrf_field() ?>
                     <div class="modal-body">
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label"><span class="required">*</span> Tipo de Discapacidad</label>
+                            <label class="form-label" data-tooltip="Seleccione el tipo o categoría de discapacidad registrada." data-tooltip-pos="top"><span class="required">*</span> Tipo de Discapacidad</label>
                             <select name="tipo_discapacidad_id" id="input-tipo-disc" class="form-control" required>
                                 <option value="">— Seleccionar —</option>
                                 <?php foreach ($tipos_discapacidades ?? [] as $tipo): ?>
@@ -246,12 +243,12 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label"><span class="required">*</span> Nro. de Carnet</label>
+                            <label class="form-label" data-tooltip="Número de carnet de certificación del CONAPDIS o institución equivalente." data-tooltip-pos="top"><span class="required">*</span> Nro. de Carnet</label>
                             <input type="text" name="nro_carnet" id="input-carnet-disc" class="form-control"
                                 placeholder="Ej: V-12345678-D" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label"><span class="required">*</span> Porcentaje de Discapacidad</label>
+                            <label class="form-label" data-tooltip="Grado o porcentaje oficial de la discapacidad certificado." data-tooltip-pos="top"><span class="required">*</span> Porcentaje de Discapacidad</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <input type="number" name="porcentaje_discapacidad" id="input-porcentaje-disc"
                                     class="form-control" min="1" max="100" placeholder="Ej: 50" required>

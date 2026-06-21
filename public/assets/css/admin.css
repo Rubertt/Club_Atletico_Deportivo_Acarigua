@@ -478,6 +478,11 @@ body.admin-body {
     max-width: 100%;
     width: 100%;
     overflow-x: hidden;
+    background-color: #d8d6cb; /* Blanco perla en modo claro */
+}
+
+html.dark .admin-content {
+    background-color: transparent; /* Mantiene el color original en modo oscuro */
 }
 
 /* (Borrados estilos duplicados de welcome-card para respetar main.css) */
@@ -888,39 +893,15 @@ body.admin-body {
    Formularios y Controles Responsivos (Asistencias y Pruebas Físicas)
    ========================================================================== */
 
-/* Grid para cabecera de 4 columnas (Asistencia) */
-.form-header-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 24px;
-    align-items: end;
-}
-
-@media (max-width: 900px) {
+/* Grid para cabecera de 3 columnas (Asistencia) */
+@media (min-width: 992px) {
+    /* Fila 1: Ocupar 30% del ancho del header para los inputs principales */
     .form-header-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .form-header-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-}
-
-/* Grid para cabecera de 3 columnas (Pruebas Físicas) */
-.form-header-grid-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 24px;
-    align-items: end;
-}
-
-@media (max-width: 768px) {
-    .form-header-grid-3 {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        display: grid !important;
+        grid-template-columns: 30% 30% 30% auto !important;
+        justify-content: start;
+        gap: 20px !important;
+        align-items: end !important;
     }
 }
 
@@ -933,23 +914,12 @@ body.admin-body {
     }
 }
 
-/* Grid para opciones extras colapsables (4 columnas en desktop) */
-.form-extra-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-}
-
-@media (max-width: 900px) {
+    /* Fila 2: Los 5 campos extras alineados en una sola fila */
+@media (min-width: 992px) {
     .form-extra-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 500px) {
-    .form-extra-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 20px !important;
     }
 }
 
@@ -1522,4 +1492,42 @@ body.admin-body {
 
 label[data-tooltip] {
     flex-wrap: wrap !important;
+}
+
+/* Switch slider styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--color-danger);
+  border-radius: 24px;
+  transition: .3s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .3s;
+}
+input:checked + .slider {
+  background-color: var(--color-success);
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
 }

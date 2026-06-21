@@ -167,7 +167,8 @@
 </style>
 
 <?php if (!empty($historial)): ?>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<!-- Incluir local de ECharts -->
+<script src="<?= e(url('/assets/js/lib/echarts.min.js')) ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const chartDom = document.getElementById('chart-medidas');

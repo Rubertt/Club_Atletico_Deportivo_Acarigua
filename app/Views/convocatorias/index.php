@@ -10,7 +10,7 @@
 </div>
 
 <form method="GET" class="table-filters card" style="display: flex; gap: 16px; align-items: flex-end; padding: 16px; margin-bottom: 24px; flex-wrap: wrap;">
-    <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+    <div class="form-group" style="flex: 1; min-https://gemini.google.com/app/420d4fadc0298ec9width: 200px; margin-bottom: 0;">
         <label class="form-label" for="usuario_id"><i class="ph ph-user"></i> Enlistador</label>
         <select id="usuario_id" name="usuario_id" class="form-control">
             <option value="">Todos los enlistadores</option>
@@ -109,15 +109,19 @@
                     <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'])) ?>" class="btn-view-premium" title="Ver Detalles">
                         <i class="ph ph-eye"></i>
                     </a>
-                    <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/editar')) ?>" class="btn-edit-premium" title="Pase de Asistencia / Editar">
-                        <i class="ph ph-pencil-simple"></i>
-                    </a>
-                    <form action="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/eliminar')) ?>" method="POST" style="display:inline;">
-                        <?= csrf_field() ?>
-                        <button type="button" class="btn-delete-premium btn-delete-convocatoria" title="Eliminar Convocatoria" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
-                            <i class="ph ph-trash"></i>
-                        </button>
-                    </form>
+                    <?php if ((int)$ev['actividad_estatus'] !== 2): ?>
+                        <a href="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/editar')) ?>" class="btn-edit-premium" title="Pase de Asistencia / Editar">
+                            <i class="ph ph-pencil-simple"></i>
+                        </a>
+                        <?php if ($ev['fecha_evento'] >= date('Y-m-d')): ?>
+                            <form action="<?= e(url('/admin/convocatorias/' . $ev['evento_id'] . '/eliminar')) ?>" method="POST" style="display:inline;">
+                                <?= csrf_field() ?>
+                                <button type="button" class="btn-delete-premium btn-delete-convocatoria" title="Eliminar Convocatoria" data-date="<?= e(date('d/m/Y', strtotime($ev['fecha_evento']))) ?>">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; endif; ?>

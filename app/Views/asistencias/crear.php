@@ -30,18 +30,22 @@
                 <label class="form-label" data-tooltip="Fecha en la que se realizó la actividad" data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
                 <input type="date" name="fecha_evento" class="form-control" required value="<?= e(old('fecha_evento', date('Y-m-d'))) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
             </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Escribe el nombre o apellido del atleta para buscar" data-tooltip-pos="top">Buscar Atleta</label>
+                <input type="text" id="input-buscar" class="form-control" placeholder="Escribe nombre o apellido..." disabled>
+            </div>
             <div class="form-group form-header-toggle-group" style="margin: 0;">
-                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost active" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ocultar opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+        <!-- Fila 2: Opciones extras (desplegada por defecto) -->
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: grid; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Lugar donde se lleva a cabo el evento" data-tooltip-pos="top">Ubicación</label>
-                <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e(old('ubicacion', 'Cancha UPTP')) ?>">
+                <label class="form-label" data-tooltip="Lugar donde se lleva a cabo el evento" data-tooltip-pos="top"><span class="required">*</span> Ubicación</label>
+                <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e(old('ubicacion', 'Cancha UPTP')) ?>" required>
             </div>
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Terreno de juego donde se realiza la actividad" data-tooltip-pos="top">Terreno de Juego</label>
@@ -76,7 +80,7 @@
         <div class="card" style="padding: 0; overflow: hidden; max-width: 100%;">
             <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-2);">
                 <h3 style="margin:0; font-size: 16px;"><i class="ph ph-users-three"></i> Lista de Atletas</h3>
-                <div id="stats-asistencia" style="font-size: 13px; font-weight: 600; color: var(--color-primary);">
+                <div id="stats-asistencia" style="font-size: 13px; font-weight: 600; color: var(--color-white);">
                     Cargando atletas...
                 </div>
             </div>
@@ -150,6 +154,7 @@
 (function () {
     const $cat = document.getElementById('sel-cat');
     const $container = document.getElementById('atletas-container');
+    const $buscar = document.getElementById('input-buscar');
 
     // Toggle para opciones extra
     const $btnToggle = document.getElementById('btn-toggle-options');
@@ -178,6 +183,10 @@
         if (!id) {
             $container.style.display = 'none';
             $noAtletas.style.display = 'none';
+            if ($buscar) {
+                $buscar.disabled = true;
+                $buscar.value = '';
+            }
             return;
         }
 
@@ -194,6 +203,10 @@
             $noAtletas.style.display = 'none';
             $container.style.display = 'block';
             $stats.textContent = `${atletas.length} Atletas encontrados`;
+            if ($buscar) {
+                $buscar.disabled = false;
+                $buscar.value = '';
+            }
 
             $listWrap.innerHTML = atletas.map(a => {
                 const isDis = parseInt(a.atleta_estatus) === 0 || parseInt(a.atleta_estatus) === 3;
@@ -291,6 +304,38 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando...';
     });
+
+    if ($buscar) {
+        $buscar.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const rows = $listWrap.querySelectorAll('.asistencia-row');
+            const pagination = document.getElementById('atletas-pagination');
+
+            if (!query) {
+                if (pagination) pagination.style.display = 'flex';
+                CadaPagination({
+                    rowSelector: '.asistencia-row',
+                    containerId: 'atletas-pagination'
+                });
+                return;
+            }
+
+            if (pagination) pagination.style.display = 'none';
+            rows.forEach(row => {
+                const nameEl = row.querySelector('div[style*="font-weight: 600"]') || 
+                               row.querySelector('div[style*="font-weight:600"]') ||
+                               row.querySelector('.prueba-row__name') || 
+                               row.querySelector('.asig-atleta-row__name');
+                const text = nameEl ? nameEl.textContent : row.textContent;
+                const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (normalizedText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
 
     // Si hay una categoría seleccionada previamente (por old()), disparar el cambio después de que carguen todos los scripts y la API esté disponible
     function autoTrigger() {

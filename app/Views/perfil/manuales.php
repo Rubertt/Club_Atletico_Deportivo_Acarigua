@@ -64,11 +64,23 @@
                 </div>
 
                 <!-- Botón Acción -->
-                <div style="padding: 16px 24px 28px; background: rgba(0, 0, 0, 0.02); border-top: 1px solid var(--color-border); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg);">
+                <div style="padding: 16px 24px 28px; background: rgba(0, 0, 0, 0.02); border-top: 1px solid var(--color-border); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); display: flex; flex-direction: column; gap: 10px;">
                     <?php if ($manual['exists']): ?>
-                        <a href="<?= e($manual['url']) ?>" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                            <i class="ph ph-file-pdf"></i> Visualizar Manual
-                        </a>
+                        <?php if ($key === 'usuario'): ?>
+                            <a href="<?= e($manual['url']) ?>" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 8px;">
+                                <i class="ph ph-desktop"></i> Ver Manual Interactivo
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= e($manual['url']) ?>" target="_blank" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 8px;">
+                                <i class="ph ph-file-pdf"></i> Visualizar Manual
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if (!empty($manual['pdf_exists'])): ?>
+                            <a href="<?= e($manual['pdf_url']) ?>" download class="btn btn-outline" style="width: 100%; justify-content: center; gap: 8px;">
+                                <i class="ph ph-file-pdf"></i> Descargar PDF
+                            </a>
+                        <?php endif; ?>
                     <?php else: ?>
                         <button class="btn" style="width: 100%; justify-content: center; background: var(--color-border); color: var(--color-text-muted); cursor: not-allowed;" disabled>
                             <i class="ph ph-warning-circle"></i> No disponible
