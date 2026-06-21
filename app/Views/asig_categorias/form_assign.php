@@ -43,8 +43,11 @@
             <!-- Cabeceras en PC -->
             <div class="asig-headers-desktop" style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 10; font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
                 <div style="width: 320px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 48px; text-align: center; display: flex; justify-content: center; align-items: center;">
-                        <input type="checkbox" id="check-all" style="transform: scale(1.2); cursor: pointer;" title="Seleccionar todos">
+                    <div style="width: 48px; text-align: center; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <label class="switch" title="inactivo" data-tooltip="activo significa registro habilitado, inactivo significa registro no habilitado" data-tooltip-pos="top" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0;">
+                            <input type="checkbox" id="check-all" style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider"></span>
+                        </label>
                     </div>
                     <div style="width: 38px;"></div>
                     <div>Atleta</div>
@@ -69,7 +72,10 @@
                 <div class="asig-atleta-row" style="<?= $isDisabled ? 'opacity: 0.65; background: var(--color-bg-alt);' : '' ?>">
                     <div class="asig-atleta-row__athlete">
                         <div style="width: 48px; text-align: center; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
-                            <input type="checkbox" name="selected_atletas[]" value="<?= (int)$a['atleta_id'] ?>" class="atleta-checkbox" style="transform: scale(1.2); cursor: <?= $isDisabled ? 'not-allowed' : 'pointer' ?>;" <?= $isDisabled ? 'disabled' : '' ?>>
+                            <label class="switch" title="inactivo" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; <?= $isDisabled ? 'cursor: not-allowed; opacity: 0.7;' : '' ?>">
+                                <input type="checkbox" name="selected_atletas[]" value="<?= (int)$a['atleta_id'] ?>" class="atleta-checkbox" style="opacity: 0; width: 0; height: 0;" <?= $isDisabled ? 'disabled' : '' ?>>
+                                <span class="slider"></span>
+                            </label>
                         </div>
                         <?php if (!empty($a['foto'])): ?>
                             <div style="width: 38px; height: 38px; padding: 2px; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-bg); flex-shrink: 0;">

@@ -365,7 +365,7 @@ final class ResultadosPruebasController extends Controller
         }
     }
 
-    public function destroy(Request $request): Response
+    /*public function destroy(Request $request): Response
     {
         $id = (int) $request->param('id');
         $atletaId = (int) $request->query('atleta_id');
@@ -392,7 +392,7 @@ final class ResultadosPruebasController extends Controller
         }
 
         return $this->redirect($redirectUrl);
-    }
+    } */
 
     public function crear(Request $request): Response
     {
@@ -432,7 +432,7 @@ final class ResultadosPruebasController extends Controller
             'fecha'          => $fechaEvento,
             'hora_inicio'    => $request->input('hora_inicio') ?: null,
             'hora_fin'       => $request->input('hora_fin') ?: null,
-            'ubicacion'      => $request->input('ubicacion') ?: 'Cancha Principal',
+            'ubicacion'      => trim((string) $request->input('ubicacion', '')),
             'terreno'        => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima'          => $request->input('clima') !== '' ? (int)$request->input('clima') : null,
         ];
@@ -440,9 +440,13 @@ final class ResultadosPruebasController extends Controller
         $v = Validator::make([
             'fecha'        => $fechaEvento,
             'categoria_id' => $categoriaId ?: null,
+            'ubicacion'    => $dataActividad['ubicacion'],
         ], [
             'fecha'        => 'required|date',
             'categoria_id' => 'required|integer',
+            'ubicacion'    => 'required',
+        ], [
+            'ubicacion'    => 'La ubicación es obligatoria.',
         ]);
 
         if (!$v->validate()) {
@@ -673,10 +677,15 @@ final class ResultadosPruebasController extends Controller
             'fecha'          => $fechaEvento,
             'hora_inicio'    => $request->input('hora_inicio') ?: null,
             'hora_fin'       => $request->input('hora_fin') ?: null,
-            'ubicacion'      => $request->input('ubicacion') ?: 'Cancha Principal',
+            'ubicacion'      => trim((string) $request->input('ubicacion', '')),
             'terreno'        => $request->input('terreno') !== '' ? (int)$request->input('terreno') : null,
             'clima'          => $request->input('clima') !== '' ? (int)$request->input('clima') : null,
         ];
+
+        if (empty($dataActividad['ubicacion'])) {
+            flash('error', 'La ubicación es obligatoria.');
+            return $this->redirect("/admin/resultados-pruebas/sesion/{$id}/editar");
+        }
 
         // Validaciones básicas de fecha
         $minDate = strtotime('2019-01-01');

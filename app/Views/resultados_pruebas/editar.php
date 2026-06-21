@@ -16,7 +16,7 @@
 
     <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <!-- Fila 1: Campos requeridos y lectura -->
-        <div class="form-header-grid-3">
+        <div class="form-header-grid">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Categoría a la que pertenece esta sesión. No es modificable." data-tooltip-pos="top">Categoría Deportiva</label>
                 <input type="text" class="form-control" value="<?= e($actividad['nombre_categoria'] ?? 'Sin categoría') ?>" disabled style="background: var(--color-bg-alt);">
@@ -25,15 +25,19 @@
                 <label class="form-label" data-tooltip="Fecha en la que se realizaron las pruebas físicas" data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
                 <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" min="2019-01-01" max="<?= date('Y-m-d') ?>">
             </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Escribe el nombre o apellido del atleta para buscar" data-tooltip-pos="top">Buscar Atleta</label>
+                <input type="text" id="input-buscar" class="form-control" placeholder="Escribe nombre o apellido...">
+            </div>
             <div class="form-group form-header-toggle-group" style="margin: 0;">
-                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost active" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ocultar opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+        <!-- Fila 2: Opciones extras (desplegada por defecto) -->
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: grid; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Lugar donde se realizaron las pruebas" data-tooltip-pos="top">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha Principal" value="<?= e($actividad['ubicacion'] ?? 'Cancha Principal') ?>">
@@ -79,8 +83,11 @@
             <!-- Cabecera de Escritorio -->
             <div class="prueba-headers-desktop" style="display: flex; align-items: center; padding: 12px 20px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); font-size: 12px; font-weight: 600; color: var(--color-text-muted); position: sticky; top: 0; z-index: 10; gap: 16px;">
                 <div style="width: 280px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
-                    <div style="width: 36px; text-align: center;">
-                        <input type="checkbox" id="check-all" style="transform: scale(1.2); cursor: pointer;" title="Seleccionar todos">
+                    <div style="width: 48px; text-align: center; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <label class="switch" title="inactivo" data-tooltip="activo significa registro habilitado, inactivo significa registro no habilitado" data-tooltip-pos="top" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0;">
+                            <input type="checkbox" id="check-all" style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider"></span>
+                        </label>
                     </div>
                     <div>Atleta</div>
                 </div>
@@ -109,8 +116,11 @@
                 ?>
                     <div class="prueba-row" <?= $rowStyle ?>>
                         <div class="prueba-row__athlete">
-                            <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
-                                <input type="checkbox" name="selected_atletas[]" value="<?= (int)$d['atleta_id'] ?>" class="atleta-checkbox" style="transform: scale(1.2); cursor: <?= $isDis ? 'not-allowed' : 'pointer' ?>;" <?= $disAttr ?> <?= $isSelected ? 'checked' : '' ?>>
+                            <div style="width: 48px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                                <label class="switch" title="<?= $isSelected ? 'activo' : 'inactivo' ?>" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; <?= $isDis ? 'cursor: not-allowed; opacity: 0.7;' : '' ?>">
+                                    <input type="checkbox" name="selected_atletas[]" value="<?= (int)$d['atleta_id'] ?>" class="atleta-checkbox" <?= $isSelected ? 'checked' : '' ?> style="opacity: 0; width: 0; height: 0;" <?= $disAttr ?>>
+                                    <span class="slider"></span>
+                                </label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
                                 <?php if (!empty($d['foto'])): ?>
@@ -193,16 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
             $btnToggle.classList.toggle('active', isHidden);
             $btnToggle.setAttribute('data-tooltip', isHidden ? 'ocultar opciones extra' : 'ver opciones extra');
         });
-        // Si hay datos opcionales ya definidos, desplegar automáticamente al cargar
-        const hasExtraData = document.querySelector('[name="ubicacion"]').value !== 'Cancha Principal' ||
-                             document.querySelector('[name="terreno"]').value !== '' ||
-                             document.querySelector('[name="clima"]').value !== '' ||
-                             document.querySelector('[name="hora_inicio"]').value !== '' ||
-                             document.querySelector('[name="hora_fin"]').value !== '';
-        if (hasExtraData) {
-            $rowExtra.style.display = 'grid';
-            $btnToggle.classList.add('active');
-        }
     }
 
     const $listWrap = document.getElementById('atletas-list-wrap');
@@ -299,6 +299,39 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando...';
         }
     });
+
+    const $buscar = document.getElementById('input-buscar');
+    if ($buscar) {
+        $buscar.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const rows = document.querySelectorAll('.prueba-row');
+            const pagination = document.getElementById('atletas-pagination');
+
+            if (!query) {
+                if (pagination) pagination.style.display = 'flex';
+                CadaPagination({
+                    rowSelector: '.prueba-row',
+                    containerId: 'atletas-pagination'
+                });
+                return;
+            }
+
+            if (pagination) pagination.style.display = 'none';
+            rows.forEach(row => {
+                const nameEl = row.querySelector('div[style*="font-weight: 600"]') || 
+                               row.querySelector('div[style*="font-weight:600"]') ||
+                               row.querySelector('.prueba-row__name') || 
+                               row.querySelector('.asig-atleta-row__name');
+                const text = nameEl ? nameEl.textContent : row.textContent;
+                const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (normalizedText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
 
     CadaPagination({
         rowSelector: '.prueba-row',

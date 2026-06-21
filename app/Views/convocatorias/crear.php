@@ -16,7 +16,7 @@
 
     <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <!-- Fila 1: Campos requeridos -->
-        <div class="form-header-grid" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: flex-end;">
+        <div class="form-header-grid">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Selecciona la categoría de atletas a convocar" data-tooltip-pos="top"><span class="required">*</span> Categoría Deportiva</label>
                 <select id="sel-cat" name="categoria_id" class="form-control" required>
@@ -28,20 +28,25 @@
             </div>
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Fecha del partido" data-tooltip-pos="top"><span class="required">*</span> Fecha del Partido</label>
-                <input type="date" name="fecha_evento" class="form-control" required value="<?= e(old('fecha_evento', date('Y-m-d'))) ?>" min="2019-01-01">
+                <input type="date" name="fecha_evento" class="form-control" required value="<?= e(old('fecha_evento', date('Y-m-d', strtotime('+1 day')))) ?>" 
+                min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="<?= date('Y-m-d', strtotime('+3 months')) ?>">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Escribe el nombre o apellido del atleta para buscar" data-tooltip-pos="top">Buscar Atleta</label>
+                <input type="text" id="input-buscar" class="form-control" placeholder="Escribe nombre o apellido..." disabled>
             </div>
             <div class="form-group form-header-toggle-group" style="margin: 0;">
-                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost active" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ocultar opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        <!-- Fila 2: Opciones extras (desplegada por defecto) -->
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: grid; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Estadio o cancha donde se jugará el partido" data-tooltip-pos="top">Ubicación</label>
-                <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e(old('ubicacion', 'Cancha UPTP')) ?>">
+                <label class="form-label" data-tooltip="Estadio o cancha donde se jugará el partido" data-tooltip-pos="top"><span class="required">*</span> Ubicación</label>
+                <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e(old('ubicacion', 'Cancha UPTP')) ?>" required>
             </div>
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Terreno de juego donde se realiza el partido" data-tooltip-pos="top">Terreno de Juego</label>
@@ -62,12 +67,12 @@
                 </select>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Hora de inicio del partido" data-tooltip-pos="top">Hora Inicio</label>
-                <input type="time" name="hora_inicio" class="form-control" value="<?= e(old('hora_inicio')) ?>">
+                <label class="form-label" data-tooltip="Hora de inicio del partido (obligatorio)" data-tooltip-pos="top"><span class="required">*</span> Hora Inicio</label>
+                <input type="time" name="hora_inicio" class="form-control" value="<?= e(old('hora_inicio')) ?>" required>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Hora de finalización del partido" data-tooltip-pos="top">Hora Fin</label>
-                <input type="time" name="hora_fin" class="form-control" value="<?= e(old('hora_fin')) ?>">
+                <label class="form-label" data-tooltip="Hora de finalización del partido (obligatorio)" data-tooltip-pos="top"><span class="required">*</span> Hora Fin</label>
+                <input type="time" name="hora_fin" class="form-control" value="<?= e(old('hora_fin')) ?>" required>
             </div>
         </div>
     </div>
@@ -76,7 +81,7 @@
         <div class="card" style="padding: 0; overflow: hidden; max-width: 100%;">
             <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; background: var(--color-surface-2);">
                 <h3 style="margin:0; font-size: 16px;"><i class="ph ph-envelope-simple-open"></i> Lista de Convocables</h3>
-                <div id="stats-convocatorias" style="font-size: 13px; font-weight: 600; color: var(--color-primary);">
+                <div id="stats-convocatorias" style="font-size: 13px; font-weight: 600; color: var(--color-white);">
                     Cargando atletas...
                 </div>
             </div>
@@ -88,13 +93,12 @@
                 <div style="text-align: center;">Prom. Físico</div>
                 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
                     <span style="margin-right: auto;">Estatus Convocatoria</span>
-                    <div style="display: flex; gap: 4px;">
-                        <button type="button" id="btn-select-all-convocados" class="btn btn-sm btn-outline" style="padding: 2px 8px; font-size: 11px; height: 26px;" data-tooltip="Convocar a todos" data-tooltip-pos="top">
-                            <i class="ph ph-check-square"></i> Convocados
-                        </button>
-                        <button type="button" id="btn-select-all-no-convocados" class="btn btn-sm btn-outline" style="padding: 2px 8px; font-size: 11px; height: 26px;" data-tooltip="Excluir a todos" data-tooltip-pos="top">
-                            <i class="ph ph-square-fill"></i> No Convocados
-                        </button>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label class="switch" title="inactivo" data-tooltip="activo significa convocado, inactivo significa no convocado" data-tooltip-pos="top" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0;">
+                            <input type="checkbox" id="global-convocado-toggle" style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Todos</span>
                     </div>
                 </div>
             </div>
@@ -205,12 +209,31 @@
 (function () {
     const $cat = document.getElementById('sel-cat');
     const $container = document.getElementById('atletas-container');
+    const $buscar = document.getElementById('input-buscar');
+    const $noAtletas = document.getElementById('no-atletas');
+    const $listWrap = document.getElementById('atletas-list-wrap');
+    const $stats = document.getElementById('stats-convocatorias');
+
+    function updateConvocadosCount() {
+        if (!$listWrap) return;
+        const checkboxes = Array.from($listWrap.querySelectorAll('.convocado-checkbox:not([disabled])'));
+        const total = checkboxes.length;
+        const selected = checkboxes.filter(cb => cb.checked).length;
+        
+        if ($stats) {
+            $stats.textContent = `${selected} Seleccionados | ${total} Atletas encontrados`;
+        }
+
+        const globalToggle = document.getElementById('global-convocado-toggle');
+        if (globalToggle) {
+            globalToggle.checked = total > 0 && selected === total;
+        }
+    }
 
     // Toggle para opciones extra
     const $btnToggle = document.getElementById('btn-toggle-options');
     const $rowExtra = document.getElementById('row-opciones-extra');
     if ($btnToggle && $rowExtra) {
-        $rowExtra.style.display = 'none'; // Ensure hidden initially
         $btnToggle.addEventListener('click', () => {
             const isHidden = $rowExtra.style.display === 'none';
             $rowExtra.style.display = isHidden ? 'grid' : 'none';
@@ -218,10 +241,6 @@
             $btnToggle.setAttribute('data-tooltip', isHidden ? 'ocultar opciones extra' : 'ver opciones extra');
         });
     }
-
-    const $noAtletas = document.getElementById('no-atletas');
-    const $listWrap = document.getElementById('atletas-list-wrap');
-    const $stats = document.getElementById('stats-convocatorias');
 
     const oldAtletas = <?= json_encode(old('atletas') ?? []) ?>;
     const oldEstatus = <?= json_encode(old('estatus') ?? []) ?>;
@@ -231,6 +250,10 @@
         if (!id) {
             $container.style.display = 'none';
             $noAtletas.style.display = 'none';
+            if ($buscar) {
+                $buscar.disabled = true;
+                $buscar.value = '';
+            }
             return;
         }
 
@@ -247,6 +270,10 @@
             $noAtletas.style.display = 'none';
             $container.style.display = 'block';
             $stats.textContent = `${atletas.length} Atletas encontrados`;
+            if ($buscar) {
+                $buscar.disabled = false;
+                $buscar.value = '';
+            }
 
             $listWrap.innerHTML = atletas.map(a => {
                 const isDis = parseInt(a.atleta_estatus) === 0 || parseInt(a.atleta_estatus) === 3;
@@ -304,11 +331,14 @@
                         </span>
                     </div>
 
-                    <!-- Columna 4: Botones de selección de convocatoria -->
-                    <div class="status-options" data-atleta="${a.atleta_id}" style="${isDis ? 'cursor: not-allowed; opacity: 0.7;' : ''}">
-                        <input type="hidden" name="estatus[${a.atleta_id}]" value="${currentStatus}" class="status-val" ${disAttr}>
-                        <button type="button" class="status-btn ${!isDis && currentStatus === 1 ? 'active' : ''}" data-val="1" data-tooltip="Convocar al partido" data-tooltip-pos="top" ${disAttr} ${disCursor}>Convocado</button>
-                        <button type="button" class="status-btn ${isDis || currentStatus === 2 ? 'active' : ''}" data-val="2" data-tooltip="Excluir de la convocatoria" data-tooltip-pos="top" ${disAttr} ${disCursor}>No Convocado</button>
+                    <!-- Columna 4: Selección de convocatoria con slider -->
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                        <label class="switch" title="${currentStatus === 1 ? 'activo' : 'inactivo'}" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; ${isDis ? 'cursor: not-allowed; opacity: 0.7;' : ''}">
+                            <input type="hidden" name="estatus[${a.atleta_id}]" value="2" ${disAttr}>
+                            <input type="checkbox" class="convocado-checkbox" name="estatus[${a.atleta_id}]" value="1" ${currentStatus === 1 ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;" ${disAttr}>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="convocado-label" style="font-size: 12px; font-weight: 600; min-width: 80px; text-align: left;">${currentStatus === 1 ? 'Convocado' : 'No Convocado'}</span>
                     </div>
                     
                     <input type="hidden" name="atletas[]" value="${a.atleta_id}" ${disAttr}>
@@ -316,15 +346,21 @@
                 `;
             }).join('');
 
-            // Lógica de botones de estado (1: Convocado, 2: No Convocado)
-            $listWrap.querySelectorAll('.status-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const wrap = this.parentElement;
-                    wrap.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    wrap.querySelector('.status-val').value = parseInt(this.dataset.val);
+            // Lógica de switches de estado individuales
+            $listWrap.querySelectorAll('.convocado-checkbox').forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const label = this.closest('div').querySelector('.convocado-label');
+                    if (this.checked) {
+                        label.textContent = 'Convocado';
+                    } else {
+                        label.textContent = 'No Convocado';
+                    }
+                    updateConvocadosCount();
                 });
             });
+
+            // Actualizar contador inicialmente al renderizar
+            updateConvocadosCount();
 
             CadaPagination({
                 rowSelector: '.convocable-row',
@@ -337,22 +373,16 @@
         }
     });
 
-    // Bulk selection buttons
-    const $btnAllConvocados = document.getElementById('btn-select-all-convocados');
-    const $btnAllNoConvocados = document.getElementById('btn-select-all-no-convocados');
-
-    if ($btnAllConvocados) {
-        $btnAllConvocados.addEventListener('click', () => {
-            $listWrap.querySelectorAll('.status-btn[data-val="1"]:not([disabled])').forEach(btn => {
-                btn.click();
-            });
-        });
-    }
-
-    if ($btnAllNoConvocados) {
-        $btnAllNoConvocados.addEventListener('click', () => {
-            $listWrap.querySelectorAll('.status-btn[data-val="2"]:not([disabled])').forEach(btn => {
-                btn.click();
+    // Global toggle checkbox switch listener
+    const $globalToggle = document.getElementById('global-convocado-toggle');
+    if ($globalToggle) {
+        $globalToggle.addEventListener('change', function() {
+            const isChecked = this.checked;
+            $listWrap.querySelectorAll('.convocado-checkbox:not([disabled])').forEach(cb => {
+                if (cb.checked !== isChecked) {
+                    cb.checked = isChecked;
+                    cb.dispatchEvent(new Event('change'));
+                }
             });
         });
     }
@@ -378,11 +408,91 @@
         }
     });
 
-    document.getElementById('form-convocatoria').addEventListener('submit', function(e) {
-        const btn = document.getElementById('btn-save');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando...';
-    });
+    const formElement = document.getElementById('form-convocatoria');
+    if (formElement) {
+        formElement.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const selectedAthletes = [];
+            $listWrap.querySelectorAll('.convocable-row').forEach(row => {
+                const cb = row.querySelector('.convocado-checkbox');
+                if (cb && cb.checked) {
+                    const nameEl = row.querySelector('div[style*="font-weight: 600"]') || 
+                                   row.querySelector('div[style*="font-weight:600"]') ||
+                                   row.querySelector('.prueba-row__name') || 
+                                   row.querySelector('.asig-atleta-row__name');
+                    const nameText = nameEl ? nameEl.textContent.trim() : 'Atleta';
+                    selectedAthletes.push(nameText);
+                }
+            });
+
+            let textHtml = '';
+            if (selectedAthletes.length === 0) {
+                textHtml = '<p style="color: var(--color-danger); font-weight: 600; margin-bottom: 12px;">No has seleccionado a ningún atleta para esta convocatoria.</p><p>¿Estás seguro de que deseas guardar una convocatoria vacía?</p>';
+            } else {
+                textHtml = '<p style="margin-bottom: 16px;">¿Estás seguro de que deseas programar la convocatoria con los siguientes atletas seleccionados?</p>';
+                textHtml += '<div class="modal-atleta-cards-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto; margin-top: 10px; padding-right: 5px; text-align: left;">';
+                selectedAthletes.forEach(name => {
+                    textHtml += `
+                        <div class="modal-atleta-card" style="padding: 10px; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: 8px; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: var(--color-text);">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; font-weight: bold;">
+                                ${name[0]}
+                            </div>
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                        </div>
+                    `;
+                });
+                textHtml += '</div>';
+            }
+
+            const confirmed = await CadaModal.confirm({
+                title: 'Confirmar Convocatoria',
+                text: textHtml,
+                type: 'danger',
+                confirmText: 'Confirmar',
+                cancelText: 'Cancelar'
+            });
+
+            if (confirmed) {
+                const btn = document.getElementById('btn-save');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando...';
+                formElement.submit();
+            }
+        });
+    }
+
+    if ($buscar) {
+        $buscar.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const rows = $listWrap.querySelectorAll('.convocable-row');
+            const pagination = document.getElementById('atletas-pagination');
+
+            if (!query) {
+                if (pagination) pagination.style.display = 'flex';
+                CadaPagination({
+                    rowSelector: '.convocable-row',
+                    containerId: 'atletas-pagination'
+                });
+                return;
+            }
+
+            if (pagination) pagination.style.display = 'none';
+            rows.forEach(row => {
+                const nameEl = row.querySelector('div[style*="font-weight: 600"]') || 
+                               row.querySelector('div[style*="font-weight:600"]') ||
+                               row.querySelector('.prueba-row__name') || 
+                               row.querySelector('.asig-atleta-row__name');
+                const text = nameEl ? nameEl.textContent : row.textContent;
+                const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (normalizedText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
 
     // Si hay una categoría seleccionada previamente (por old()), disparar el cambio
     function autoTrigger() {

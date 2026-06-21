@@ -4,8 +4,8 @@
 /** @var array $dataCategorias */
 /** @var array $dataDemografia */ ?>
 
-<!-- Incluir CDN de Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<!-- Incluir local de Chart.js -->
+<script src="<?= e(url('/assets/js/lib/chart.umd.js')) ?>"></script>
 
 <div class="page-header">
     <div>

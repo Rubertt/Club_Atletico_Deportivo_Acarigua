@@ -117,11 +117,11 @@
                                                     title="Editar medición">
                                                     <i class="ph ph-pencil-simple"></i>
                                                 </button>
-                                                <button type="button" class="btn-delete-premium btn-eliminar-medicion"
+                                                <!-- <button type="button" class="btn-delete-premium btn-eliminar-medicion"
                                                     data-id="<?= $m['medidas_id'] ?>"
                                                     title="Eliminar medición">
                                                     <i class="ph ph-trash"></i>
-                                                </button>
+                                                </button>-->
                                             </div>
                                         </div>
                                     <?php endif; ?>

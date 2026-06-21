@@ -114,8 +114,15 @@
         gap: 16px;
         margin-bottom: 16px;
     }
+    .modal-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
     @media (max-width: 600px) {
-        .modal-grid-2 {
+        .modal-grid-2,
+        .modal-grid-3 {
             grid-template-columns: 1fr !important;
         }
     }

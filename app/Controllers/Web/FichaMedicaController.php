@@ -58,6 +58,25 @@ final class FichaMedicaController extends Controller
             'condicion_cronica'        => trim((string) $request->input('condicion_cronica', '')),
             'medicacion_actual'        => trim((string) $request->input('medicacion_actual', '')),
         ];
+
+        // Validar que no se guarde el registro completamente vacío (debe ingresar al menos un dato)
+        if ($payload['alergias'] === '' &&
+            $payload['grupo_sanguineo'] === '' &&
+            $payload['antecedentes_familiares'] === '' &&
+            $payload['antecedentes_quirurgicos'] === '' &&
+            $payload['condicion_cronica'] === '' &&
+            $payload['medicacion_actual'] === '') {
+            $msg = 'Debe ingresar al menos un dato en la ficha médica (Grupo Sanguíneo, Alergias, Antecedentes, Condición o Medicación).';
+            if ($request->isAjax() || $request->isJson() || $request->header('Accept') === 'application/json') {
+                return Response::json([
+                    'success' => false,
+                    'message' => $msg
+                ], 422);
+            }
+            flash('error', $msg);
+            return $this->redirect("/admin/atletas/$id?tab=tab-ficha");
+        }
+
         if ($existente) {
             $model->update((int) $existente['ficha_id'], $payload);
         } else {

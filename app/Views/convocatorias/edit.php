@@ -14,24 +14,29 @@
 
     <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <!-- Fila 1: Campos requeridos y lectura -->
-        <div class="form-header-grid" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; align-items: flex-end;">
+        <div class="form-header-grid">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label">Categoría Deportiva</label>
                 <input type="text" class="form-control" value="<?= e($actividad['nombre_categoria'] ?? 'Sin categoría') ?>" disabled>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Fecha en la que se realiza el partido" data-tooltip-pos="top"><span class="required">*</span> Fecha del Evento</label>
-                <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" min="2019-01-01">
+                <label class="form-label" data-tooltip="Fecha del partido" data-tooltip-pos="top"><span class="required">*</span> Fecha del Partido</label>
+                <input type="date" name="fecha_evento" class="form-control" required value="<?= e($actividad['fecha']) ?>" 
+                min="<?= date('Y-m-d', strtotime('+1 day')) ?>" max="<?= date('Y-m-d', strtotime('+3 months')) ?>">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" data-tooltip="Escribe el nombre o apellido del atleta para buscar" data-tooltip-pos="top">Buscar Atleta</label>
+                <input type="text" id="input-buscar" class="form-control" placeholder="Escribe nombre o apellido...">
             </div>
             <div class="form-group form-header-toggle-group" style="margin: 0;">
-                <button type="button" id="btn-toggle-options" class="btn btn-ghost" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ver opciones extra" data-tooltip-pos="top">
+                <button type="button" id="btn-toggle-options" class="btn btn-ghost active" style="height: 44px; width: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--color-border);" data-tooltip="ocultar opciones extra" data-tooltip-pos="top">
                     <i class="ph ph-sliders-horizontal" style="font-size: 20px;"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Fila 2: Opciones extras (colapsada por defecto) -->
-        <div id="row-opciones-extra" class="form-extra-grid" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        <!-- Fila 2: Opciones extras (desplegada por defecto) -->
+        <div id="row-opciones-extra" class="form-extra-grid" style="display: grid; margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" data-tooltip="Estadio o cancha donde se juega el partido">Ubicación</label>
                 <input type="text" name="ubicacion" class="form-control" placeholder="Cancha UPTP" value="<?= e($actividad['ubicacion'] ?? 'Cancha UPTP') ?>">
@@ -55,12 +60,12 @@
                 </select>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Hora de inicio del partido">Hora Inicio</label>
-                <input type="time" name="hora_inicio" class="form-control" value="<?= e($actividad['hora_inicio'] ?? '') ?>">
+                <label class="form-label" data-tooltip="Hora de inicio del partido (obligatorio)"><span class="required">*</span>Hora Inicio</label>
+                <input type="time" name="hora_inicio" class="form-control" value="<?= e($actividad['hora_inicio'] ?? '') ?>" required>
             </div>
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" data-tooltip="Hora de finalización del partido">Hora Fin</label>
-                <input type="time" name="hora_fin" class="form-control" value="<?= e($actividad['hora_fin'] ?? '') ?>">
+                <label class="form-label" data-tooltip="Hora de finalización del partido (obligatorio)"><span class="required">*</span>Hora Fin</label>
+                <input type="time" name="hora_fin" class="form-control" value="<?= e($actividad['hora_fin'] ?? '') ?>" required>
             </div>
         </div>
     </div>
@@ -80,7 +85,7 @@
                 <div style="width: 44px; flex-shrink: 0; text-align: center;">Foto</div>
                 <div style="width: 280px; flex-shrink: 0; display: flex; align-items: center;">Atleta / Cédula</div>
                 <div style="width: 140px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                    <label class="switch" title="inactivo" data-tooltip="activo significa convocado, inactivo significa no convocado" data-tooltip-pos="top" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" id="global-convocado-toggle" style="opacity: 0; width: 0; height: 0;">
                         <span class="slider"></span>
                     </label>
@@ -123,13 +128,13 @@
                         <div class="col-info" style="width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; justify-content: center;">
                             <span class="asig-input-label">Atleta</span>
                             <div class="asig-atleta-row__name" style="font-size: 14px; font-weight: 600;"><?= e($d['nombre'] . ' ' . $d['apellido']) ?></div>
-                            <div style="font-size: 12px; color: var(--color-text-muted);">C.I: <?= e($d['cedula'] ?? '—') ?></div>
+                            <div style="font-size: 12px; color: var(--color-text-muted);"><?= e($d['cedula'] ?? '—') ?></div>
                         </div>
 
                         <!-- Columna 4: Checkbox de Convocado / No Convocado -->
                         <div class="col-checkbox" style="width: 140px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 8px;">
                             <span class="asig-input-label">Convocado</span>
-                            <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                            <label class="switch" title="<?= $isConvocado ? 'activo' : 'inactivo' ?>" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                                 <input type="hidden" name="estatus[<?= (int)$d['atleta_id'] ?>]" value="2">
                                 <input type="checkbox" class="convocado-checkbox" name="estatus[<?= (int)$d['atleta_id'] ?>]" value="1" <?= $isConvocado ? 'checked' : '' ?> style="opacity: 0; width: 0; height: 0;">
                                 <span class="slider"></span>
@@ -242,43 +247,7 @@
 .status-btn.active[data-val="3"] { background: var(--color-success); color: #fff; }
 .status-btn.active[data-val="4"] { background: var(--color-danger); color: #fff; }
 
-/* Switch slider styles */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
-}
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background-color: var(--color-danger);
-  border-radius: 24px;
-  transition: .3s;
-}
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  border-radius: 50%;
-  transition: .3s;
-}
-input:checked + .slider {
-  background-color: var(--color-success);
-}
-input:checked + .slider:before {
-  transform: translateX(20px);
-}
+
 </style>
 
 <script>
@@ -367,6 +336,39 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = true;
         btn.innerHTML = '<i class="ph ph-spinner-gap spinning"></i> Guardando Asistencia...';
     });
+
+    const $buscar = document.getElementById('input-buscar');
+    if ($buscar) {
+        $buscar.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const rows = document.querySelectorAll('.detalle-row');
+            const pagination = document.getElementById('atletas-pagination');
+
+            if (!query) {
+                if (pagination) pagination.style.display = 'flex';
+                CadaPagination({
+                    rowSelector: '.detalle-row',
+                    containerId: 'atletas-pagination'
+                });
+                return;
+            }
+
+            if (pagination) pagination.style.display = 'none';
+            rows.forEach(row => {
+                const nameEl = row.querySelector('div[style*="font-weight: 600"]') || 
+                               row.querySelector('div[style*="font-weight:600"]') ||
+                               row.querySelector('.prueba-row__name') || 
+                               row.querySelector('.asig-atleta-row__name');
+                const text = nameEl ? nameEl.textContent : row.textContent;
+                const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (normalizedText.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
 
     CadaPagination({
         rowSelector: '.detalle-row',

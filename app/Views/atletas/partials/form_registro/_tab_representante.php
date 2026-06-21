@@ -38,7 +38,7 @@
                                     data-cedula-prefix="<?= e(str_contains($repCedVal, '-') ? explode('-', $repCedVal)[0] : (in_array(strtoupper($repCedVal[0] ?? ''), ['V', 'E', 'P']) ? strtoupper($repCedVal[0]) : 'V')) ?>"
                                     data-telefono="<?= e($rep['telefono']) ?>"
                                     data-relacion="<?= e($rep['tipo_relacion']) ?>">
-                                    <?= e('[ID: ' . $rep['representante_id'] . '] ' . $rep['nombre'] . ' ' . $rep['apellido'] . ' (C.I: ' . $repCedFormatted . ')') ?>
+                                    <?= e('[ID: ' . $rep['representante_id'] . '] ' . $rep['nombre'] . ' ' . $rep['apellido'] . ' ( ' . $repCedFormatted . ' )') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

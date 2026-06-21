@@ -285,7 +285,7 @@ final class MedidasAntropometricasController extends Controller
         }
     }
 
-    public function destroy(Request $request): Response
+    /*public function destroy(Request $request): Response
     {
         $id = (int) $request->param('id');
         $atletaId = (int) $request->query('atleta_id');
@@ -305,5 +305,5 @@ final class MedidasAntropometricasController extends Controller
         }
 
         return $this->redirect($redirect);
-    }
+    }*/
 }
