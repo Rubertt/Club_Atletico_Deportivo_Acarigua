@@ -22,7 +22,7 @@
                     continue;
                 }
             ?>
-            <div class="card af-card" style="display: flex; flex-direction: column; height: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-lg); transition: transform 0.2s, box-shadow 0.2s; position: relative;">
+            <div class="af-card" style="display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: var(--radius-lg); transition: transform 0.2s, box-shadow 0.2s; position: relative; background: var(--color-bg); box-shadow: var(--shadow-sm);">
                 
                 <div style="padding: 28px 24px; flex-grow: 1;">
                     <!-- Badge de Estado -->

@@ -164,7 +164,10 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                 <form id="form-ficha-medica" action="<?= e(url("/admin/ficha-medica/{$atleta['atleta_id']}")) ?>" method="POST"
                     class="modal-container" style="max-width: 600px;" novalidate>
                     <div class="modal-header">
-                        <h3 class="modal-title"><i class="ph ph-heartbeat"></i> Editar Ficha Médica</h3>
+                        <?php
+                            $hasFicha = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) || !empty($atleta['antecedentes_familiares']) || !empty($atleta['antecedentes_quirurgicos']) || !empty($atleta['condicion_cronica']) || !empty($atleta['medicacion_actual']);
+                        ?>
+                        <h3 class="modal-title"><i class="ph ph-heartbeat"></i> <?= $hasFicha ? 'Editar Ficha Médica' : 'Registrar Ficha Médica' ?></h3>
                         <button type="button" class="modal-close" data-close-modal>&times;</button>
                     </div>
                     <?= csrf_field() ?>
@@ -243,12 +246,12 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                             </select>
                         </div>
                         <div class="form-group" style="margin-bottom: 16px;">
-                            <label class="form-label" data-tooltip="Número de carnet de certificación del CONAPDIS o institución equivalente." data-tooltip-pos="top"><span class="required">*</span> Nro. de Carnet</label>
+                            <label class="form-label" data-tooltip="Número de carnet de certificación del CONAPDIS o institución equivalente (máximo 20 caracteres)." data-tooltip-pos="top"><span class="required">*</span> Nro. de Carnet</label>
                             <input type="text" name="nro_carnet" id="input-carnet-disc" class="form-control"
-                                placeholder="Ej: V-12345678-D" required>
+                                placeholder="Ej: V-12345678-D" maxlength="20" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" data-tooltip="Grado o porcentaje oficial de la discapacidad certificado." data-tooltip-pos="top"><span class="required">*</span> Porcentaje de Discapacidad</label>
+                            <label class="form-label" data-tooltip="Grado o porcentaje oficial de la discapacidad certificado (el valor máximo permitido es 100%)." data-tooltip-pos="top"><span class="required">*</span> Porcentaje de Discapacidad</label>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <input type="number" name="porcentaje_discapacidad" id="input-porcentaje-disc"
                                     class="form-control" min="1" max="100" placeholder="Ej: 50" required>
@@ -260,9 +263,6 @@ $tieneData = !empty($atleta['grupo_sanguineo']) || !empty($atleta['alergias']) |
                         <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
                         <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> <span
                                 id="submit-text-discapacidad">Agregar</span></button>
-                        <button type="button" class="btn-help" id="btn-help-discapacidad" title="¿Cómo llenar esta sección?">
-                            <i class="ph ph-question"></i>
-                        </button>
                     </div>
                 </form>
             </div>

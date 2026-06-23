@@ -261,11 +261,11 @@ img {
     text-decoration: none;
 }
 .btn-delete-premium:hover {
-    background: rgba(220, 38, 38, 0.1);
-    color: var(--color-danger);
+    background: var(--color-danger);
+    color: #ffffff;
     border-color: var(--color-danger);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 .btn-delete-premium:active {
     transform: scale(0.95);

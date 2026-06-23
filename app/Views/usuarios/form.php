@@ -102,7 +102,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
                     <div class="form-group">
                         <label class="form-label" data-tooltip="Teléfono móvil de contacto del usuario (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono</label>
                         <?php
-                            $telVal   = $get('telefono', '');
+                            $telVal   = $get('telefono', '') ?? '';
                             $telPref  = '';
                             $telNum   = '';
                             foreach (['0412','0414','0416','0422','0424','0426','0255','0256'] as $_p) {

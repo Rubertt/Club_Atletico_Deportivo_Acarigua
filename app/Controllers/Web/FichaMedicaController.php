@@ -129,6 +129,15 @@ final class FichaMedicaController extends Controller
             return $this->redirect("/admin/atletas/$atletaId?tab=tab-ficha");
         }
 
+        if (strlen($payload['nro_carnet']) > 20) {
+            if ($request->header('Accept') === 'application/json') {
+                echo json_encode(['success' => false, 'message' => 'El número de carnet no puede exceder los 20 caracteres.']);
+                exit;
+            }
+            flash('error', 'El número de carnet no puede exceder los 20 caracteres.');
+            return $this->redirect("/admin/atletas/$atletaId?tab=tab-ficha");
+        }
+
         try {
             $db = \App\Core\Database::connection();
 
@@ -203,6 +212,15 @@ final class FichaMedicaController extends Controller
                 exit;
             }
             flash('error', 'El número de carnet y el porcentaje de discapacidad son obligatorios.');
+            return $this->redirect("/admin/atletas/$atletaId?tab=tab-ficha");
+        }
+
+        if (strlen($payload['nro_carnet']) > 20) {
+            if ($request->header('Accept') === 'application/json') {
+                echo json_encode(['success' => false, 'message' => 'El número de carnet no puede exceder los 20 caracteres.']);
+                exit;
+            }
+            flash('error', 'El número de carnet no puede exceder los 20 caracteres.');
             return $this->redirect("/admin/atletas/$atletaId?tab=tab-ficha");
         }
 

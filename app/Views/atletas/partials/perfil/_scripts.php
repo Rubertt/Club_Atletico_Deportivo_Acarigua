@@ -235,6 +235,26 @@
             });
 
             formFicha?.addEventListener('submit', (e) => {
+                // Verificar que al menos un campo tenga valor
+                const inputs = formFicha.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                let hasValue = false;
+                inputs.forEach(input => {
+                    if (input.value.trim() !== '') {
+                        hasValue = true;
+                    }
+                });
+
+                if (!hasValue) {
+                    e.preventDefault();
+                    CadaModal.alert({
+                        title: 'Ficha Vacía',
+                        text: 'Debe ingresar al menos un dato en la ficha médica antes de guardar.',
+                        type: 'warning',
+                        confirmText: 'Entendido'
+                    });
+                    return;
+                }
+
                 const validation = FormValidator.validate(formFicha);
                 if (!validation.valid) {
                     e.preventDefault();

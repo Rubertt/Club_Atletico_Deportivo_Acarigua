@@ -1445,14 +1445,33 @@ html.dark .admin-content {
     }
 }
 
-/* —— Corrección de Prefijo Telefónico y Cédula en Móviles —— */
+/* —— Corrección de Prefijo Telefónico y Cédula —— */
+.phone-field {
+    overflow: visible !important;
+    border-radius: var(--radius-sm);
+}
 .phone-field .phone-prefix {
     width: 85px !important;
+    min-width: 85px !important;
+    max-width: 85px !important;
     flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    padding: 0 24px 0 12px !important;
+    text-indent: 0 !important;
+    text-align: left !important;
+    text-align-last: left !important;
+    direction: ltr !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
 }
 .phone-field #cedula_prefix,
 .phone-field #tutor_cedula_prefix {
     width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
     padding: 0 16px 0 10px !important;
     background-position: right 4px center !important;
 }
