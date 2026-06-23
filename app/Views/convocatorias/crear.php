@@ -311,7 +311,7 @@
                                 ${a.nombre} ${a.apellido}
                                 ${statusBadge}
                             </div>
-                            <div style="font-size: 12px; color: var(--color-text-muted);">C.I. ${a.cedula || 'N/E'}</div>
+                            <div style="font-size: 12px; color: var(--color-text-muted);">${a.cedula || 'N/E'}</div>
                         </div>
                     </div>
                     

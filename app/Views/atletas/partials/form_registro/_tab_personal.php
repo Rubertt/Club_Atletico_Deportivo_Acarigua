@@ -83,7 +83,7 @@
                     <div class="form-group">
                         <label class="form-label" id="label-telefono" data-tooltip="Teléfono móvil de contacto. Obligatorio para mayores de 18 años (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top">Tel&eacute;fono</label>
                         <?php
-                            $telVal   = $get('telefono', '');
+                            $telVal   = $get('telefono', '') ?? '';
                             $telPref  = '';
                             $telNum   = '';
                             foreach (['0412','0414','0416','0422','0424','0426','0255','0256'] as $_p) {

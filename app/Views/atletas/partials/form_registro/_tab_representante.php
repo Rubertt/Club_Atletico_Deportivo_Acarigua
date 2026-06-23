@@ -95,7 +95,7 @@
                     <div class="form-group">
                         <label class="form-label" data-tooltip="Teléfono móvil del representante para contacto de emergencia (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Tel&eacute;fono</label>
                         <?php
-                            $repTelVal  = $get('tutor_telefono', $a['tutor_telefono'] ?? '');
+                            $repTelVal  = $get('tutor_telefono', $a['tutor_telefono'] ?? '') ?? '';
                             $repTelPref = '';
                             $repTelNum  = '';
                             foreach (['0412','0414','0416','0422','0424','0426','0255','0256'] as $_p) {
