@@ -676,7 +676,8 @@ function updateDynamicRequirements() {
     if (age > 9) {
         if (cedInput) cedInput.setAttribute('required', 'true');
         if (cedLabel && !cedLabel.querySelector('.required')) {
-            cedLabel.insertAdjacentHTML('afterbegin', '<span class="required">*</span> ');
+            const wrapper = cedLabel.querySelector('.label-text-wrapper') || cedLabel;
+            wrapper.insertAdjacentHTML('afterbegin', '<span class="required">*</span> ');
         }
     } else {
         if (cedInput) cedInput.removeAttribute('required');
@@ -694,7 +695,8 @@ function updateDynamicRequirements() {
     if (isAdult) {
         if (telInput) telInput.setAttribute('required', 'true');
         if (telLabel && !telLabel.querySelector('.required')) {
-            telLabel.insertAdjacentHTML('afterbegin', '<span class="required">*</span> ');
+            const wrapper = telLabel.querySelector('.label-text-wrapper') || telLabel;
+            wrapper.insertAdjacentHTML('afterbegin', '<span class="required">*</span> ');
         }
     } else {
         if (telInput) telInput.removeAttribute('required');
@@ -727,7 +729,8 @@ function updateDynamicRequirements() {
             } else {
                 inputEl.setAttribute('required', 'true');
                 if (label && !label.querySelector('.required')) {
-                    label.insertAdjacentHTML('afterbegin', '<span class="required">*</span> ');
+                    const wrapper = label.querySelector('.label-text-wrapper') || label;
+                    wrapper.insertAdjacentHTML('afterbegin', '<span class="required">*</span> ');
                 }
             }
         }

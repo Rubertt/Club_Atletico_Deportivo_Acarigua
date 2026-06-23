@@ -93,7 +93,7 @@ $get = function(string $k, $d = '') use ($item) { return old($k, $item[$k] ?? $d
                     <div class="form-group">
                         <label class="form-label" data-tooltip="Número telefónico móvil de contacto de 11 dígitos, seleccionando el prefijo de tu operadora." data-tooltip-pos="top"><span class="required">*</span> Teléfono</label>
                         <?php
-                            $telVal   = $get('telefono', '');
+                            $telVal   = $get('telefono', '') ?? '';
                             $telPref  = '0412';
                             $telNum   = '';
                             foreach (['0412','0414','0416','0422','0424','0426','0255','0256'] as $_p) {

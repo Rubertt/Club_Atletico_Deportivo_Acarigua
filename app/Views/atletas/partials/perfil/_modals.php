@@ -85,7 +85,7 @@
                 <div class="form-group">
                     <label class="form-label" id="label-telefono" data-tooltip="Teléfono móvil de contacto. Obligatorio para mayores de 18 años (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono Personal</label>
                     <?php
-                        $telVal   = $atleta['telefono'];
+                        $telVal   = $atleta['telefono'] ?? '';
                         $telPref  = '';
                         $telNum   = '';
                         foreach (['0412','0414','0416','0422','0424','0426','0255','0256'] as $_p) {
@@ -284,7 +284,7 @@
             <div class="form-group">
                 <label class="form-label" data-tooltip="Teléfono móvil del representante para contacto de emergencia (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono de Contacto</label>
                 <?php
-                    $ttelVal   = $atleta['tutor_telefono'];
+                    $ttelVal   = $atleta['tutor_telefono'] ?? '';
                     $ttelPref  = '';
                     $ttelNum   = '';
                     foreach (['0412','0414','0416','0422','0424','0426','0255','0256'] as $_p) {

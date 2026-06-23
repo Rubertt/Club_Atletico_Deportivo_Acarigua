@@ -186,6 +186,22 @@
     .af-back-btn { padding: 8px; width: 40px; height: 40px; border-radius: 50%; }
 }
 
+/* —— Grupos y Labels de Formulario —— */
+.form-group {
+    text-align: left;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+    text-align: left;
+}
+
 /* —— Mejoras de Input —— */
 .form-control {
     height: 44px;
