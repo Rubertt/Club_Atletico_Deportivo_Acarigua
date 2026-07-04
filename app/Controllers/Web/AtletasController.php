@@ -201,7 +201,11 @@ final class AtletasController extends Controller
         } catch (Throwable $e) {
             Logger::error($e);
             $this->withOld($data);
-            flash('error', 'No se pudo crear el atleta: ' . $e->getMessage());
+            $msg = clean_db_error_message($e->getMessage());
+            if ($msg === $e->getMessage()) {
+                $msg = 'No se pudo crear el atleta: ' . $msg;
+            }
+            flash('error', $msg);
             return $this->redirect('/admin/atletas/crear');
         }
     }
@@ -281,7 +285,10 @@ final class AtletasController extends Controller
             return $this->redirect("/admin/atletas/$id");
         } catch (Throwable $e) {
             Logger::error($e);
-            $msg = 'No se pudo actualizar: ' . $e->getMessage();
+            $msg = clean_db_error_message($e->getMessage());
+            if ($msg === $e->getMessage()) {
+                $msg = 'No se pudo actualizar: ' . $msg;
+            }
             if ($request->isAjax() || $request->isJson()) return Response::json(['success' => false, 'message' => $msg], 500);
             $this->withOld($data);
             flash('error', $msg);
@@ -595,8 +602,8 @@ final class AtletasController extends Controller
         // Validar duplicados globales (documento de identidad del representante) en atletas y usuarios
         if (!empty($data['tutor_cedula'])) {
             $existsInAtletas = (new \App\Models\Atleta())->queryOne(
-                'SELECT 1 FROM atletas WHERE cedula = :c' . ($ignoreId ? ' AND atleta_id <> :ignore' : '') . ' LIMIT 1',
-                $ignoreId ? [':c' => $data['tutor_cedula'], ':ignore' => $ignoreId] : [':c' => $data['tutor_cedula']]
+                'SELECT 1 FROM atletas WHERE cedula = :c LIMIT 1',
+                [':c' => $data['tutor_cedula']]
             );
             if ($existsInAtletas) {
                 $v->addError('tutor_cedula', 'Error: El número de documento de identidad del representante ya existe en la tabla de atletas.');
@@ -608,6 +615,19 @@ final class AtletasController extends Controller
             );
             if ($existsInUsuarios) {
                 $v->addError('tutor_cedula', 'Error: El número de documento de identidad del representante ya existe en la tabla de usuarios.');
+            }
+
+            // Validar que el documento del representante sea único en la tabla de representantes (si es un representante nuevo)
+            $repId = !empty($data['representante_id']) ? (int) $data['representante_id'] : null;
+            $existingRep = (new \App\Models\Representante())->queryOne(
+                'SELECT representante_id FROM representantes WHERE cedula = :c LIMIT 1',
+                [':c' => $data['tutor_cedula']]
+            );
+            if ($existingRep) {
+                $existingRepId = (int) $existingRep['representante_id'];
+                if ($repId === null || $repId !== $existingRepId) {
+                    $v->addError('tutor_cedula', 'Error: El número de documento de identidad del representante ya existe en la tabla de representantes.');
+                }
             }
         }
 

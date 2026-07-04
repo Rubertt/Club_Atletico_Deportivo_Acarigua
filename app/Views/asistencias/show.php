@@ -80,7 +80,7 @@
                         </div>
 
                         <div class="asig-atleta-row__actions">
-                            <a href="<?= e(url('/admin/atletas/' . $d['atleta_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Perfil Atleta" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <a href="<?= e(url('/admin/atletas/' . $d['atleta_id'])) ?>?tab=tab-asistencia" class="btn btn-sm btn-ghost" title="Ver Perfil Atleta" style="display: inline-flex; align-items: center; gap: 6px;">
                                 <i class="ph ph-user"></i> Ver Perfil
                             </a>
                         </div>

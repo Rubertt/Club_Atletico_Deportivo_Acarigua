@@ -75,7 +75,11 @@ final class UsuariosController extends Controller
             return $this->redirect('/admin/usuarios');
         } catch (Throwable $e) {
             Logger::error($e);
-            flash('error', 'No se pudo registrar: ' . $e->getMessage());
+            $msg = clean_db_error_message($e->getMessage());
+            if ($msg === $e->getMessage()) {
+                $msg = 'No se pudo registrar: ' . $msg;
+            }
+            flash('error', $msg);
             $this->withOld($data);
             return $this->redirect('/admin/usuarios/crear');
         }
@@ -168,7 +172,11 @@ final class UsuariosController extends Controller
             return $this->redirect('/admin/usuarios');
         } catch (Throwable $e) {
             Logger::error($e);
-            flash('error', 'No se pudo actualizar: ' . $e->getMessage());
+            $msg = clean_db_error_message($e->getMessage());
+            if ($msg === $e->getMessage()) {
+                $msg = 'No se pudo actualizar: ' . $msg;
+            }
+            flash('error', $msg);
             $this->withOld($data);
             return $this->redirect("/admin/usuarios/$id/editar");
         }
@@ -233,7 +241,11 @@ final class UsuariosController extends Controller
             return $this->json(['success' => true, 'message' => 'Datos actualizados correctamente.']);
         } catch (Throwable $e) {
             Logger::error($e);
-            return $this->json(['success' => false, 'message' => 'Error al guardar en BD: ' . $e->getMessage()]);
+            $msg = clean_db_error_message($e->getMessage());
+            if ($msg === $e->getMessage()) {
+                $msg = 'Error al guardar en BD: ' . $msg;
+            }
+            return $this->json(['success' => false, 'message' => $msg]);
         }
     }
 

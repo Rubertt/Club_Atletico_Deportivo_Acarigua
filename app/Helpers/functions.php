@@ -329,5 +329,24 @@ if (!function_exists('format_cedula')) {
     }
 }
 
+if (!function_exists('clean_db_error_message')) {
+    /**
+     * Limpia los mensajes de error de base de datos que contienen SQLSTATE o códigos de error,
+     * extrayendo únicamente el mensaje del trigger o de la restricción.
+     */
+    function clean_db_error_message(string $msg): string
+    {
+        if (str_contains($msg, 'SQLSTATE[45000]')) {
+            if (preg_match('/1644\s+(.+)$/i', $msg, $matches)) {
+                return trim($matches[1]);
+            }
+            if (preg_match('/: 1644 (.*)/i', $msg, $matches)) {
+                return trim($matches[1]);
+            }
+        }
+        return $msg;
+    }
+}
+
 
 
