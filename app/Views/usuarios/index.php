@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const form = btn.closest('form');
             CadaModal.confirm({
                 title: '¿Restablecer Credenciales?',
-                text: '¿Estás seguro de que deseas restablecer las credenciales de este usuario? Su contraseña volverá a ser su número de cédula y se eliminarán sus respuestas de seguridad para forzarlo a reconfigurar su cuenta al ingresar.',
+                text: '¿Estás seguro de que deseas restablecer las credenciales de este usuario? Su contraseña volverá a ser su número de Documento ID y se eliminarán sus respuestas de seguridad para forzarlo a reconfigurar su cuenta al ingresar.',
                 type: 'warning',
                 confirmText: 'Sí, Restablecer',
                 cancelText: 'Cancelar'

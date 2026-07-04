@@ -297,7 +297,7 @@
                 const attPercent = parseFloat(a.asistencia_mensual) || 0;
                 
                 // Physical average score
-                const physScore = parseFloat(a.rendimiento_fisico) > 0 ? parseFloat(a.rendimiento_fisico).toFixed(1) + '%' : 'N/A';
+                const physScore = parseFloat(a.rendimiento_fisico) > 0 ? parseFloat(a.rendimiento_fisico).toFixed(1) + ' pts' : 'N/A';
 
                 return `
                 <div class="convocable-row" ${rowStyle}>

@@ -386,7 +386,7 @@ final class UsuariosController extends Controller
 
             $db->commit();
             
-            flash('success', "Credenciales de <strong>" . e($item['nombre'] . ' ' . $item['apellido']) . "</strong> restablecidas correctamente. Su contraseña temporal es su número de cédula (<strong>" . e($cedulaDigits) . "</strong>). Al ingresar se le forzará a reconfigurar sus datos de seguridad.");
+            flash('success', "Credenciales de <strong>" . e($item['nombre'] . ' ' . $item['apellido']) . "</strong> restablecidas correctamente. Su contraseña temporal es su número de documento de identidad (<strong>" . e($cedulaDigits) . "</strong>). Al ingresar se le forzará a reconfigurar sus datos de seguridad.");
         } catch (Throwable $e) {
             if (isset($db) && $db->inTransaction()) {
                 $db->rollBack();
@@ -452,7 +452,7 @@ final class UsuariosController extends Controller
         ], [
             'nombre'       => 'El nombre debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
             'apellido'     => 'El apellido debe ser válido (mínimo 3 caracteres, solo letras y espacios).',
-            'cedula'       => 'La cédula o pasaporte debe ser válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte) y ser único.',
+            'cedula'       => 'El documento de identidad debe ser válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte) y ser único.',
             'parroquia_id' => 'El campo parroquia es obligatorio.',
             'rol_id'       => 'El campo rol / cargo es obligatorio.',
         ]);
@@ -474,7 +474,7 @@ final class UsuariosController extends Controller
             }
         }
 
-        // Validar duplicados globales (cédula del usuario) en atletas y representantes
+        // Validar duplicados globales (documento de identidad del usuario) en atletas y representantes
         if (!empty($data['cedula'])) {
             $existsInAtletas = (new \App\Models\Atleta())->queryOne(
                 'SELECT 1 FROM atletas WHERE cedula = :c LIMIT 1',

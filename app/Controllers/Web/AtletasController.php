@@ -88,6 +88,7 @@ final class AtletasController extends Controller
         // 2. Carga básica (para vista inicial o para refresco parcial por AJAX)
         $asignaciones = (new \App\Models\AsigCategoria())->athleteAssignments($id);
         $paises = (new Direccion())->paises();
+        $representantes = (new \App\Models\Representante())->all('nombre, apellido');
 
         $data = [
             'title' => $atleta['nombre'] . ' ' . $atleta['apellido'],
@@ -96,6 +97,7 @@ final class AtletasController extends Controller
             'atleta' => $atleta,
             'asignaciones' => $asignaciones,
             'paises' => $paises,
+            'representantes' => $representantes,
             // Variables diferidas vacías en la carga inicial para evitar lints/errores de vista
             'tipos_discapacidades' => [],
             'medidas_historial' => [],
@@ -298,6 +300,16 @@ final class AtletasController extends Controller
 
     private function mergeData(array $actual, Request $request): array
     {
+        $crearNuevoRep = $request->input('crear_nuevo_representante') === '1';
+        $representanteIdIn = $request->input('representante_id');
+        if ($crearNuevoRep) {
+            $repId = null;
+        } elseif ($request->input('representante_id') !== null) {
+            $repId = $representanteIdIn ? (int) $representanteIdIn : null;
+        } else {
+            $repId = $actual['representante_id'] ?? null;
+        }
+
         $input = [
             'nombre'            => $request->input('nombre', $actual['nombre']),
             'apellido'          => $request->input('apellido', $actual['apellido']),
@@ -307,7 +319,8 @@ final class AtletasController extends Controller
             'fecha_nacimiento'  => $request->input('fecha_nacimiento', $actual['fecha_nac']),
             'pierna_dominante'  => $request->input('pierna_dominante') !== null ? ($request->input('pierna_dominante') ?: null) : $actual['pierna_dominante'],
             'estatus'           => $request->input('estatus') !== null ? (int) $request->input('estatus') : $actual['estatus'],
-            'representante_id'  => $request->input('representante_id', $actual['representante_id'] ?? null),
+            'representante_id'  => $repId,
+            'crear_nuevo_representante' => $crearNuevoRep,
             'direccion_id'      => $request->input('direccion_id', $actual['direccion_id'] ?? null),
             
             'estado_id'         => $request->input('estado_id', $actual['estado_id'] ?? null),
@@ -395,7 +408,7 @@ final class AtletasController extends Controller
 
     private function validar(array $data, ?int $ignoreId = null): Validator
     {
-        // Regex: cédula venezolana V-NUMERO o E-NUMERO (6 a 8 dígitos) o N-FECHA-NUMERO-FOLIO (acta de nacimiento) o P-NUMERO (pasaporte alfanumérico 5 a 15)
+        // Regex: documento de identidad venezolano V-NUMERO o E-NUMERO (6 a 8 dígitos) o N-FECHA-NUMERO-FOLIO (acta de nacimiento) o P-NUMERO (pasaporte alfanumérico 5 a 15)
         $cedRegex = '/^([VE]-\d{6,8}|N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}|P-[A-Z0-9]{5,15})$/i';
         // Regex: teléfono 11 dígitos con prefijo venezolano (prefijo 4 dígitos + 7 dígitos = 11 total)
         $telRegex = '/^0(412|414|416|422|424|426|255|256)\d{7}$/';
@@ -420,7 +433,7 @@ final class AtletasController extends Controller
             }
         }
 
-        // 1. Cédula/Folio obligatoria si es mayor de 9 años
+        // 1. Documento de Identidad obligatorio si es mayor de 9 años
         $cedulaRules = [];
         if ($age > 9) {
             $cedulaRules[] = 'required';
@@ -508,12 +521,12 @@ final class AtletasController extends Controller
         }
 
         $messages = [
-            'cedula' => 'La cédula del atleta ya está registrada o tiene un formato inválido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos), N-AÑO-ACTA o P-Pasaporte). Es obligatoria para mayores de 9 años y debe ser única.',
+            'cedula' => 'El documento de identidad del atleta ya está registrado o tiene un formato inválido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos), N-AÑO-ACTA o P-Pasaporte). Es obligatorio para mayores de 9 años y debe ser único.',
             'telefono' => 'El teléfono debe comenzar con 0412, 0414, 0416, 0422, 0424, 0255 o 0256 and tener 11 dígitos. Es obligatorio para mayores de edad.',
             'tutor_representante' => 'Para registrar al atleta como menor de edad, primero debe asignar y guardar los datos de su representante en la sección correspondiente de su perfil.',
             'tutor_nombres' => 'El nombre del representante es obligatorio.',
             'tutor_apellidos' => 'El apellido del representante es obligatorio.',
-            'tutor_cedula' => 'La cédula o pasaporte del representante es obligatoria y debe tener un formato válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte).',
+            'tutor_cedula' => 'El documento de identidad del representante es obligatorio y debe tener un formato válido (Ej: V-12345678, E-12345678 (6 a 8 dígitos, sin puntos) o P-Pasaporte).',
             'tutor_telefono' => 'El teléfono del representante es obligatorio y debe tener 11 dígitos.',
             'tutor_relacion' => 'El tipo de relación con el representante es obligatorio.',
             'parroquia_id' => 'La parroquia es obligatoria.',
@@ -560,7 +573,7 @@ final class AtletasController extends Controller
             }
         }
 
-        // Validar duplicados globales (cédula del atleta) en representantes y usuarios
+        // Validar duplicados globales (documento de identidad del atleta) en representantes y usuarios
         if (!empty($data['cedula'])) {
             $existsInUsuarios = (new \App\Models\Usuario())->queryOne(
                 'SELECT 1 FROM usuarios WHERE cedula = :c LIMIT 1',
@@ -579,7 +592,7 @@ final class AtletasController extends Controller
             }
         }
 
-        // Validar duplicados globales (cédula del representante) en atletas y usuarios
+        // Validar duplicados globales (documento de identidad del representante) en atletas y usuarios
         if (!empty($data['tutor_cedula'])) {
             $existsInAtletas = (new \App\Models\Atleta())->queryOne(
                 'SELECT 1 FROM atletas WHERE cedula = :c' . ($ignoreId ? ' AND atleta_id <> :ignore' : '') . ' LIMIT 1',

@@ -32,9 +32,13 @@ final class ConvocatoriasApiController extends Controller
 
         // 3. Agregar métricas a cada atleta
         $convocatoriaModel = new Convocatoria();
+        $resultadoPruebaModel = new \App\Models\ResultadoPrueba();
         foreach ($atletas as &$atleta) {
             $atleta['asistencia_mensual'] = $convocatoriaModel->obtenerAsistenciaMensual((int)$atleta['atleta_id']);
-            $atleta['rendimiento_fisico'] = $convocatoriaModel->obtenerPromedioFisico((int)$atleta['atleta_id']);
+            
+            // Solicitar al modelo el cálculo y la variable promedio
+            $resultadoPruebaModel->calcularPromedioMasReciente((int)$atleta['atleta_id']);
+            $atleta['rendimiento_fisico'] = $resultadoPruebaModel->promedio ?? 0.0;
         }
         unset($atleta);
 

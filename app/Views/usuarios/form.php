@@ -60,7 +60,7 @@ $maxDate = date('Y-m-d', strtotime('-18 years'));
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Cédula de identidad del usuario (V/E-Número) o Pasaporte. Debe ser única en el sistema." data-tooltip-pos="top"><span class="required">*</span> Documento de identidad</label>
+                        <label class="form-label" data-tooltip="Documento de identidad del usuario (V/E-Número) o Pasaporte. Debe ser única en el sistema." data-tooltip-pos="top"><span class="required">*</span> Documento de identidad</label>
                         <?php
                             $cedVal   = $get('cedula', '');
                             $cedPref  = 'V';
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (stepNumEl) stepNumEl.textContent = currentIdx + 1;
     }
 
-    // —— Validaciones de Cédula y Teléfono ———————————————————————————————————————
+    // —— Validaciones de Documento ID y Teléfono ———————————————————————————————————————
     const CEDULA_REGEX = /^[VE]-\d{6,8}$/i;
     const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
 
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     function clearError(id) { showError(id, ''); }
 
-    // —— Widget Cédula —————————————————————————————————————————————————————————
+    // —— Widget Documento ID —————————————————————————————————————————————————————————
     function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
         const prefixEl = document.getElementById(prefixId);
         const numberEl = document.getElementById(numberId);
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 numberEl.value = val;
                 hiddenEl.value = val.length ? 'P-' + val : '';
             } else {
-                // Cédula V/E: solo dígitos con formato de puntos, máx 8 dígitos
+                // Documento ID V/E: solo dígitos con formato de puntos, máx 8 dígitos
                 let digits = numberEl.value.replace(/[^\d]/g, '').substring(0, 8);
                 numberEl.value = formatCedulaNumber(digits);
                 hiddenEl.value = digits.length ? prefixEl.value + '-' + digits : '';
@@ -541,14 +541,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const cedWrap = document.getElementById('phone-wrap-cedula');
             
             const isPass = document.getElementById('cedula_prefix').value === 'P';
-            const docName = isPass ? 'Pasaporte' : 'Cédula';
+            const docName = isPass ? 'Pasaporte' : 'Documento de Identidad';
             if (!cedNum) {
                 if (cedWrap) cedWrap.style.borderColor = 'var(--color-danger,#e53e3e)';
                 errorsList.push('El campo "' + docName + '" es obligatorio.');
                 isValid = false;
             } else if (!validarCedula(ced)) {
                 if (cedWrap) cedWrap.style.borderColor = 'var(--color-danger,#e53e3e)';
-                errorsList.push(isPass ? 'El pasaporte debe tener entre 5 y 15 caracteres alfanuméricos. Ej: P-ABC123456' : 'La cédula debe tener entre 7 y 8 dígitos numéricos. Ej: V-12.345.678');
+                errorsList.push(isPass ? 'El pasaporte debe tener entre 5 y 15 caracteres alfanuméricos. Ej: P-ABC123456' : 'El Documento ID debe tener entre 7 y 8 dígitos numéricos. Ej: V-12.345.678');
                 isValid = false;
             } else {
                 if (cedWrap) cedWrap.style.borderColor = '';
@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (ced && !validarCedula(ced)) {
                 const cedInp = document.getElementById('cedula_number');
                 const isPass = document.getElementById('cedula_prefix').value === 'P';
-                const msg = isPass ? 'El pasaporte tiene formato inválido. Ej: P-ABC123456' : 'La cédula tiene formato inválido. Ej: V-12.345.678';
+                const msg = isPass ? 'El pasaporte tiene formato inválido. Ej: P-ABC123456' : 'El Documento ID tiene formato inválido. Ej: V-12.345.678';
                 errors.push({ label: msg, element: cedInp });
             }
             const tel = document.getElementById('telefono_number').value;

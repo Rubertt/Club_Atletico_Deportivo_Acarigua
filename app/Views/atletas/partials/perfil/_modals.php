@@ -25,7 +25,7 @@
 
             <div class="modal-grid-2">
                 <div class="form-group">
-                    <label class="form-label" id="label-cedula" data-tooltip="Cédula (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Requerido." data-tooltip-pos="top"><span class="required">*</span>Documento de Identidad</label>
+                    <label class="form-label" id="label-cedula" data-tooltip="Documento de Identidad (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Requerido." data-tooltip-pos="top"><span class="required">*</span>Documento de Identidad</label>
                     <?php
                         $cedVal   = $atleta['cedula'];
                         $cedPref  = 'V';
@@ -53,7 +53,7 @@
                         </select>
                         <span class="phone-sep">-</span>
                         
-                        <!-- Input para Cédula o Pasaporte -->
+                        <!-- Input para Documento ID -->
                         <input type="text" class="phone-number" id="cedula_number" style="display: <?= $cedPref !== 'N' ? 'block' : 'none' ?>;" maxlength="13" placeholder="12345678" value="<?= $cedPref !== 'N' ? e($cedNum) : '' ?>">
                         
                         <!-- Inputs para Partida -->
@@ -249,7 +249,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" data-tooltip="Cédula de identidad del representante (V/E-Número) o Pasaporte." data-tooltip-pos="top"><span class="required">*</span> Cédula</label>
+                    <label class="form-label" data-tooltip="Documento de Identidad del representante (V/E-Número) o Pasaporte." data-tooltip-pos="top"><span class="required">*</span> Documento de Identidad</label>
                     <?php
                         $tcedVal   = $atleta['tutor_cedula'];
                         $tcedPref  = 'V';
@@ -311,6 +311,121 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
             <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Guardar cambios</button>
+        </div>
+    </form>
+</div>
+
+<!-- Modal: Nuevo Representante (Crear o Seleccionar) -->
+<div id="modal-nuevo-representante" class="modal-overlay" style="display:none;">
+    <form id="form-nuevo-representante" action="<?= e(url("/admin/atletas/{$atleta['atleta_id']}")) ?>"
+        method="POST" class="modal-container" style="max-width: 500px;" novalidate>
+        <?= csrf_field() ?>
+        <input type="hidden" name="crear_nuevo_representante" id="crear_nuevo_representante" value="1">
+        
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="ph ph-user-plus"></i> Nuevo Representante</h3>
+            <button type="button" class="modal-close" data-close-modal>&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="error-nuevo-representante" class="alert alert-danger" style="display:none; margin-bottom: 16px;"></div>
+
+            <!-- Select para elegir representante existente -->
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" data-tooltip="Seleccione un representante existente de la base de datos o deje en blanco para registrar uno nuevo." data-tooltip-pos="top">Elegir representante registrado</label>
+                <select name="representante_id" id="sel-nuevo-representante" class="form-control">
+                    <option value="">— Registrar un representante nuevo —</option>
+                    <?php foreach ($representantes ?? [] as $rep): 
+                        $repCedVal = $rep['cedula'] ?? '';
+                        $repCedNum = '';
+                        if (!empty($repCedVal)) {
+                            if (str_contains($repCedVal, '-')) {
+                                $parts = explode('-', $repCedVal, 2);
+                                $repCedNum = $parts[1] ?? '';
+                            } else {
+                                $firstChar = strtoupper($repCedVal[0]);
+                                if (in_array($firstChar, ['V', 'E', 'P'])) {
+                                    $repCedNum = substr($repCedVal, 1);
+                                } else {
+                                    $repCedNum = $repCedVal;
+                                }
+                            }
+                        }
+                        $repCedFormatted = \App\Models\Atleta::formatCedula($repCedVal);
+                    ?>
+                        <option value="<?= (int)$rep['representante_id'] ?>"
+                            data-nombre="<?= e($rep['nombre']) ?>"
+                            data-apellido="<?= e($rep['apellido']) ?>"
+                            data-cedula-completa="<?= e($rep['cedula']) ?>"
+                            data-cedula-numero="<?= e($repCedNum) ?>"
+                            data-cedula-prefix="<?= e(str_contains($repCedVal, '-') ? explode('-', $repCedVal)[0] : (in_array(strtoupper($repCedVal[0] ?? ''), ['V', 'E', 'P']) ? strtoupper($repCedVal[0]) : 'V')) ?>"
+                            data-telefono="<?= e($rep['telefono']) ?>"
+                            data-relacion="<?= e($rep['tipo_relacion']) ?>">
+                            <?= e('[ID: ' . $rep['representante_id'] . '] ' . $rep['nombre'] . ' ' . $rep['apellido'] . ' ( ' . $repCedFormatted . ' )') ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <hr style="border: none; border-top: 1px dashed var(--color-border); margin: 20px 0;">
+
+            <div class="modal-grid-2">
+                <div class="form-group">
+                    <label class="form-label" data-tooltip="Nombres completos del representante legal." data-tooltip-pos="top"><span class="required">*</span> Nombres</label>
+                    <input type="text" name="tutor_nombres" class="form-control" id="nuevo_tutor_nombres" maxlength="100" placeholder="Ej: Juan Carlos" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-tooltip="Apellidos completos del representante legal." data-tooltip-pos="top"><span class="required">*</span> Apellidos</label>
+                    <input type="text" name="tutor_apellidos" class="form-control" id="nuevo_tutor_apellidos" maxlength="100" placeholder="Ej: Pérez Rodríguez" required>
+                </div>
+            </div>
+
+            <div class="modal-grid-2">
+                <div class="form-group">
+                    <label class="form-label" data-tooltip="Vínculo familiar o legal entre el representante y el atleta (padre, madre, tutor, etc.)." data-tooltip-pos="top"><span class="required">*</span> Parentesco</label>
+                    <select name="tutor_relacion" id="nuevo_tutor_relacion" class="form-control" required>
+                        <option value="">— Seleccionar —</option>
+                        <?php foreach (TIPO_RELACION_REPRESENTANTE as $rel): ?>
+                            <option value="<?= $rel ?>"><?= e(ucfirst($rel)) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-tooltip="Documento de Identidad del representante (V/E-Número) o Pasaporte." data-tooltip-pos="top"><span class="required">*</span> Documento de Identidad</label>
+                    <div class="phone-field" id="phone-wrap-nuevo_tutor_cedula">
+                        <select class="phone-prefix" id="nuevo_tutor_cedula_prefix" aria-label="Prefijo">
+                            <option value="V">V</option>
+                            <option value="E">E</option>
+                            <option value="P">P</option>
+                        </select>
+                        <span class="phone-sep">-</span>
+                        <input type="text" class="phone-number" id="nuevo_tutor_cedula_number" maxlength="10" placeholder="12345678">
+                        <input type="hidden" name="tutor_cedula" id="nuevo_tutor_cedula" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-tooltip="Teléfono móvil del representante para contacto de emergencia (11 dígitos, ej: 0412-1234567)." data-tooltip-pos="top"><span class="required">*</span> Teléfono de Contacto</label>
+                <div class="phone-field" id="phone-wrap-nuevo_tutor_telefono">
+                    <select class="phone-prefix" id="nuevo_tutor_telefono_prefix" aria-label="Prefijo">
+                        <option value="0412">0412</option>
+                        <option value="0414">0414</option>
+                        <option value="0416">0416</option>
+                        <option value="0422">0422</option>
+                        <option value="0424">0424</option>
+                        <option value="0426">0426</option>
+                        <option value="0255">0255</option>
+                        <option value="0256">0256</option>
+                    </select>
+                    <span class="phone-sep">-</span>
+                    <input type="text" class="phone-number" id="nuevo_tutor_telefono_number" maxlength="7" placeholder="1234567">
+                    <input type="hidden" name="tutor_telefono" id="nuevo_tutor_telefono" required>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+            <button type="submit" class="btn btn-primary"><i class="ph ph-check"></i> Asignar Representante</button>
         </div>
     </form>
 </div>

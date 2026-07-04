@@ -165,4 +165,51 @@ final class ReportesController extends Controller
         }
         return Response::html($reporte['content']);
     }
+
+    public function obtenerActividadesPorCategoria(Request $request): Response
+    {
+        $categoriaId = (int) $request->query('categoria_id');
+        if ($categoriaId <= 0) {
+            return Response::json([]);
+        }
+
+        $db = Database::connection();
+        $stmt = $db->prepare("
+            SELECT DISTINCT a.actividad_id, a.fecha,
+                   (SELECT COUNT(*) FROM resultados_pruebas rp WHERE rp.actividad_id = a.actividad_id) AS total,
+                   c.nombre_categoria
+            FROM actividades a
+            JOIN asig_categorias ac ON ac.asignacion_id = a.asignacion_id
+            JOIN categorias c ON c.categoria_id = ac.categoria_id
+            WHERE a.tipo_actividad = 2 AND ac.categoria_id = ?
+            ORDER BY a.fecha DESC, a.actividad_id DESC
+        ");
+        $stmt->execute([$categoriaId]);
+        $actividades = $stmt->fetchAll();
+
+        return Response::json($actividades);
+    }
+
+    public function pruebasCategoria(Request $request): Response
+    {
+        $categoriaId = (int) $request->param('categoria_id');
+        $actividadId = (int) $request->param('actividad_id');
+
+        if ($categoriaId <= 0 || $actividadId <= 0) {
+            return Response::html('<h1>Parámetros inválidos</h1>', 400);
+        }
+
+        $reporte = (new \App\Services\ReportePruebasFisicasService())->reporteCategoria($categoriaId, $actividadId);
+        if (!$reporte) {
+            return Response::html('<h1>Categoría o sesión no encontrada</h1>', 404);
+        }
+
+        if (str_starts_with($reporte['mime'], 'application/pdf')) {
+            if ($request->query('action') === 'download') {
+                return Response::download($reporte['content'], $reporte['filename'], $reporte['mime']);
+            }
+            return Response::inline($reporte['content'], $reporte['filename'], $reporte['mime']);
+        }
+        return Response::html($reporte['content']);
+    }
 }

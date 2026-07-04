@@ -13,6 +13,8 @@ final class ResultadoPrueba extends Model
     protected string $table = 'resultados_pruebas';
     protected string $primaryKey = 'test_id';
 
+    public ?float $promedio = null;
+
     public function historial(int $atletaId): array
     {
         $rows = $this->query(
@@ -36,14 +38,15 @@ final class ResultadoPrueba extends Model
             $row['test_de_reaccion_raw'] = $row['test_de_reaccion'] !== null ? (float)$row['test_de_reaccion'] : null;
 
             if (!empty($row['fecha_nac'])) {
-                $puntajes = $this->calcularPuntajes($row, (string)$row['fecha_nac']);
+                $refDate = !empty($row['fecha_evento']) ? (string)$row['fecha_evento'] : null;
+                $puntajes = $this->calcularPuntajes($row, (string)$row['fecha_nac'], $refDate);
                 $row['test_de_fuerza'] = $puntajes['test_de_fuerza'];
                 $row['test_resistencia'] = $puntajes['test_resistencia'];
                 $row['test_velocidad'] = $puntajes['test_velocidad'];
                 $row['test_coordinacion'] = $puntajes['test_coordinacion'];
                 $row['test_de_reaccion'] = $puntajes['test_de_reaccion'];
 
-                $puntajesNac = $this->calcularPuntajesNacionales($row, (string)$row['fecha_nac']);
+                $puntajesNac = $this->calcularPuntajesNacionales($row, (string)$row['fecha_nac'], $refDate);
                 $row['test_de_fuerza_nac'] = $puntajesNac['test_de_fuerza'];
                 $row['test_resistencia_nac'] = $puntajesNac['test_resistencia'];
                 $row['test_velocidad_nac'] = $puntajesNac['test_velocidad'];
@@ -62,12 +65,12 @@ final class ResultadoPrueba extends Model
         return $rows;
     }
 
-    public function calcularEdad(string $fechaNac): int
+    public function calcularEdad(string $fechaNac, ?string $fechaReferencia = null): int
     {
         try {
             $birthDate = new \DateTime($fechaNac);
-            $today = new \DateTime('today');
-            return $birthDate->diff($today)->y;
+            $refDate = new \DateTime($fechaReferencia ?? 'today');
+            return $birthDate->diff($refDate)->y;
         } catch (\Throwable $e) {
             return 20;
         }
@@ -114,9 +117,9 @@ final class ResultadoPrueba extends Model
         return max(0.0, min(100.0, round($score, 1)));
     }
 
-    private function calcularPuntajes(array $row, string $fechaNac): array
+    private function calcularPuntajes(array $row, string $fechaNac, ?string $fechaReferencia = null): array
     {
-        $edad = $this->calcularEdad($fechaNac);
+        $edad = $this->calcularEdad($fechaNac, $fechaReferencia);
         $factor = $this->obtenerFactorExigencia($edad);
 
         return [
@@ -128,9 +131,9 @@ final class ResultadoPrueba extends Model
         ];
     }
 
-    private function calcularPuntajesNacionales(array $row, string $fechaNac): array
+    public function calcularPuntajesNacionales(array $row, string $fechaNac, ?string $fechaReferencia = null): array
     {
-        $edad = $this->calcularEdad($fechaNac);
+        $edad = $this->calcularEdad($fechaNac, $fechaReferencia);
         $factor = $this->obtenerFactorExigencia($edad);
 
         return [
@@ -140,6 +143,62 @@ final class ResultadoPrueba extends Model
             'test_coordinacion' => $row['test_coordinacion_raw'] !== null ? $this->calcularInversa((float)$row['test_coordinacion_raw'], 22.50, 17.10, $factor) : null,
             'test_de_reaccion'  => $row['test_de_reaccion_raw'] !== null ? $this->calcularInversa((float)$row['test_de_reaccion_raw'], 450.0, 260.0, $factor) : null,
         ];
+    }
+
+    public function calcularPromedioNacional(array $row, string $fechaNac, ?string $fechaReferencia = null): ?float
+    {
+        $rawRow = [
+            'test_de_fuerza_raw'    => $row['test_de_fuerza_raw'] ?? $row['test_de_fuerza'] ?? null,
+            'test_resistencia_raw'  => $row['test_resistencia_raw'] ?? $row['test_resistencia'] ?? null,
+            'test_velocidad_raw'    => $row['test_velocidad_raw'] ?? $row['test_velocidad'] ?? null,
+            'test_coordinacion_raw' => $row['test_coordinacion_raw'] ?? $row['test_coordinacion'] ?? null,
+            'test_de_reaccion_raw'  => $row['test_de_reaccion_raw'] ?? $row['test_de_reaccion'] ?? null,
+        ];
+
+        if (
+            $rawRow['test_de_fuerza_raw'] === null &&
+            $rawRow['test_resistencia_raw'] === null &&
+            $rawRow['test_velocidad_raw'] === null &&
+            $rawRow['test_coordinacion_raw'] === null &&
+            $rawRow['test_de_reaccion_raw'] === null
+        ) {
+            $this->promedio = null;
+            return null;
+        }
+
+        $puntajes = $this->calcularPuntajesNacionales($rawRow, $fechaNac, $fechaReferencia);
+
+        $suma = (float)($puntajes['test_de_fuerza'] ?? 0.0) +
+                (float)($puntajes['test_resistencia'] ?? 0.0) +
+                (float)($puntajes['test_velocidad'] ?? 0.0) +
+                (float)($puntajes['test_coordinacion'] ?? 0.0) +
+                (float)($puntajes['test_de_reaccion'] ?? 0.0);
+
+        $this->promedio = round($suma / 5.0, 1);
+        return $this->promedio;
+    }
+
+    public function calcularPromedioMasReciente(int $atletaId): ?float
+    {
+        $db = $this->db();
+        $stmt = $db->prepare("
+            SELECT rp.*, a.fecha_nac, act.fecha AS fecha_evento
+            FROM resultados_pruebas rp
+            JOIN atletas a ON a.atleta_id = rp.atleta_id
+            JOIN actividades act ON act.actividad_id = rp.actividad_id
+            WHERE rp.atleta_id = ?
+            ORDER BY act.fecha DESC, rp.test_id DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$atletaId]);
+        $reciente = $stmt->fetch();
+
+        if (!$reciente || empty($reciente['fecha_nac'])) {
+            $this->promedio = null;
+            return null;
+        }
+
+        return $this->calcularPromedioNacional($reciente, (string)$reciente['fecha_nac'], (string)$reciente['fecha_evento']);
     }
 
     /**

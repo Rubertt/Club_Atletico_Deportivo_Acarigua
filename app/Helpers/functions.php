@@ -239,7 +239,7 @@ if (!function_exists('errors')) {
 
 if (!function_exists('clean_cedula_dots')) {
     /**
-     * Limpia los puntos y espacios de una cédula o pasaporte.
+     * Limpia los puntos y espacios de un documento de identidad
      * Ejemplo: ' V-12.345.678 ' -> 'V-12345678'
      */
     function clean_cedula_dots(?string $cedula): ?string
@@ -281,7 +281,7 @@ if (!function_exists('clean_cedula_dots')) {
 
 if (!function_exists('format_cedula')) {
     /**
-     * Formatea la cédula con puntos cada 3 dígitos para el frontend.
+     * Formatea el documento de identidad con puntos cada 3 dígitos para el frontend.
      * Ejemplo: 'V-12345678' -> 'V-12.345.678'
      */
     function format_cedula(?string $cedula): string

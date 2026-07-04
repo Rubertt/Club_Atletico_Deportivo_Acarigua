@@ -593,7 +593,7 @@ final class ResultadosPruebasController extends Controller
         }
 
         $detallesStmt = $db->prepare(
-            "SELECT rp.*, atl.nombre, atl.apellido, atl.cedula, atl.foto
+            "SELECT rp.*, atl.nombre, atl.apellido, atl.cedula, atl.foto, atl.fecha_nac
              FROM resultados_pruebas rp
              JOIN atletas atl ON rp.atleta_id = atl.atleta_id
              WHERE rp.actividad_id = ?
@@ -601,6 +601,16 @@ final class ResultadosPruebasController extends Controller
         );
         $detallesStmt->execute([$id]);
         $detalles = $detallesStmt->fetchAll();
+
+        $modeloPrueba = new \App\Models\ResultadoPrueba();
+        foreach ($detalles as &$d) {
+            $d['promedio'] = null;
+            if (!empty($d['fecha_nac'])) {
+                $modeloPrueba->calcularPromedioNacional($d, (string)$d['fecha_nac'], (string)$actividad['fecha']);
+                $d['promedio'] = $modeloPrueba->promedio;
+            }
+        }
+        unset($d);
 
         return $this->view('resultados_pruebas.show', [
             'title' => 'Detalle de Pruebas Físicas',
@@ -779,6 +789,22 @@ final class ResultadosPruebasController extends Controller
             flash('error', 'Error al actualizar los resultados: ' . $e->getMessage());
             return $this->redirect("/admin/resultados-pruebas/sesion/{$id}/editar");
         }
+    }
+
+    public function imprimir(Request $request): Response
+    {
+        $id = (int) $request->param('id');
+        $reporte = (new \App\Services\ReportePruebasFisicasService())->reporteDetalle($id);
+        if (!$reporte) {
+            return Response::html('<h1>Sesión de pruebas físicas no encontrada</h1>', 404);
+        }
+        if (str_starts_with($reporte['mime'], 'application/pdf')) {
+            if ($request->query('action') === 'download') {
+                return Response::download($reporte['content'], $reporte['filename'], $reporte['mime']);
+            }
+            return Response::inline($reporte['content'], $reporte['filename'], $reporte['mime']);
+        }
+        return Response::html($reporte['content']);
     }
 
     public function eliminarSesion(Request $request): Response
