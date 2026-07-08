@@ -118,24 +118,7 @@ final class Convocatoria extends Model
     public function obtenerPromedioFisico(int $atletaId): float
     {
         $rp = new ResultadoPrueba();
-        $historial = $rp->historial($atletaId);
-        
-        if (empty($historial)) {
-            return 0.0;
-        }
-        
-        $reciente = $historial[0]; // El más reciente ordenado por fecha desc
-        
-        $sum = 0.0;
-        $count = 0;
-        
-        foreach (['test_de_fuerza', 'test_resistencia', 'test_velocidad', 'test_coordinacion', 'test_de_reaccion'] as $field) {
-            if (isset($reciente[$field]) && $reciente[$field] !== null) {
-                $sum += (float)$reciente[$field];
-                $count++;
-            }
-        }
-        
-        return $count > 0 ? round($sum / $count, 1) : 0.0;
+        $rp->calcularPromedioMasReciente($atletaId);
+        return $rp->promedio ?? 0.0;
     }
 }

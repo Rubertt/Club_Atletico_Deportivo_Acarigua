@@ -12,20 +12,6 @@
                 #tab-pruebas .perfil-table-header {
                     font-size: 15.6px !important;
                 }
-            <!-- Tab: Pruebas Físicas -->
-            <style>
-                #tab-pruebas {
-                    font-size: 1.2rem;
-                }
-                #tab-pruebas h3 {
-                    font-size: 20px !important;
-                }
-                #tab-pruebas h4 {
-                    font-size: 18px !important;
-                }
-                #tab-pruebas .perfil-table-header {
-                    font-size: 15.6px !important;
-                }
                 #tab-pruebas .perfil-col-label {
                     font-size: 13.2px !important;
                 }
@@ -35,6 +21,11 @@
             </style>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h3 style="margin: 0;"><i class="ph ph-chart-line-up"></i> Rendimiento Físico</h3>
+                    <?php if (!empty($pruebas_historial)): ?>
+                        <a href="<?= e(url('/admin/resultados-pruebas/sesion/' . $pruebas_historial[0]['actividad_id'])) ?>" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="ph ph-eye"></i> Ver Sesión Reciente
+                        </a>
+                    <?php endif; ?>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px;">
@@ -47,7 +38,7 @@
                     <!-- Gráfico Nacional -->
                     <div style="height: 350px; background: var(--color-bg-alt); border-radius: var(--radius); border: 1px solid var(--color-border); padding: 16px; display: flex; flex-direction: column;">
                         <h4 style="margin-top: 0; margin-bottom: 12px; text-align: center; font-size: 17px;"><i class="ph ph-flag"></i> Comparación Nacional (FUTVE)</h4>
-                        <div id="chart-radar-pruebas-nacional" style="flex: 1; width: 100%;"></div>
+                        <div id="chart-radar-pruebas-nacional" style="flex: 1; width: 100%;" data-historial="<?= e(json_encode($pruebas_historial ?? [])) ?>"></div>
                     </div>
                 </div>
 
@@ -124,8 +115,7 @@
                                             <span style="font-size: 13px; font-weight: 600; width: 45px; text-align: right; flex-shrink: 0;"><?= e($ultima['test_velocidad_nac'] ?? 0) ?>/100</span>
                                         </div>
                                     </div> <!-- Fin Columna 1 -->
-                                </div> <!-- Fin Wrapper Columna 1 real -->
-
+                                
                                 <!-- Columna 2: Coordinación, Reacción -->
                                 <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px;">
                                         <!-- Coordinación -->
@@ -174,7 +164,7 @@
                                 <div style="margin-top: 20px; font-size: 14px; color: var(--color-text-muted);">
                                     <i class="ph ph-calendar"></i> Evaluado el:
                                     <?= e(date('d/m/Y', strtotime($ultima['fecha_evento']))) ?>
-                            </div>
+                                </div>
                         <?php else: ?>
                             <div style="text-align: center; padding: 32px; color: var(--color-text-muted); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                                 <i class="ph ph-chart-bar" style="font-size: 48px; opacity: 0.3; margin-bottom: 12px; display: block;"></i>

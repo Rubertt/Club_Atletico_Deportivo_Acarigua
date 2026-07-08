@@ -69,7 +69,7 @@
                 <div style="width: 80px; flex-shrink: 0; text-align: center;">Dorsal</div>
                 <div style="width: 320px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
                     <div style="width: 36px;"></div>
-                    <div>Atleta / Cédula</div>
+                    <div>Atleta / Documento ID</div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex: 1;">
                     <div>Estado de Convocatoria</div>

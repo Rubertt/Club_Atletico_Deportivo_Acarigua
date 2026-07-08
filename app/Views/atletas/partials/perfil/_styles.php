@@ -152,7 +152,7 @@
         cursor: pointer;
     }
 
-    /* ✦ Widget Teléfono y Cédula ✦ */
+    /* ✦ Widget Teléfono y Documento de Identidad ✦ */
     .phone-field {
         display: flex;
         align-items: stretch;

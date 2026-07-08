@@ -93,10 +93,16 @@
         <h3 style="margin: 0; font-family: var(--font-display);"><i class="ph ph-users text-primary"
                 style="margin-right: 8px;"></i>Información del Representante Legal</h3>
         <?php if (can('admin')): ?>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-abrir-editar-representante"
-                style="border-radius: 20px; <?= empty($atleta['tutor_nombres'] ?? $atleta['rep_nombre']) ? 'display: none;' : '' ?>">
-                <i class="ph ph-pencil-simple"></i> Editar
-            </button>
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-outline btn-sm" id="btn-abrir-nuevo-representante"
+                    style="border-radius: 20px;">
+                    <i class="ph ph-plus-circle"></i> Nuevo
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-abrir-editar-representante"
+                    style="border-radius: 20px; <?= empty($atleta['tutor_nombres'] ?? $atleta['rep_nombre']) ? 'display: none;' : '' ?>">
+                    <i class="ph ph-pencil-simple"></i> Editar
+                </button>
+            </div>
         <?php endif; ?>
     </div>
 
@@ -136,7 +142,7 @@
                     <div>
                         <div
                             style="font-size: 12px; color: var(--color-text-muted); font-weight: 600; margin-bottom: 2px;">
-                            Cédula de Identidad</div>
+                            Documento de Identidad</div>
                         <div style="font-weight: 600; font-size: 15px; color: var(--color-text);">
                             <?= e($atleta['tutor_cedula_formateada'] ?? '—') ?></div>
                     </div>

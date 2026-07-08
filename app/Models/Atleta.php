@@ -178,7 +178,7 @@ final class Atleta extends Model
     }
 
     /**
-     * Formatea la cédula con puntos cada 3 dígitos para el frontend.
+     * Formatea el Documento de Identidad con puntos cada 3 dígitos para el frontend.
      * Ejemplo: 'V-12345678' -> 'V-12.345.678'
      */
     public static function formatCedula(?string $cedula): string

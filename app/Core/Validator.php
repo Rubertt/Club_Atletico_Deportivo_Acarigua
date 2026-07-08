@@ -58,7 +58,11 @@ final class Validator
 
     public function addError(string $field, string $defaultMessage): void
     {
-        $this->errors[$field] = $this->messages[$field] ?? $defaultMessage;
+        if (str_starts_with($defaultMessage, 'Error:')) {
+            $this->errors[$field] = $defaultMessage;
+        } else {
+            $this->errors[$field] = $this->messages[$field] ?? $defaultMessage;
+        }
     }
 
     private function ruleRequired(string $field, mixed $value): void

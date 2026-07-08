@@ -23,7 +23,7 @@
             <?= csrf_field() ?>
 
             <div class="form-group">
-                <label class="form-label" for="password" data-tooltip="Nueva clave segura: mínimo 8 caracteres, incluyendo letras, números y un símbolo. No puede usar su número de cédula." data-tooltip-pos="top"><span class="required">*</span> Nueva Contraseña</label>
+                <label class="form-label" for="password" data-tooltip="Nueva clave segura: mínimo 8 caracteres, incluyendo letras, números y un símbolo. No puede usar su número de Documento ID." data-tooltip-pos="top"><span class="required">*</span> Nueva Contraseña</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" class="form-control" required minlength="8"
                            pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"

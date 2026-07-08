@@ -8,6 +8,12 @@
         <a href="<?= e(url('/admin/resultados-pruebas')) ?>" class="btn btn-ghost">
             <i class="ph ph-caret-left"></i> Volver al Listado
         </a>
+        <a href="<?= e(url('/admin/resultados-pruebas/sesion/' . $actividad['actividad_id'] . '/imprimir')) ?>" class="btn btn-outline" target="_blank">
+            <i class="ph ph-printer"></i> Imprimir PDF
+        </a>
+        <button id="btn-compartir-whatsapp" class="btn btn-outline" data-url="<?= e(url('/admin/resultados-pruebas/sesion/' . $actividad['actividad_id'] . '/imprimir')) ?>" data-filename="pruebas_fisicas_<?= preg_replace('/[^a-zA-Z0-9]/', '_', $actividad['nombre_categoria'] ?? 'sesion') ?>_<?= date('Ymd', strtotime($actividad['fecha'])) ?>.pdf" data-id="<?= (int)$actividad['actividad_id'] ?>">
+            <i class="ph ph-share-network"></i> Compartir
+        </button>
         <a href="<?= e(url('/admin/resultados-pruebas/sesion/' . $actividad['actividad_id'] . '/editar')) ?>" class="btn btn-primary">
             <i class="ph ph-pencil-simple"></i> Editar Sesión
         </a>
@@ -67,6 +73,11 @@
     </div>
 </div>
 <style>
+@media (min-width: 851px) {
+    .prueba-row__inputs {
+        grid-template-columns: repeat(6, 1fr) !important;
+    }
+}
 @media (max-width: 850px) {
     .prueba-row__actions {
         width: 100% !important;
@@ -91,14 +102,15 @@
         <div class="prueba-headers-desktop" style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 10; font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
             <div style="width: 280px; flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
                 <div style="width: 36px;"></div>
-                <div>Atleta / Cédula</div>
+                <div>Atleta / Documento ID</div>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; flex: 1;">
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; flex: 1;">
                 <div>Fuerza (CMJ)</div>
                 <div>Resist. (Yo-Yo)</div>
                 <div>Veloc. (30m)</div>
                 <div>Coord. (Conos)</div>
                 <div>Reacc. (Cognit.)</div>
+                <div style="font-weight: bold; color: var(--color-primary);">Promedio</div>
             </div>
             <div style="width: 140px; text-align: right; flex-shrink: 0; padding-right: 12px;">Acciones</div>
         </div>
@@ -149,10 +161,14 @@
                             <span class="prueba-input-label">Reacc. (Cognit.)</span>
                             <span style="font-weight: 600; font-size: 14px; color: var(--color-text);"><?= $d['test_de_reaccion'] !== null ? e((int)$d['test_de_reaccion']) . ' ms' : '<span class="text-muted">—</span>' ?></span>
                         </div>
+                        <div class="prueba-input-group">
+                            <span class="prueba-input-label" style="font-weight: bold; color: var(--color-primary);">Promedio</span>
+                            <span style="font-weight: 700; font-size: 14px; color: var(--color-primary);"><?= $d['promedio'] !== null ? e(number_format((float)$d['promedio'], 1)) . ' pts' : '<span class="text-muted">—</span>' ?></span>
+                        </div>
                     </div>
 
                     <div class="prueba-row__actions" style="width: 140px; flex-shrink: 0; display: flex; gap: 8px; justify-content: flex-end; align-items: center; padding-right: 12px;">
-                        <a href="<?= e(url('/admin/atletas/' . $d['atleta_id'])) ?>" class="btn btn-sm btn-ghost" title="Ver Perfil Atleta" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <a href="<?= e(url('/admin/atletas/' . $d['atleta_id'])) ?>?tab=tab-pruebas" class="btn btn-sm btn-ghost" title="Ver Perfil Atleta" style="display: inline-flex; align-items: center; gap: 6px;">
                             <i class="ph ph-user"></i> Ver Perfil
                         </a>
                     </div>
@@ -169,5 +185,50 @@ document.addEventListener('DOMContentLoaded', () => {
         rowSelector: '.prueba-row',
         containerId: 'pruebas-pagination'
     });
+
+    // Lógica para compartir por WhatsApp / Web Share
+    const shareBtn = document.getElementById('btn-compartir-whatsapp');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', async function () {
+            const pdfUrl = this.getAttribute('data-url');
+            const filename = this.getAttribute('data-filename');
+            const originalText = this.innerHTML;
+            
+            this.disabled = true;
+            this.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Preparando...';
+            
+            try {
+                // Descargar el PDF en memoria
+                const response = await fetch(pdfUrl);
+                if (!response.ok) throw new Error('No se pudo descargar el reporte PDF.');
+                
+                const blob = await response.blob();
+                const file = new File([blob], filename, { type: 'application/pdf' });
+                
+                // Si la API nativa de compartir es soportada
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Resultados de Pruebas Físicas CADA',
+                        text: 'Reporte de Sesión de Pruebas Físicas'
+                    });
+                } else {
+                    // Fallback a enlace universal de WhatsApp
+                    const shareText = "Hola, te comparto los resultados de las pruebas físicas de CADA: " + encodeURIComponent(window.location.origin + pdfUrl);
+                    const whatsappUrl = "https://api.whatsapp.com/send?text=" + shareText;
+                    window.open(whatsappUrl, '_blank');
+                }
+            } catch (error) {
+                console.error('Error al compartir:', error);
+                // Fallback por enlace si hay algún fallo de red
+                const shareText = "Hola, te comparto los resultados de las pruebas físicas de CADA: " + encodeURIComponent(window.location.origin + pdfUrl);
+                const whatsappUrl = "https://api.whatsapp.com/send?text=" + shareText;
+                window.open(whatsappUrl, '_blank');
+            } finally {
+                this.disabled = false;
+                this.innerHTML = originalText;
+            }
+        });
+    }
 });
 </script>
