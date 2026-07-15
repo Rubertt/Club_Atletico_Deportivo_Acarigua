@@ -83,7 +83,7 @@
             <div class="asig-headers-desktop" style="display: flex; align-items: center; gap: 16px; padding: 12px 24px; background: var(--color-bg-alt); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; z-index: 10; font-size: 13px; font-weight: 600; color: var(--color-text-muted);">
                 <div style="width: 80px; flex-shrink: 0; text-align: center;">Dorsal</div>
                 <div style="width: 44px; flex-shrink: 0; text-align: center;">Foto</div>
-                <div style="width: 280px; flex-shrink: 0; display: flex; align-items: center;">Atleta / Cédula</div>
+                <div style="width: 280px; flex-shrink: 0; display: flex; align-items: center;">Atleta / Documento ID</div>
                 <div style="width: 140px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <label class="switch" title="inactivo" data-tooltip="activo significa convocado, inactivo significa no convocado" data-tooltip-pos="top" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" id="global-convocado-toggle" style="opacity: 0; width: 0; height: 0;">
@@ -124,7 +124,7 @@
                             <?php endif; ?>
                         </div>
 
-                        <!-- Columna 3: Nombre, apellido y cédula -->
+                        <!-- Columna 3: Nombre, apellido y Documento ID -->
                         <div class="col-info" style="width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; justify-content: center;">
                             <span class="asig-input-label">Atleta</span>
                             <div class="asig-atleta-row__name" style="font-size: 14px; font-weight: 600;"><?= e($d['nombre'] . ' ' . $d['apellido']) ?></div>

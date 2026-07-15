@@ -58,7 +58,7 @@
 
                 <div class="af-grid af-grid--2">
                     <div class="form-group">
-                        <label class="form-label" data-tooltip="Cédula de identidad del representante (V/E-Número) o Pasaporte. Requerida para atletas menores de 18 años." data-tooltip-pos="top"><span class="required">*</span> Cédula</label>
+                        <label class="form-label" data-tooltip="Documento de Identidad del representante (V/E-Número) o Pasaporte. Requerida para atletas menores de 18 años." data-tooltip-pos="top"><span class="required">*</span> Documento de Identidad</label>
                         <?php
                             $tcedVal   = $get('tutor_cedula', $a['tutor_cedula'] ?? '');
                             $tcedPref  = 'V';

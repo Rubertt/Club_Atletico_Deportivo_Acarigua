@@ -95,7 +95,7 @@ function validateStep(idx) {
                 }
             } else {
                 if (ced && ced.value && !validarCedula(ced.value)) {
-                    const docName = (cedPref && cedPref.value === 'P') ? 'Pasaporte' : 'Cédula';
+                    const docName = (cedPref && cedPref.value === 'P') ? 'Pasaporte' : 'Documento de Identidad';
                     showError('cedula', 'Formato de ' + docName.toLowerCase() + ' inválido');
                     missingFields.push(docName + ' (Formato)');
                     isValid = false;
@@ -114,7 +114,7 @@ function validateStep(idx) {
             const tced = document.getElementById('tutor_cedula');
             if (tced && tced.value && !validarCedula(tced.value)) {
                 showError('tutor_cedula', 'Formato inválido');
-                missingFields.push('Cédula o Pasaporte del Representante (Formato)');
+                missingFields.push('Documento de Identidad del Representante (Formato)');
                 isValid = false;
             }
             
@@ -403,7 +403,7 @@ if (btnReset) {
 // Inicializar
 updateUI();
 
-// —— Cédula, Pasaporte y Acta de Nacimiento ——————————————————————————————————————————————
+// —— Documento de Identidad, Pasaporte y Acta de Nacimiento ——————————————————————————————————————————————
 const CEDULA_REGEX = /^[VE]-\d{6,8}$/i;
 const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
 const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}$/i;
@@ -582,7 +582,7 @@ function setupCedulaWidget(prefixId, numberId, hiddenId, errorKey) {
     }
 }
 
-// Inicializar widgets de Cédula
+// Inicializar widgets de Documento de Identidad
 setupCedulaWidget('cedula_prefix', 'cedula_number', 'cedula', 'cedula');
 setupCedulaWidget('tutor_cedula_prefix', 'tutor_cedula_number', 'tutor_cedula', 'tutor_cedula');
 
@@ -659,7 +659,7 @@ function setupPhoneWidget(prefixId, numberId, hiddenId, errorKey) {
 setupPhoneWidget('telefono_prefix',     'telefono_number',     'telefono',     'telefono');
 setupPhoneWidget('tutor_telefono_prefix', 'tutor_telefono_number', 'tutor_telefono', 'tutor_telefono');
 
-// --- Lógica Dinámica de Cédula y Representante por Edad ---
+// --- Lógica Dinámica de Documento de Identidad y Representante por Edad ---
 function updateDynamicRequirements() {
     const dobInput = document.querySelector('input[name="fecha_nacimiento"]');
     if (!dobInput || !dobInput.value) return;
@@ -670,7 +670,7 @@ function updateDynamicRequirements() {
     const m = today.getMonth() - dob.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
 
-    // 1. Cédula obligatoria si es mayor de 9 años
+    // 1. Documento de Identidad obligatorio si es mayor de 9 años
     const cedInput = document.getElementById('cedula_number');
     const cedLabel = document.getElementById('label-cedula');
     if (age > 9) {

@@ -106,6 +106,7 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
     $r->get('/asistencias/crear', [AsistenciasController::class, 'crear'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->post('/asistencias/crear', [AsistenciasController::class, 'guardar'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->get('/asistencias/{id}', [AsistenciasController::class, 'show'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
+    $r->get('/asistencias/sesion/{id}/imprimir', [AsistenciasController::class, 'imprimir'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->get('/asistencias/{id}/editar', [AsistenciasController::class, 'edit'], [[RoleMiddleware::class, ['admin', 'super_user']]]);
     $r->post('/asistencias/{id}/editar', [AsistenciasController::class, 'update'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user']]]);
     $r->post('/asistencias/{id}/eliminar', [AsistenciasController::class, 'destroy'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user']]]);
@@ -132,6 +133,7 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
     $r->get('/resultados-pruebas/crear', [ResultadosPruebasController::class, 'crear'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->post('/resultados-pruebas/crear', [ResultadosPruebasController::class, 'guardar'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->get('/resultados-pruebas/sesion/{id}', [ResultadosPruebasController::class, 'show'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
+    $r->get('/resultados-pruebas/sesion/{id}/imprimir', [ResultadosPruebasController::class, 'imprimir'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->get('/resultados-pruebas/sesion/{id}/editar', [ResultadosPruebasController::class, 'edit'], [[RoleMiddleware::class, ['admin', 'super_user', 'entrenador']]]);
     $r->post('/resultados-pruebas/sesion/{id}/editar', [ResultadosPruebasController::class, 'actualizar'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user', 'entrenador']]]);
     $r->post('/resultados-pruebas/sesion/{id}/eliminar', [ResultadosPruebasController::class, 'eliminarSesion'], [CsrfMiddleware::class, [RoleMiddleware::class, ['admin', 'super_user', 'entrenador']]]);
@@ -163,6 +165,8 @@ $router->group('/admin', [AuthMiddleware::class], function ($r) {
     $r->get('/reportes/asistencia/atleta/{id}', [ReportesController::class, 'asistenciaAtleta'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->get('/reportes/asistencia/categoria', [ReportesController::class, 'asistenciaCategoria'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
     $r->get('/reportes/categoria/{id}', [ReportesController::class, 'categoria'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
+    $r->get('/reportes/pruebas/actividades', [ReportesController::class, 'obtenerActividadesPorCategoria'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
+    $r->get('/reportes/pruebas/categoria/{categoria_id}/{actividad_id}', [ReportesController::class, 'pruebasCategoria'], [[RoleMiddleware::class, ['admin', 'entrenador']]]);
 
     // Mi Perfil (todos los usuarios autenticados)
     $r->get('/perfil', [PerfilController::class, 'index']);

@@ -12,7 +12,7 @@
             <tr>
                 <th style="padding-left: 24px; width: 60px;">Atleta</th>
                 <th>Nombre Completo</th>
-                <th>Cédula</th>
+                <th>Documento ID</th>
                 <th>Categoría</th>
                 <th>Última Medición</th>
                 <th style="text-align: right; padding-right: 24px;">Acción</th>

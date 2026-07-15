@@ -9,6 +9,7 @@
         // Referencias globales a gráficos
         let chartAntro = null;
         let chartRadar = null;
+        let chartRadarNacional = null;
         let chartDona = null;
 
         // Resolución de colores CSS para ECharts (no soporta var())
@@ -98,8 +99,9 @@
                 if (targetId === 'tab-antropometria' && chartAntro) {
                     setTimeout(() => chartAntro.resize(), 50);
                 }
-                if (targetId === 'tab-pruebas' && chartRadar) {
-                    setTimeout(() => chartRadar.resize(), 50);
+                if (targetId === 'tab-pruebas') {
+                    if (chartRadar) setTimeout(() => chartRadar.resize(), 50);
+                    if (chartRadarNacional) setTimeout(() => chartRadarNacional.resize(), 50);
                 }
                 if (targetId === 'tab-asistencia' && chartDona) {
                     setTimeout(() => chartDona.resize(), 50);
@@ -1184,6 +1186,100 @@
                 chartRadar.setOption(optionRadar);
             }
 
+            // Gráfica Real Radar de Pruebas Físicas (Nacional)
+            const chartRadarNacionalDOM = document.getElementById('chart-radar-pruebas-nacional');
+            if (chartRadarNacionalDOM && typeof echarts !== 'undefined') {
+                chartRadarNacional = echarts.init(chartRadarNacionalDOM);
+                const historialPruebasRadarNac = JSON.parse(chartRadarNacionalDOM.getAttribute('data-historial') || '[]');
+
+                let radarNacDataSeries = [];
+                const coloresNac = [
+                    { line: '#8B5CF6', fill: 'rgba(139, 92, 246, 0.4)' },
+                    { line: '#EC4899', fill: 'rgba(236, 72, 153, 0.3)' }
+                ];
+
+                if (historialPruebasRadarNac.length > 0) {
+                    const p1 = historialPruebasRadarNac[0];
+                    let d1 = 'Manual';
+                    if (p1.fecha_evento) d1 = new Date(p1.fecha_evento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    radarNacDataSeries.push({
+                        value: [
+                            p1.test_de_fuerza_nac || 0,
+                            p1.test_resistencia_nac || 0,
+                            p1.test_velocidad_nac || 0,
+                            p1.test_coordinacion_nac || 0,
+                            p1.test_de_reaccion_nac || 0
+                        ],
+                        name: 'Última: ' + d1,
+                        itemStyle: { color: coloresNac[0].line },
+                        areaStyle: { color: coloresNac[0].fill },
+                        symbol: 'circle',
+                        symbolSize: 6
+                    });
+
+                    if (historialPruebasRadarNac.length > 1) {
+                        const p2 = historialPruebasRadarNac[1];
+                        let d2 = 'Manual';
+                        if (p2.fecha_evento) d2 = new Date(p2.fecha_evento).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                        radarNacDataSeries.push({
+                            value: [
+                                p2.test_de_fuerza_nac || 0,
+                                p2.test_resistencia_nac || 0,
+                                p2.test_velocidad_nac || 0,
+                                p2.test_coordinacion_nac || 0,
+                                p2.test_de_reaccion_nac || 0
+                            ],
+                            name: 'Anterior: ' + d2,
+                            itemStyle: { color: coloresNac[1].line },
+                            lineStyle: { type: 'dashed' },
+                            areaStyle: { color: coloresNac[1].fill },
+                            symbol: 'circle',
+                            symbolSize: 6
+                        });
+                    }
+                } else {
+                    radarNacDataSeries.push({
+                        value: [0, 0, 0, 0, 0],
+                        name: 'Sin Evaluaciones',
+                        itemStyle: { color: 'var(--color-text-muted)' },
+                        areaStyle: { color: 'rgba(150, 150, 150, 0.1)' }
+                    });
+                }
+
+                const optionRadarNac = {
+                    tooltip: { trigger: 'item' },
+                    legend: { 
+                        data: radarNacDataSeries.map(s => s.name), 
+                        bottom: 0,
+                        textStyle: { fontSize: 11, color: chartTextMuted }
+                    },
+                    radar: {
+                        indicator: [
+                            { name: 'Fuerza', max: 100 },
+                            { name: 'Resistencia', max: 100 },
+                            { name: 'Velocidad', max: 100 },
+                            { name: 'Coordinación', max: 100 },
+                            { name: 'Reacción', max: 100 }
+                        ],
+                        radius: '60%',
+                        axisName: { color: chartTextMuted, fontWeight: 'bold' },
+                        axisLine: { lineStyle: { color: chartBorderColor } },
+                        splitLine: { lineStyle: { color: chartBorderColor } },
+                        splitArea: {
+                            areaStyle: {
+                                color: ['rgba(255, 255, 255, 0.05)', 'rgba(200, 200, 200, 0.05)']
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Rendimiento FUTVE',
+                        type: 'radar',
+                        data: radarNacDataSeries
+                    }]
+                };
+                chartRadarNacional.setOption(optionRadarNac);
+            }
+
             document.getElementById('btn-help-prueba')?.addEventListener('click', () => {
                 FormValidator.showHelp(
                     'Guía: Registrar Prueba Física',
@@ -1418,6 +1514,7 @@
         window.addEventListener('resize', () => {
             if (chartAntro) chartAntro.resize();
             if (chartRadar) chartRadar.resize();
+            if (chartRadarNacional) chartRadarNacional.resize();
             if (chartDona) chartDona.resize();
         });
 
@@ -1551,7 +1648,7 @@
             }
         }
 
-        // —— Validaciones de Cédula y Widgets ————————————————————————————————
+        // —— Validaciones de Documento de Identidad y Widgets ————————————————————————————————
         const CEDULA_REGEX = /^[VE]-\d{6,8}$/i;
         const PASAPORTE_REGEX = /^P-[A-Z0-9]{5,15}$/i;
         const PARTIDA_REGEX = /^N-\d{4}-[A-Z0-9]{1,6}-[A-Z0-9]{1,3}$/i;
@@ -1717,13 +1814,16 @@
         // Inicializar widgets de Datos Generales
         setupCedulaWidget('cedula_prefix', 'cedula_number', 'cedula');
         setupCedulaWidget('tutor_cedula_prefix', 'tutor_cedula_number', 'tutor_cedula');
+        setupCedulaWidget('nuevo_tutor_cedula_prefix', 'nuevo_tutor_cedula_number', 'nuevo_tutor_cedula');
         setupPhoneWidget('telefono_prefix', 'telefono_number', 'telefono');
         setupPhoneWidget('tutor_telefono_prefix', 'tutor_telefono_number', 'tutor_telefono');
+        setupPhoneWidget('nuevo_tutor_telefono_prefix', 'nuevo_tutor_telefono_number', 'nuevo_tutor_telefono');
 
         // —— Lógica de los Modales de Edición (Datos Generales, Representante, Dirección, Foto) ——
         const formsEdit = [
             { id: 'basico', modal: 'modal-editar-basico', form: 'form-editar-basico', error: 'error-basico', tab: 'tab-general' },
             { id: 'representante', modal: 'modal-editar-representante', form: 'form-editar-representante', error: 'error-representante', tab: 'tab-general' },
+            { id: 'nuevo-representante', modal: 'modal-nuevo-representante', form: 'form-nuevo-representante', error: 'error-nuevo-representante', tab: 'tab-general' },
             { id: 'direccion', modal: 'modal-editar-direccion', form: 'form-editar-direccion', error: 'error-direccion', tab: 'tab-general' },
             { id: 'foto', modal: 'modal-editar-foto', form: 'form-editar-foto', error: 'error-foto', tab: 'tab-general' }
         ];
@@ -1754,6 +1854,8 @@
                     customVal = validarBasicoCustom;
                 } else if (item.id === 'representante') {
                     customVal = validarRepresentanteCustom;
+                } else if (item.id === 'nuevo-representante') {
+                    customVal = validarNuevoRepresentanteCustom;
                 }
 
                 // 2. Ejecutar validación de FormValidator
@@ -1902,7 +2004,7 @@
                     }
                 }
             } else if (age > 9) {
-                const docName = (prefixVal === 'P') ? 'Pasaporte' : 'Cédula';
+                const docName = (prefixVal === 'P') ? 'Pasaporte' : 'Documento de Identidad';
                 if (!cedulaVal) {
                     errors.push({
                         element: document.getElementById('phone-wrap-cedula'),
@@ -1956,14 +2058,45 @@
             const tutorTelefonoNum = document.getElementById('tutor_telefono_number').value;
 
             if (!tutorCedulaVal) {
-                errors.push({ element: document.getElementById('phone-wrap-tutor_cedula'), message: 'La Cédula o Pasaporte del Representante es obligatoria' });
+                errors.push({ element: document.getElementById('phone-wrap-tutor_cedula'), message: 'El Documento de Identidad del Representante es obligatorio' });
             } else if (!validarCedula(tutorCedulaVal)) {
-                errors.push({ element: document.getElementById('phone-wrap-tutor_cedula'), message: 'Formato de Cédula o Pasaporte del Representante inválido' });
+                errors.push({ element: document.getElementById('phone-wrap-tutor_cedula'), message: 'Formato de Documento de Identidad del Representante inválido' });
             }
             if (!tutorTelefonoVal) {
                 errors.push({ element: document.getElementById('phone-wrap-tutor_telefono'), message: 'El Teléfono del Representante es obligatorio' });
             } else if (tutorTelefonoNum.length !== 7) {
                 errors.push({ element: document.getElementById('phone-wrap-tutor_telefono'), message: 'El Teléfono del Representante debe tener exactamente 7 dígitos' });
+            }
+
+            return errors;
+        }
+
+        function validarNuevoRepresentanteCustom(form) {
+            const errors = [];
+            
+            // Si no se está creando uno nuevo (se seleccionó existente), no se validan estos campos
+            const crearNuevoRep = document.getElementById('crear_nuevo_representante');
+            if (crearNuevoRep && crearNuevoRep.value === '0') {
+                const selRep = document.getElementById('sel-nuevo-representante');
+                if (selRep && !selRep.value) {
+                    errors.push({ element: selRep, message: 'Debe seleccionar un representante o registrar uno nuevo' });
+                }
+                return errors;
+            }
+
+            const tutorCedulaVal = document.getElementById('nuevo_tutor_cedula').value;
+            const tutorTelefonoVal = document.getElementById('nuevo_tutor_telefono').value;
+            const tutorTelefonoNum = document.getElementById('nuevo_tutor_telefono_number').value;
+
+            if (!tutorCedulaVal) {
+                errors.push({ element: document.getElementById('phone-wrap-nuevo_tutor_cedula'), message: 'El Documento de Identidad del Representante es obligatorio' });
+            } else if (!validarCedula(tutorCedulaVal)) {
+                errors.push({ element: document.getElementById('phone-wrap-nuevo_tutor_cedula'), message: 'Formato de Documento de Identidad del Representante inválido' });
+            }
+            if (!tutorTelefonoVal) {
+                errors.push({ element: document.getElementById('phone-wrap-nuevo_tutor_telefono'), message: 'El Teléfono del Representante es obligatorio' });
+            } else if (tutorTelefonoNum.length !== 7) {
+                errors.push({ element: document.getElementById('phone-wrap-nuevo_tutor_telefono'), message: 'El Teléfono del Representante debe tener exactamente 7 dígitos' });
             }
 
             return errors;
@@ -2123,6 +2256,97 @@
                 '<?= e(asset("img/ayuda/formulario_atleta.png")) ?>'
             );
         });
+
+        // Abrir modal nuevo representante
+        const btnAbrirNuevoRep = document.getElementById('btn-abrir-nuevo-representante');
+        const modalNuevoRep = document.getElementById('modal-nuevo-representante');
+        const errorNuevoRep = document.getElementById('error-nuevo-representante');
+        btnAbrirNuevoRep?.addEventListener('click', () => {
+            if (errorNuevoRep) errorNuevoRep.style.display = 'none';
+            if (modalNuevoRep) modalNuevoRep.style.display = 'flex';
+        });
+
+        // —— Lógica de Nuevo Representante (Elegir Existente o Crear Nuevo) ——
+        const selNuevoRepresentante = document.getElementById('sel-nuevo-representante');
+        if (selNuevoRepresentante) {
+            selNuevoRepresentante.addEventListener('change', function() {
+                const opt = this.options[this.selectedIndex];
+                const isSelected = this.value !== '';
+
+                const tutorNombres = document.getElementById('nuevo_tutor_nombres');
+                const tutorApellidos = document.getElementById('nuevo_tutor_apellidos');
+                const tutorCedulaPref = document.getElementById('nuevo_tutor_cedula_prefix');
+                const tutorCedulaNum = document.getElementById('nuevo_tutor_cedula_number');
+                const tutorCedula = document.getElementById('nuevo_tutor_cedula');
+                const tutorTelPref = document.getElementById('nuevo_tutor_telefono_prefix');
+                const tutorTelNum = document.getElementById('nuevo_tutor_telefono_number');
+                const tutorTel = document.getElementById('nuevo_tutor_telefono');
+                const tutorRelacion = document.getElementById('nuevo_tutor_relacion');
+                const crearNuevoRep = document.getElementById('crear_nuevo_representante');
+
+                const fieldsToToggle = [tutorNombres, tutorApellidos, tutorCedulaPref, tutorCedulaNum, tutorTelPref, tutorTelNum, tutorRelacion];
+
+                if (isSelected) {
+                    // Llenar campos
+                    tutorNombres.value = opt.getAttribute('data-nombre') || '';
+                    tutorApellidos.value = opt.getAttribute('data-apellido') || '';
+                    
+                    tutorCedulaPref.value = opt.getAttribute('data-cedula-prefix') || 'V';
+                    tutorCedulaNum.value = opt.getAttribute('data-cedula-numero') || '';
+                    tutorCedula.value = opt.getAttribute('data-cedula-completa') || '';
+                    
+                    const tel = opt.getAttribute('data-telefono') || '';
+                    let repTelPref = '';
+                    let repTelNum = '';
+                    const prefixes = ['0412','0414','0416','0422','0424','0426','0255','0256'];
+                    for (let i = 0; i < prefixes.length; i++) {
+                        if (tel.startsWith(prefixes[i])) {
+                            repTelPref = prefixes[i];
+                            repTelNum = tel.substring(4);
+                            break;
+                        }
+                    }
+                    tutorTelPref.value = repTelPref || '0412';
+                    tutorTelNum.value = repTelNum;
+                    tutorTel.value = tel;
+
+                    tutorRelacion.value = opt.getAttribute('data-relacion') || '';
+                    
+                    if (crearNuevoRep) {
+                        crearNuevoRep.value = '0'; // Significa usar existente representante_id
+                    }
+
+                    // Deshabilitar campos
+                    fieldsToToggle.forEach(el => {
+                        if (el) {
+                            el.disabled = true;
+                            el.style.backgroundColor = 'var(--color-bg-alt)';
+                            el.style.cursor = 'not-allowed';
+                            el.removeAttribute('required');
+                            FormValidator.clearMark(el);
+                        }
+                    });
+                } else {
+                    // Habilitar campos
+                    fieldsToToggle.forEach(el => {
+                        if (el) {
+                            el.disabled = false;
+                            el.value = '';
+                            el.style.backgroundColor = '';
+                            el.style.cursor = '';
+                            el.setAttribute('required', 'true');
+                            FormValidator.clearMark(el);
+                        }
+                    });
+                    tutorCedula.value = '';
+                    tutorTel.value = '';
+                    
+                    if (crearNuevoRep) {
+                        crearNuevoRep.value = '1'; // Significa crear nuevo
+                    }
+                }
+            });
+        }
 
     });
 </script>

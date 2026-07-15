@@ -289,6 +289,15 @@ if (!function_exists('formatDocumento')) {
                     </div>
                 </button>
 
+                <!-- Pruebas Físicas por Categoría -->
+                <button type="button" class="btn btn-outline" style="justify-content: flex-start; padding: 12px 16px; border-width: 2px; text-align: left; width: 100%;" onclick="openModalCat('pruebas')">
+                    <i class="ph ph-file-pdf" style="color: var(--color-primary); font-size: 24px; margin-right: 8px;"></i> 
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px;">Pruebas Físicas por Categoría</div>
+                        <div style="font-size: 11px; opacity: 0.7;">Reporte de pruebas físicas consolidadas</div>
+                    </div>
+                </button>
+
                 <?php if (can('admin')): ?>
                 <!-- Listado de Usuarios (Solo Admin) -->
                 <a href="<?= e(url('/admin/reportes/usuarios/listado')) ?>" class="btn btn-outline" style="justify-content: flex-start; padding: 12px 16px; border-width: 2px; text-align: left; width: 100%; text-decoration: none;" target="_blank">
@@ -320,6 +329,13 @@ if (!function_exists('formatDocumento')) {
                         <?php foreach (($categorias ?? []) as $c): ?>
                             <option value="<?= (int) $c['categoria_id'] ?>"><?= e($c['nombre_categoria']) ?></option>
                         <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="activity-select-group" style="display: none; margin-top: 16px;">
+                    <label class="form-label"><span class="required">*</span> Sesión de Pruebas Físicas</label>
+                    <select name="actividad_id" id="activity-select" class="form-control">
+                        <option value="">— Seleccione una Categoría primero —</option>
                     </select>
                 </div>
                 
@@ -619,20 +635,34 @@ function openModalCat(type) {
     const modal = document.getElementById('modal-reporte-cat');
     const title = document.getElementById('modal-title-cat');
     const dateRange = document.getElementById('date-range-fields');
+    const activityGroup = document.getElementById('activity-select-group');
+    const activitySelect = document.getElementById('activity-select');
+    const form = document.getElementById('form-reporte-cat');
 
     // Limpiar campos y marcas
     const catSelect = document.getElementById('cat-select');
     catSelect.value = '';
+    activitySelect.value = '';
+    activitySelect.innerHTML = '<option value="">— Seleccione una Categoría primero —</option>';
     FormValidator.clearMark(catSelect);
+    FormValidator.clearMark(activitySelect);
     FormValidator.clearMark(document.getElementById('r-desde'));
     FormValidator.clearMark(document.getElementById('r-hasta'));
+
+    form.setAttribute('data-report-type', type);
 
     if (type === 'atletas') {
         title.innerHTML = '<i class="ph ph-users-three"></i> Fichas por Categoría';
         dateRange.style.display = 'none';
+        activityGroup.style.display = 'none';
     } else if (type === 'asistencia') {
         title.innerHTML = '<i class="ph ph-calendar-check"></i> Asistencia por Categoría';
         dateRange.style.display = 'flex';
+        activityGroup.style.display = 'none';
+    } else if (type === 'pruebas') {
+        title.innerHTML = '<i class="ph ph-chart-line-up"></i> Pruebas Físicas por Categoría';
+        dateRange.style.display = 'none';
+        activityGroup.style.display = 'block';
     }
 
     modal.style.display = 'flex';
@@ -669,8 +699,22 @@ document.getElementById('form-reporte-cat').addEventListener('submit', function(
     }
 
     // Configurar acción del formulario dinámicamente según la categoría seleccionada
-    if (dateRange.style.display === 'none') {
+    const reportType = this.getAttribute('data-report-type');
+    if (reportType === 'atletas') {
         this.action = '<?= e(url('/admin/reportes/categoria/')) ?>' + catSelect.value;
+    } else if (reportType === 'pruebas') {
+        const activitySelect = document.getElementById('activity-select');
+        if (!activitySelect.value) {
+            e.preventDefault();
+            FormValidator.markError(activitySelect);
+            CadaModal.alert({
+                title: 'Campo Requerido',
+                text: 'Por favor, seleccione una sesión de pruebas físicas.',
+                type: 'warning'
+            });
+            return;
+        }
+        this.action = '<?= e(url('/admin/reportes/pruebas/categoria/')) ?>' + catSelect.value + '/' + activitySelect.value;
     } else {
         this.action = '<?= e(url('/admin/reportes/asistencia/categoria')) ?>';
     }
@@ -725,8 +769,58 @@ document.getElementById('form-reporte-cat').addEventListener('submit', function(
     }
 });
 
-// Limpiar marcas de error en el modal de categorías
-document.getElementById('cat-select').addEventListener('change', function() {
+// Limpiar marcas de error en el modal de categorías y cargar actividades si es necesario
+document.getElementById('cat-select').addEventListener('change', async function() {
+    FormValidator.clearMark(this);
+    
+    const form = document.getElementById('form-reporte-cat');
+    const reportType = form.getAttribute('data-report-type');
+    const activitySelect = document.getElementById('activity-select');
+    
+    if (reportType !== 'pruebas') {
+        return;
+    }
+    
+    if (!this.value) {
+        activitySelect.value = '';
+        activitySelect.innerHTML = '<option value="">— Seleccione una Categoría primero —</option>';
+        return;
+    }
+    
+    activitySelect.innerHTML = '<option value="">Cargando actividades...</option>';
+    
+    try {
+        const response = await fetch('<?= url("/admin/reportes/pruebas/actividades") ?>?categoria_id=' + this.value);
+        if (!response.ok) throw new Error('Error al cargar actividades');
+        const data = await response.json();
+        
+        activitySelect.innerHTML = '<option value="">— Seleccione —</option>';
+        if (data.length === 0) {
+            activitySelect.innerHTML = '<option value="">No hay sesiones registradas</option>';
+        } else {
+            data.forEach(act => {
+                const opt = document.createElement('option');
+                opt.value = act.actividad_id;
+                
+                // Formatear fecha
+                let dateStr = act.fecha;
+                if (act.fecha) {
+                    const parts = act.fecha.split('-');
+                    if (parts.length === 3) {
+                        dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    }
+                }
+                opt.textContent = `${dateStr} - ${act.nombre_categoria || 'Pruebas Físicas'} (${act.total} atletas)`;
+                activitySelect.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        activitySelect.innerHTML = '<option value="">Error al cargar actividades</option>';
+    }
+});
+
+document.getElementById('activity-select')?.addEventListener('change', function() {
     FormValidator.clearMark(this);
 });
 document.getElementById('r-desde').addEventListener('input', function() {

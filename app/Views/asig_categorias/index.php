@@ -79,7 +79,7 @@
                         <?php endif; ?>
                     </div>
                     <div class="asig-atleta-row__meta">
-                        <?= !empty($a['cedula']) ? e($a['cedula']) : 'Sin Cédula' ?>
+                        <?= !empty($a['cedula']) ? e($a['cedula']) : 'Sin Documento de Identidad' ?>
                     </div>
                 </div>
             </div>

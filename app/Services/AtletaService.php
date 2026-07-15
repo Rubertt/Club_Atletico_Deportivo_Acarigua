@@ -101,7 +101,11 @@ final class AtletaService
                     $this->eliminarRepresentanteSiHuerfano($oldRepresentanteId);
                 }
             } else {
-                $representanteId = $this->guardarRepresentante($data, $oldRepresentanteId ?: 0);
+                $useOldId = !empty($data['crear_nuevo_representante']) ? 0 : ($oldRepresentanteId ?: 0);
+                $representanteId = $this->guardarRepresentante($data, $useOldId);
+                if ($oldRepresentanteId !== null && $representanteId !== $oldRepresentanteId) {
+                    $this->eliminarRepresentanteSiHuerfano($oldRepresentanteId);
+                }
             }
 
             $update = [
@@ -153,7 +157,7 @@ final class AtletaService
         
         $nuevaCedula = !empty($data['tutor_cedula']) ? $data['tutor_cedula'] : 'S/N';
 
-        // 1. Buscar si ya existe un representante con esta nueva cédula (independiente de si es registro o edición)
+        // 1. Buscar si ya existe un representante con este nuevo Documento ID (independiente de si es registro o edición)
         $existente = ($nuevaCedula !== 'S/N') ? $representanteModel->findByCedula($nuevaCedula) : null;
 
         if ($existente) {
@@ -168,7 +172,7 @@ final class AtletaService
             $nuevoId = (int) $existente['representante_id'];
 
             // Si es una edición y el atleta tenía un representante previo asignado que ahora es diferente
-            // al que encontramos por cédula, comprobamos si el anterior quedó huérfano para eliminarlo.
+            // al que encontramos por Documento ID, comprobamos si el anterior quedó huérfano para eliminarlo.
             if ($representanteIdExistente > 0 && $representanteIdExistente !== $nuevoId) {
                 $this->eliminarRepresentanteSiHuerfano($representanteIdExistente);
             }
@@ -176,7 +180,7 @@ final class AtletaService
             return $nuevoId;
         }
 
-        // 2. Si no existe ningún representante con esa cédula en la BD:
+        // 2. Si no existe ningún representante con ese Documento ID en la BD:
         // Si tenemos un ID existente de representante asignado a este atleta, simplemente actualizamos ese registro.
         if ($representanteIdExistente > 0) {
             $previo = $representanteModel->find($representanteIdExistente);

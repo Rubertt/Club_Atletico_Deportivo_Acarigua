@@ -537,4 +537,236 @@ HTML;
         file_put_contents($tmpPath, $svg);
         return '<div style="text-align: center; margin-top: 15px;"><img src="' . $tmpPath . '" width="' . $w . '" height="' . $h . '" /></div>';
     }
+
+    /**
+     * Genera el reporte de una sesión de asistencia en PDF/HTML.
+     */
+    public function reporteSesion(int $actividadId): ?array
+    {
+        $db = Database::connection();
+
+        // 1. Obtener detalles de la actividad (asistencia)
+        $stmtAct = $db->prepare("
+            SELECT a.*, CONCAT(u.nombre, ' ', u.apellido) AS entrenador,
+                   (SELECT c.nombre_categoria FROM asig_categorias ac JOIN categorias c ON ac.categoria_id = c.categoria_id WHERE ac.asignacion_id = a.asignacion_id LIMIT 1) AS nombre_categoria
+            FROM actividades a
+            LEFT JOIN usuarios u ON a.usuario_id = u.usuario_id
+            WHERE a.actividad_id = ?
+        ");
+        $stmtAct->execute([$actividadId]);
+        $actividad = $stmtAct->fetch();
+
+        if (!$actividad) {
+            return null;
+        }
+
+        // 2. Obtener lista de atletas con sus asistencias en esta sesión
+        $stmtResultados = $db->prepare("
+            SELECT ast.*, atl.nombre, atl.apellido, atl.cedula
+            FROM asistencias ast
+            JOIN atletas atl ON ast.atleta_id = atl.atleta_id
+            WHERE ast.actividad_id = ?
+            ORDER BY atl.apellido, atl.nombre
+        ");
+        $stmtResultados->execute([$actividadId]);
+        $detalles = $stmtResultados->fetchAll();
+
+        $esc = fn($v) => htmlspecialchars((string) ($v ?? '—'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $terrenoMap = [
+            1 => 'Grama Natural',
+            2 => 'Grama Sintética',
+            3 => 'Grama Alta',
+            4 => 'Tierra',
+            5 => 'Húmedo',
+            6 => 'Alt'
+        ];
+        $climaMap = [
+            0 => 'Soleado',
+            1 => 'Nublado',
+            2 => 'Lluvioso',
+            3 => 'Viento',
+            4 => 'Tormenta'
+        ];
+
+        // Estadísticas de la sesión
+        $total = count($detalles);
+        $presentes = 0;
+        $ausentes = 0;
+        $justificados = 0;
+
+        // Construir filas
+        $rows = '';
+        foreach ($detalles as $d) {
+            $est = (int)$d['estatus'];
+            if ($est === 1) {
+                $presentes++;
+                $estTexto = 'Presente';
+                $estColor = '#2ea44f';
+            } elseif ($est === 2) {
+                $justificados++;
+                $estTexto = 'Justificado';
+                $estColor = '#dbab09';
+            } else {
+                $ausentes++;
+                $estTexto = 'Ausente';
+                $estColor = '#cf222e';
+            }
+
+            $rows .= sprintf(
+                '<tr>
+                    <td width="35%%" style="text-align: left; vertical-align: middle; font-weight: bold; font-size: 10px;">%s</td>
+                    <td width="20%%" style="text-align: center; vertical-align: middle;">%s</td>
+                    <td width="20%%" style="text-align: center; vertical-align: middle; font-weight: bold; color: %s;">%s</td>
+                    <td width="25%%" style="text-align: left; vertical-align: middle; font-size: 9px;">%s</td>
+                </tr>',
+                $esc($d['nombre'] . ' ' . $d['apellido']),
+                $esc($d['cedula']),
+                $estColor,
+                $esc($estTexto),
+                $esc($d['observaciones'] ?? '—')
+            );
+        }
+
+        $porcentaje = $total > 0 ? round(($presentes / $total) * 100, 1) : 0;
+
+        // Bloque de información en 2 columnas
+        $tipoLabel = match ((int)($actividad['tipo_actividad'] ?? 1)) {
+            0 => 'Partido',
+            1 => 'Entrenamiento',
+            2 => 'Prueba Física',
+            3 => 'Evento Especial',
+            default => 'General'
+        };
+
+        $infoItems = [
+            ['label' => 'Categoría Deportiva:', 'val' => $actividad['nombre_categoria'] ?? 'Sin Categoría'],
+            ['label' => 'Fecha de Evaluación:', 'val' => date('d/m/Y', strtotime($actividad['fecha']))],
+            ['label' => 'Evaluador / Entrenador:', 'val' => $actividad['entrenador'] ?? 'No definido'],
+            ['label' => 'Tipo de Actividad:', 'val' => $tipoLabel]
+        ];
+
+        if (!empty($actividad['hora_inicio']) && !empty($actividad['hora_fin'])) {
+            $horario = date('h:i A', strtotime($actividad['hora_inicio'])) . ' - ' . date('h:i A', strtotime($actividad['hora_fin']));
+            $infoItems[] = ['label' => 'Horario:', 'val' => $horario];
+        }
+        if (!empty($actividad['ubicacion'])) {
+            $infoItems[] = ['label' => 'Ubicación:', 'val' => $actividad['ubicacion']];
+        }
+        if (isset($actividad['terreno']) && isset($terrenoMap[(int)$actividad['terreno']])) {
+            $infoItems[] = ['label' => 'Terreno de Juego:', 'val' => $terrenoMap[(int)$actividad['terreno']]];
+        }
+        if (isset($actividad['clima']) && isset($climaMap[(int)$actividad['clima']])) {
+            $infoItems[] = ['label' => 'Clima:', 'val' => $climaMap[(int)$actividad['clima']]];
+        }
+
+        $infoHtml = '<table class="info-grid" cellpadding="4">';
+        $count = count($infoItems);
+        for ($i = 0; $i < $count; $i += 2) {
+            $infoHtml .= '<tr>';
+            $infoHtml .= '<td class="info-label" width="22%">' . $esc($infoItems[$i]['label']) . '</td>';
+            $infoHtml .= '<td class="info-value" width="28%">' . $esc($infoItems[$i]['val']) . '</td>';
+            
+            if (isset($infoItems[$i + 1])) {
+                $infoHtml .= '<td class="info-label" width="22%">' . $esc($infoItems[$i + 1]['label']) . '</td>';
+                $infoHtml .= '<td class="info-value" width="28%">' . $esc($infoItems[$i + 1]['val']) . '</td>';
+            } else {
+                $infoHtml .= '<td class="info-label" width="22%"></td><td class="info-value" width="28%"></td>';
+            }
+            $infoHtml .= '</tr>';
+        }
+        $infoHtml .= '</table>';
+
+        $html = <<<HTML
+<style>
+    body { font-family: helvetica, sans-serif; color: #333; line-height: 1.5; }
+    .section { margin-bottom: 25px; }
+    .section-header { 
+        background-color: #f8f9fa; 
+        border-bottom: 2px solid #800020; 
+        padding: 8px 10px; 
+        margin-bottom: 12px; 
+        font-size: 13px; 
+        font-weight: bold; 
+        color: #800020; 
+        text-transform: uppercase; 
+    }
+    table.info-grid { width: 100%; margin-bottom: 10px; }
+    table.info-grid td { padding: 5px 6px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; line-height: 1.4; }
+    .info-label { font-weight: bold; color: #800020; font-size: 10.5px; }
+    .info-value { color: #333; font-size: 10.5px; }
+    table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table.data-table th { background-color: #800020; color: #ffffff; font-size: 10px; font-weight: bold; padding: 9px 5px; text-align: center; border: 1px solid #800020; }
+    table.data-table td { font-size: 10px; padding: 6px 5px; text-align: center; border: 1px solid #e9ecef; }
+    table.data-table tr:nth-child(even) { background-color: #fcfcfc; }
+    .stat-box { text-align: center; border: 1px solid #e0e0e0; background-color: #fcfcfc; padding: 8px 4px; }
+    .stat-number { font-size: 18px; font-weight: bold; display: block; margin-top: 4px; }
+    .stat-label { font-size: 9px; color: #555; text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 2px; }
+    .stat-pct { font-size: 9px; color: #777; display: block; margin-top: 2px; }
+</style>
+
+<div class="section">
+    <h2 style="margin:0; color:#1a1a1a; font-size: 18px; text-align: center;">Reporte de Detalle de Asistencia</h2>
+    <p style="margin:4px 0 16px 0; font-size: 10px; color: #666; text-align: center;">Sistema de Gestión Club Atlético Deportivo Acarigua (CADA)</p>
+    
+    <div class="section-header">Información General de la Sesión</div>
+    {$infoHtml}
+    
+    <br>
+    <div class="section-header">Resumen Estadístico</div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border: none; margin-bottom: 10px;">
+        <tr>
+            <td width="20%" class="stat-box" style="border-right: 1px solid #e0e0e0;">
+                <span class="stat-label">Total Atletas</span>
+                <span class="stat-number" style="color: #333;">{$total}</span>
+            </td>
+            <td width="20%" class="stat-box" style="border-right: 1px solid #e0e0e0;">
+                <span class="stat-label">Presentes</span>
+                <span class="stat-number" style="color: #2ea44f;">{$presentes}</span>
+            </td>
+            <td width="20%" class="stat-box" style="border-right: 1px solid #e0e0e0;">
+                <span class="stat-label">Ausentes</span>
+                <span class="stat-number" style="color: #cf222e;">{$ausentes}</span>
+            </td>
+            <td width="20%" class="stat-box" style="border-right: 1px solid #e0e0e0;">
+                <span class="stat-label">Justificados</span>
+                <span class="stat-number" style="color: #dbab09;">{$justificados}</span>
+            </td>
+            <td width="20%" class="stat-box">
+                <span class="stat-label">% Asistencia</span>
+                <span class="stat-number" style="color: #800020;">{$porcentaje}%</span>
+            </td>
+        </tr>
+    </table>
+
+    <br>
+    <div class="section-header">Listado de Asistencia</div>
+    <table class="data-table" cellpadding="4">
+        <thead>
+            <tr>
+                <th width="35%" style="text-align: left;">Atleta</th>
+                <th width="20%">Documento ID</th>
+                <th width="20%">Estado</th>
+                <th width="25%" style="text-align: left;">Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {$rows}
+        </tbody>
+    </table>
+</div>
+HTML;
+
+        $filename = 'asistencia_sesion_' . preg_replace('/[^a-z0-9]+/i', '_', $actividad['nombre_categoria'] ?? 'sesion') . '_' . date('Ymd', strtotime($actividad['fecha']));
+
+        if (class_exists(PdfGenerator::class)) {
+            return (new PdfGenerator())->render(
+                'Reporte Asistencia - ' . ($actividad['nombre_categoria'] ?? 'Sesion'),
+                $html,
+                strtolower($filename)
+            );
+        }
+
+        return ['mime' => 'text/html', 'filename' => $filename . '.html', 'content' => $html];
+    }
 }

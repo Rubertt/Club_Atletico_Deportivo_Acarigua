@@ -1445,7 +1445,7 @@ html.dark .admin-content {
     }
 }
 
-/* —— Corrección de Prefijo Telefónico y Cédula —— */
+/* —— Corrección de Prefijo Telefónico y Documento de Identidad —— */
 .phone-field {
     overflow: visible !important;
     border-radius: var(--radius-sm);

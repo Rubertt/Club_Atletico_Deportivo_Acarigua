@@ -20,7 +20,7 @@
 
                 <div class="af-grid af-grid--3">
                     <div class="form-group">
-                        <label class="form-label" id="label-cedula" data-tooltip="Cédula (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Obligatorio si tiene más de 9 años." data-tooltip-pos="top">Documento de Identidad</label>
+                        <label class="form-label" id="label-cedula" data-tooltip="Documento de Identidad (V/E-Número), Acta de nacimiento (menores: N-Año-Acta) o Pasaporte. Obligatorio si tiene más de 9 años." data-tooltip-pos="top">Documento de Identidad</label>
                         <?php
                             $cedVal   = $get('cedula', '');
                             $cedPref  = 'V';
@@ -47,7 +47,7 @@
                                 <option value="N" <?= $cedPref==='N'?'selected':'' ?>>N</option>
                             </select>
                             <span class="phone-sep">-</span>
-                            <!-- Input para Cédula o Pasaporte -->
+                            <!-- Input para Documento ID -->
                             <input type="text" class="phone-number" id="cedula_number"
                                    maxlength="13" placeholder="12345678"
                                    autocomplete="off"

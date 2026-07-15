@@ -97,7 +97,7 @@ const FormValidator = (() => {
             }
         });
 
-        // 2. Validaciones custom (cédula, teléfono, edades, etc.)
+        // 2. Validaciones custom (Documento de Identidad, teléfono, edades, etc.)
         if (typeof customValidator === 'function') {
             const customErrors = customValidator(container);
             if (Array.isArray(customErrors)) {

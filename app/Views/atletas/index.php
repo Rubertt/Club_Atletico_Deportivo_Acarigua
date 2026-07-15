@@ -38,7 +38,7 @@
 <form method="GET" class="table-filters card" style="display: flex; gap: 16px; align-items: flex-end; padding: 16px; margin-bottom: 24px; flex-wrap: wrap;">
     <div class="form-group" style="flex: 1; min-width: 250px; margin-bottom: 0;">
         <label class="form-label" for="q"><i class="ph ph-magnifying-glass"></i> Buscar Atleta</label>
-        <input type="search" id="q" name="q" class="form-control" placeholder="Nombre, apellido o cédula..." value="<?= e($filters['q'] ?? '') ?>">
+        <input type="search" id="q" name="q" class="form-control" placeholder="Nombre, apellido o Documento ID..." value="<?= e($filters['q'] ?? '') ?>">
     </div>
 
     <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
@@ -108,7 +108,7 @@
                             <?= e($a['nombre'] . ' ' . $a['apellido']) ?>
                         </div>
                         <div class="asig-atleta-row__meta">
-                            <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Cédula' ?>
+                            <?= !empty($a['cedula_formateada']) ? e($a['cedula_formateada']) : 'Sin Documento ID' ?>
                         </div>
                     </div>
                 </div>

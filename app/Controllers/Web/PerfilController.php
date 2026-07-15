@@ -89,7 +89,7 @@ final class PerfilController extends Controller
         $cedNum = preg_replace('/[^0-9]/', '', (string)$user['cedula']);
 
         if ($cedNum !== '' && $pwdNum === $cedNum) {
-            $this->withErrors(['password' => 'La nueva contraseña no puede ser tu número de cédula (incluso si le agregas letras o puntos). Usa una contraseña distinta.']);
+            $this->withErrors(['password' => 'La nueva contraseña no puede ser tu número de documento de identidad (incluso si le agregas letras o puntos). Usa una contraseña distinta.']);
             return $this->redirect('/admin/setup');
         }
 
@@ -286,12 +286,12 @@ final class PerfilController extends Controller
                 return $this->redirect('/admin/perfil?tab=seguridad');
             }
 
-            // Validar que no sea igual a la cédula
+            // Validar que no sea igual al número de documento de identidad
             $pwdNum = preg_replace('/[^0-9]/', '', $newPassword);
             $cedNum = preg_replace('/[^0-9]/', '', (string)$user['cedula']);
 
             if ($cedNum !== '' && $pwdNum === $cedNum) {
-                $this->withErrors(['new_password' => 'La nueva contraseña no puede ser tu número de cédula.']);
+                $this->withErrors(['new_password' => 'La nueva contraseña no puede ser tu número de documento de identidad.']);
                 return $this->redirect('/admin/perfil?tab=seguridad');
             }
             $usuarioModel->update($userId, [

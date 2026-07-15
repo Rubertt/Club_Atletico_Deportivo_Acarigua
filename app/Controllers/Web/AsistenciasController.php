@@ -371,4 +371,20 @@ final class AsistenciasController extends Controller
 
         return $this->redirect('/admin/asistencias');
     }
+
+    public function imprimir(Request $request): Response
+    {
+        $id = (int) $request->param('id');
+        $reporte = (new \App\Services\ReporteAsistenciaService())->reporteSesion($id);
+        if (!$reporte) {
+            return Response::html('<h1>Sesión de asistencia no encontrada</h1>', 404);
+        }
+        if (str_starts_with($reporte['mime'], 'application/pdf')) {
+            if ($request->query('action') === 'download') {
+                return Response::download($reporte['content'], $reporte['filename'], $reporte['mime']);
+            }
+            return Response::inline($reporte['content'], $reporte['filename'], $reporte['mime']);
+        }
+        return Response::html($reporte['content']);
+    }
 }

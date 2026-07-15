@@ -71,8 +71,8 @@ try {
     $pdo->exec($schema);
     $ok("Base de datos `$dbName` importada correctamente.");
 
-    // Crear triggers de unicidad global de cédulas
-    $step("Creando disparadores (triggers) de unicidad global para documentos de identidad...");
+    // Crear triggers de unicidad global de Documento ID
+    $step("Creando disparadores (triggers) de unicidad global para Documentos de Identidad...");
     $triggersSql = "
         DROP TRIGGER IF EXISTS antes_insertar_atleta;
         CREATE TRIGGER antes_insertar_atleta BEFORE INSERT ON atletas FOR EACH ROW
